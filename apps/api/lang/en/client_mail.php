@@ -68,4 +68,7 @@ return [
     ],
     'unknown_variable' => 'Unknown variable :name. The ones this e-mail knows: :known.',
     'relay_failed' => 'The mail relay refused the e-mail: :reason',
+    'validate_before_sending' => 'Validate the document first: a draft has nothing to send.',
+    'no_document' => 'No PDF to attach: file the document first.',
+    'written_elsewhere' => 'This document was issued in another tool, which sent it: Opusline only e-mails what it wrote.',
 ];

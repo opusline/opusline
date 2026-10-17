@@ -171,4 +171,8 @@ return [
     'body' => 'body',
     'enabled' => 'enabled',
     'frequency' => 'frequency',
+    'recipients' => 'recipients',
+    'copyToSender' => 'copy to me',
+    'remindersEnabled' => 'automatic reminders',
+    'remindersFrequency' => 'reminder frequency',
 ];

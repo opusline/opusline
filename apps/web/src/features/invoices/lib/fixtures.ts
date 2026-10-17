@@ -98,6 +98,7 @@ export function invoiceDetail(
     document,
     content: null,
     quote: null,
+    emails: [],
     history: [
       { id: 1, kind: 0, occurredOn: "2026-06-30", note: null },
       { id: 2, kind: 1, occurredOn: "2026-06-30", note: null },

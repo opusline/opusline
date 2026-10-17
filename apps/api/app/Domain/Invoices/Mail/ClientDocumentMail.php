@@ -26,7 +26,10 @@ class ClientDocumentMail extends Mailable
     use SerializesModels;
 
     /**
-     * @param  list<Attachment>  $documents  The PDFs that ride along; the test send carries none.
+     * @param  list<array{disk: string, path: string, name: string}>  $documents  The PDFs that ride along, named
+     *                                                                            by where they are filed so the
+     *                                                                            queued job can find them; the
+     *                                                                            test send carries none.
      */
     public function __construct(
         public readonly User $sender,
@@ -62,7 +65,12 @@ class ClientDocumentMail extends Mailable
      */
     public function attachments(): array
     {
-        return $this->documents;
+        return array_map(
+            static fn (array $document): Attachment => Attachment::fromStorageDisk($document['disk'], $document['path'])
+                ->as($document['name'])
+                ->withMime('application/pdf'),
+            $this->documents,
+        );
     }
 
     /**

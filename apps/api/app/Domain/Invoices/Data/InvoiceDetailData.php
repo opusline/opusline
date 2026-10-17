@@ -29,6 +29,8 @@ class InvoiceDetailData extends Data
         public ?InvoiceContentData $content,
         /** The quote it was built from, when it was. */
         public ?InvoiceQuoteLinkData $quote,
+        /** @var list<DocumentEmailData> The e-mails it was sent in, oldest first. */
+        public array $emails,
     ) {}
 
     public static function fromModel(Invoice $invoice): self
@@ -43,6 +45,7 @@ class InvoiceDetailData extends Data
             document: $document instanceof Media ? DocumentData::fromMedia($document) : null,
             content: $invoice->isWrittenInOpusline() ? InvoiceContentData::fromInvoice($invoice) : null,
             quote: InvoiceQuoteLinkData::fromInvoice($invoice),
+            emails: array_values($invoice->emails->map(DocumentEmailData::fromModel(...))->all()),
         );
     }
 }

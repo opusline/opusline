@@ -68,4 +68,7 @@ return [
     ],
     'unknown_variable' => 'Variable inconnue :name. Celles que cet e-mail connaît : :known.',
     'relay_failed' => 'Le relais de messagerie a refusé l\'e-mail : :reason',
+    'validate_before_sending' => 'Validez d\'abord le document : un brouillon n\'a rien à envoyer.',
+    'no_document' => 'Aucun PDF à joindre : classez d\'abord le document.',
+    'written_elsewhere' => 'Ce document a été émis dans un autre outil, qui l\'a envoyé : Opusline n\'envoie que ce qu\'il a rédigé.',
 ];

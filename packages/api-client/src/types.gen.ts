@@ -943,6 +943,18 @@ export type DocumentData = {
 };
 
 /**
+ * DocumentEmailData
+ */
+export type DocumentEmailData = {
+    id: number;
+    kind: EmailTemplateKind;
+    recipients: Array<string>;
+    copyToSender: boolean;
+    subject: string;
+    sentAt: string;
+};
+
+/**
  * DocumentGroupData
  */
 export type DocumentGroupData = {
@@ -1518,6 +1530,9 @@ export type InvoiceData = {
     ttcOverridden: boolean;
     vatRateBp: number;
     notes: string | null;
+    remindersEnabled: boolean;
+    remindersFrequency: ReminderFrequency;
+    reminderRecipients: Array<string>;
 };
 
 /**
@@ -1531,6 +1546,7 @@ export type InvoiceDetailData = {
     document: DocumentData | null;
     content: InvoiceContentData | null;
     quote: InvoiceQuoteLinkData | null;
+    emails: Array<string>;
 };
 
 /**
@@ -1545,8 +1561,17 @@ export type InvoiceEventData = {
 
 /**
  * InvoiceEventKind
+ *
+ * | |
+ * |---|
+ * | `0` <br/>  |
+ * | `1` <br/>  |
+ * | `2` <br/>  |
+ * | `3` <br/>  |
+ * | `4` <br/>  |
+ * | `5` <br/> E-mailed to the client from Opusline; the note names the recipients. |
  */
-export type InvoiceEventKind = 0 | 1 | 2 | 3 | 4;
+export type InvoiceEventKind = 0 | 1 | 2 | 3 | 4 | 5;
 
 /**
  * InvoiceForecastBucket
@@ -2173,6 +2198,7 @@ export type QuoteDetailData = {
     content: QuoteContentData;
     document: DocumentData | null;
     billing: QuoteBillingData;
+    emails: Array<string>;
 };
 
 /**
@@ -2554,10 +2580,32 @@ export type SendCraData = {
 };
 
 /**
+ * SendDocumentEmailData
+ */
+export type SendDocumentEmailData = {
+    recipients: Array<string>;
+    copyToSender?: boolean;
+    subject?: string | null;
+    body?: string | null;
+};
+
+/**
  * SendInvoiceData
  */
 export type SendInvoiceData = {
     sentOn?: string | null;
+};
+
+/**
+ * SendInvoiceEmailData
+ */
+export type SendInvoiceEmailData = {
+    recipients: Array<string>;
+    copyToSender?: boolean;
+    subject?: string | null;
+    body?: string | null;
+    remindersEnabled?: boolean | null;
+    remindersFrequency?: ReminderFrequency | null;
 };
 
 /**
@@ -7693,6 +7741,141 @@ export type IssueInvoiceResponses = {
 
 export type IssueInvoiceResponse = IssueInvoiceResponses[keyof IssueInvoiceResponses];
 
+export type PreviewInvoiceEmailData = {
+    body?: PreviewEmailTemplateData;
+    path: {
+        /**
+         * The invoice ID
+         */
+        invoice: number;
+    };
+    query?: never;
+    url: '/invoicing/invoices/{invoice}/email/preview';
+};
+
+export type PreviewInvoiceEmailErrors = {
+    /**
+     * Unauthenticated
+     */
+    401: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+    /**
+     * Not found
+     */
+    404: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+};
+
+export type PreviewInvoiceEmailError = PreviewInvoiceEmailErrors[keyof PreviewInvoiceEmailErrors];
+
+export type PreviewInvoiceEmailResponses = {
+    200: EmailPreviewData;
+};
+
+export type PreviewInvoiceEmailResponse = PreviewInvoiceEmailResponses[keyof PreviewInvoiceEmailResponses];
+
+export type SendInvoiceEmailData2 = {
+    body: SendInvoiceEmailData;
+    path: {
+        /**
+         * The invoice ID
+         */
+        invoice: number;
+    };
+    query?: never;
+    url: '/invoicing/invoices/{invoice}/email';
+};
+
+export type SendInvoiceEmailErrors = {
+    /**
+     * Unauthenticated
+     */
+    401: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+    /**
+     * Not found
+     */
+    404: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+    /**
+     * An error
+     */
+    409: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+};
+
+export type SendInvoiceEmailError = SendInvoiceEmailErrors[keyof SendInvoiceEmailErrors];
+
+export type SendInvoiceEmailResponses = {
+    201: DocumentEmailData;
+};
+
+export type SendInvoiceEmailResponse = SendInvoiceEmailResponses[keyof SendInvoiceEmailResponses];
+
+export type TestInvoiceEmailData = {
+    body?: PreviewEmailTemplateData;
+    path: {
+        /**
+         * The invoice ID
+         */
+        invoice: number;
+    };
+    query?: never;
+    url: '/invoicing/invoices/{invoice}/email/test';
+};
+
+export type TestInvoiceEmailErrors = {
+    /**
+     * Unauthenticated
+     */
+    401: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+    /**
+     * Not found
+     */
+    404: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+};
+
+export type TestInvoiceEmailError = TestInvoiceEmailErrors[keyof TestInvoiceEmailErrors];
+
+export type TestInvoiceEmailResponses = {
+    /**
+     * No content
+     */
+    204: void;
+};
+
+export type TestInvoiceEmailResponse = TestInvoiceEmailResponses[keyof TestInvoiceEmailResponses];
+
 export type PreviewInvoicePaperData = {
     body: SaveInvoiceDraftData;
     path?: never;
@@ -9063,6 +9246,141 @@ export type ReopenQuoteResponses = {
 };
 
 export type ReopenQuoteResponse = ReopenQuoteResponses[keyof ReopenQuoteResponses];
+
+export type PreviewQuoteEmailData = {
+    body?: PreviewEmailTemplateData;
+    path: {
+        /**
+         * The quote ID
+         */
+        quote: number;
+    };
+    query?: never;
+    url: '/invoicing/quotes/{quote}/email/preview';
+};
+
+export type PreviewQuoteEmailErrors = {
+    /**
+     * Unauthenticated
+     */
+    401: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+    /**
+     * Not found
+     */
+    404: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+};
+
+export type PreviewQuoteEmailError = PreviewQuoteEmailErrors[keyof PreviewQuoteEmailErrors];
+
+export type PreviewQuoteEmailResponses = {
+    200: EmailPreviewData;
+};
+
+export type PreviewQuoteEmailResponse = PreviewQuoteEmailResponses[keyof PreviewQuoteEmailResponses];
+
+export type SendQuoteEmailData = {
+    body: SendDocumentEmailData;
+    path: {
+        /**
+         * The quote ID
+         */
+        quote: number;
+    };
+    query?: never;
+    url: '/invoicing/quotes/{quote}/email';
+};
+
+export type SendQuoteEmailErrors = {
+    /**
+     * Unauthenticated
+     */
+    401: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+    /**
+     * Not found
+     */
+    404: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+    /**
+     * An error
+     */
+    409: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+};
+
+export type SendQuoteEmailError = SendQuoteEmailErrors[keyof SendQuoteEmailErrors];
+
+export type SendQuoteEmailResponses = {
+    201: DocumentEmailData;
+};
+
+export type SendQuoteEmailResponse = SendQuoteEmailResponses[keyof SendQuoteEmailResponses];
+
+export type TestQuoteEmailData = {
+    body?: PreviewEmailTemplateData;
+    path: {
+        /**
+         * The quote ID
+         */
+        quote: number;
+    };
+    query?: never;
+    url: '/invoicing/quotes/{quote}/email/test';
+};
+
+export type TestQuoteEmailErrors = {
+    /**
+     * Unauthenticated
+     */
+    401: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+    /**
+     * Not found
+     */
+    404: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+};
+
+export type TestQuoteEmailError = TestQuoteEmailErrors[keyof TestQuoteEmailErrors];
+
+export type TestQuoteEmailResponses = {
+    /**
+     * No content
+     */
+    204: void;
+};
+
+export type TestQuoteEmailResponse = TestQuoteEmailResponses[keyof TestQuoteEmailResponses];
 
 export type CreateQuoteInvoiceData = {
     body: InvoiceQuoteData;

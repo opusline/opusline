@@ -60,6 +60,7 @@ use Spatie\MediaLibrary\MediaCollections\Models\Media;
  * @property-read ?Mission $mission
  * @property-read Collection<int, QuoteLine> $lines
  * @property-read Collection<int, Invoice> $invoices
+ * @property-read Collection<int, DocumentEmail> $emails
  */
 #[Fillable([
     'client_id',
@@ -173,6 +174,12 @@ class Quote extends Model
     public function lines(): HasMany
     {
         return $this->hasMany(QuoteLine::class)->orderBy('position');
+    }
+
+    /** @return HasMany<DocumentEmail, $this> */
+    public function emails(): HasMany
+    {
+        return $this->hasMany(DocumentEmail::class)->orderBy('sent_at')->orderBy('id');
     }
 
     /**

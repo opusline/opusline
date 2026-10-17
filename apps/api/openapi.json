@@ -4633,6 +4633,159 @@
                 }
             }
         },
+        "/invoicing/invoices/{invoice}/email/preview": {
+            "post": {
+                "operationId": "previewInvoiceEmail",
+                "summary": "The e-mail this invoice would go out in, with the wording typed so far. A POST that creates nothing, so a 200",
+                "tags": [
+                    "InvoiceEmail"
+                ],
+                "parameters": [
+                    {
+                        "name": "invoice",
+                        "in": "path",
+                        "required": true,
+                        "description": "The invoice ID",
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/PreviewEmailTemplateData"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/EmailPreviewData"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/ModelNotFoundException"
+                    }
+                }
+            }
+        },
+        "/invoicing/invoices/{invoice}/email": {
+            "post": {
+                "operationId": "sendInvoiceEmail",
+                "tags": [
+                    "InvoiceEmail"
+                ],
+                "parameters": [
+                    {
+                        "name": "invoice",
+                        "in": "path",
+                        "required": true,
+                        "description": "The invoice ID",
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/SendInvoiceEmailData"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/DocumentEmailData"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/ModelNotFoundException"
+                    },
+                    "409": {
+                        "description": "An error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "description": "Error overview."
+                                        }
+                                    },
+                                    "required": [
+                                        "message"
+                                    ]
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/invoicing/invoices/{invoice}/email/test": {
+            "post": {
+                "operationId": "testInvoiceEmail",
+                "summary": "The same e-mail, to the account's own address, nothing recorded",
+                "tags": [
+                    "InvoiceEmail"
+                ],
+                "parameters": [
+                    {
+                        "name": "invoice",
+                        "in": "path",
+                        "required": true,
+                        "description": "The invoice ID",
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/PreviewEmailTemplateData"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "204": {
+                        "description": "No content"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/ModelNotFoundException"
+                    }
+                }
+            }
+        },
         "/invoicing/invoices/paper": {
             "post": {
                 "operationId": "previewInvoicePaper",
@@ -6176,6 +6329,159 @@
                                 }
                             }
                         }
+                    }
+                }
+            }
+        },
+        "/invoicing/quotes/{quote}/email/preview": {
+            "post": {
+                "operationId": "previewQuoteEmail",
+                "summary": "The e-mail this quote would go out in, with the wording typed so far. A POST that creates nothing, so a 200",
+                "tags": [
+                    "QuoteEmail"
+                ],
+                "parameters": [
+                    {
+                        "name": "quote",
+                        "in": "path",
+                        "required": true,
+                        "description": "The quote ID",
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/PreviewEmailTemplateData"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/EmailPreviewData"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/ModelNotFoundException"
+                    }
+                }
+            }
+        },
+        "/invoicing/quotes/{quote}/email": {
+            "post": {
+                "operationId": "sendQuoteEmail",
+                "tags": [
+                    "QuoteEmail"
+                ],
+                "parameters": [
+                    {
+                        "name": "quote",
+                        "in": "path",
+                        "required": true,
+                        "description": "The quote ID",
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/SendDocumentEmailData"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/DocumentEmailData"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/ModelNotFoundException"
+                    },
+                    "409": {
+                        "description": "An error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "description": "Error overview."
+                                        }
+                                    },
+                                    "required": [
+                                        "message"
+                                    ]
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/invoicing/quotes/{quote}/email/test": {
+            "post": {
+                "operationId": "testQuoteEmail",
+                "summary": "The same e-mail, to the account's own address, nothing recorded",
+                "tags": [
+                    "QuoteEmail"
+                ],
+                "parameters": [
+                    {
+                        "name": "quote",
+                        "in": "path",
+                        "required": true,
+                        "description": "The quote ID",
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/PreviewEmailTemplateData"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "204": {
+                        "description": "No content"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/ModelNotFoundException"
                     }
                 }
             }
@@ -11420,6 +11726,42 @@
                 ],
                 "title": "DocumentData"
             },
+            "DocumentEmailData": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "integer"
+                    },
+                    "kind": {
+                        "$ref": "#/components/schemas/EmailTemplateKind"
+                    },
+                    "recipients": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    },
+                    "copyToSender": {
+                        "type": "boolean"
+                    },
+                    "subject": {
+                        "type": "string"
+                    },
+                    "sentAt": {
+                        "type": "string",
+                        "format": "date-time"
+                    }
+                },
+                "required": [
+                    "id",
+                    "kind",
+                    "recipients",
+                    "copyToSender",
+                    "subject",
+                    "sentAt"
+                ],
+                "title": "DocumentEmailData"
+            },
             "DocumentGroupData": {
                 "type": "object",
                 "properties": {
@@ -13122,6 +13464,18 @@
                             "string",
                             "null"
                         ]
+                    },
+                    "remindersEnabled": {
+                        "type": "boolean"
+                    },
+                    "remindersFrequency": {
+                        "$ref": "#/components/schemas/ReminderFrequency"
+                    },
+                    "reminderRecipients": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
                     }
                 },
                 "required": [
@@ -13142,7 +13496,10 @@
                     "amountTtc",
                     "ttcOverridden",
                     "vatRateBp",
-                    "notes"
+                    "notes",
+                    "remindersEnabled",
+                    "remindersFrequency",
+                    "reminderRecipients"
                 ],
                 "title": "InvoiceData"
             },
@@ -13200,6 +13557,12 @@
                                 "type": "null"
                             }
                         ]
+                    },
+                    "emails": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
                     }
                 },
                 "required": [
@@ -13209,7 +13572,8 @@
                     "history",
                     "document",
                     "content",
-                    "quote"
+                    "quote",
+                    "emails"
                 ],
                 "title": "InvoiceDetailData"
             },
@@ -13243,19 +13607,22 @@
             },
             "InvoiceEventKind": {
                 "type": "integer",
+                "description": "| |\n|---|\n| `0` <br/>  |\n| `1` <br/>  |\n| `2` <br/>  |\n| `3` <br/>  |\n| `4` <br/>  |\n| `5` <br/> E-mailed to the client from Opusline; the note names the recipients. |",
                 "enum": [
                     0,
                     1,
                     2,
                     3,
-                    4
+                    4,
+                    5
                 ],
                 "x-enum-varnames": [
                     "Created",
                     "Sent",
                     "Reminded",
                     "Paid",
-                    "Updated"
+                    "Updated",
+                    "Emailed"
                 ],
                 "title": "InvoiceEventKind"
             },
@@ -15075,6 +15442,12 @@
                     },
                     "billing": {
                         "$ref": "#/components/schemas/QuoteBillingData"
+                    },
+                    "emails": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
                     }
                 },
                 "required": [
@@ -15083,7 +15456,8 @@
                     "mission",
                     "content",
                     "document",
-                    "billing"
+                    "billing",
+                    "emails"
                 ],
                 "title": "QuoteDetailData"
             },
@@ -16197,6 +16571,45 @@
                 },
                 "title": "SendCraData"
             },
+            "SendDocumentEmailData": {
+                "type": "object",
+                "properties": {
+                    "recipients": {
+                        "type": "array",
+                        "items": {
+                            "type": "string",
+                            "format": "email",
+                            "maxLength": 254
+                        },
+                        "minItems": 1,
+                        "maxItems": 10,
+                        "uniqueItems": true
+                    },
+                    "copyToSender": {
+                        "type": "boolean"
+                    },
+                    "subject": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "minLength": 1,
+                        "maxLength": 255
+                    },
+                    "body": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "minLength": 1,
+                        "maxLength": 5000
+                    }
+                },
+                "required": [
+                    "recipients"
+                ],
+                "title": "SendDocumentEmailData"
+            },
             "SendInvoiceData": {
                 "type": "object",
                 "properties": {
@@ -16209,6 +16622,61 @@
                     }
                 },
                 "title": "SendInvoiceData"
+            },
+            "SendInvoiceEmailData": {
+                "type": "object",
+                "properties": {
+                    "recipients": {
+                        "type": "array",
+                        "items": {
+                            "type": "string",
+                            "format": "email",
+                            "maxLength": 254
+                        },
+                        "minItems": 1,
+                        "maxItems": 10,
+                        "uniqueItems": true
+                    },
+                    "copyToSender": {
+                        "type": "boolean"
+                    },
+                    "subject": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "minLength": 1,
+                        "maxLength": 255
+                    },
+                    "body": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "minLength": 1,
+                        "maxLength": 5000
+                    },
+                    "remindersEnabled": {
+                        "type": [
+                            "boolean",
+                            "null"
+                        ]
+                    },
+                    "remindersFrequency": {
+                        "anyOf": [
+                            {
+                                "$ref": "#/components/schemas/ReminderFrequency"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ]
+                    }
+                },
+                "required": [
+                    "recipients"
+                ],
+                "title": "SendInvoiceEmailData"
             },
             "SentryWebData": {
                 "type": "object",

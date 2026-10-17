@@ -8,7 +8,8 @@ async function messageIdsFor(
   address: string,
 ): Promise<string[]> {
   const search = await request.get(`${MAILPIT_URL}/api/v1/search`, {
-    params: { query: `to:"${address}"` },
+    // `addressed:` covers To, Cc and Bcc; `to:` would miss the copy an account asks for.
+    params: { query: `addressed:"${address}"` },
   });
   const { messages } = (await search.json()) as { messages: { ID: string }[] };
 

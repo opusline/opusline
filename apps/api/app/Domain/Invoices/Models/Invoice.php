@@ -11,6 +11,7 @@ use App\Domain\Invoices\Enums\InvoiceSource;
 use App\Domain\Invoices\Enums\InvoiceStatus;
 use App\Domain\Invoices\Enums\OperationCategory;
 use App\Domain\Invoices\Enums\QuoteBilling;
+use App\Domain\Invoices\Enums\ReminderFrequency;
 use App\Domain\Invoices\Factories\InvoiceFactory;
 use App\Domain\Missions\Models\Mission;
 use App\Domain\Shared\Casts\CalendarDate;
@@ -63,6 +64,10 @@ use Spatie\MediaLibrary\MediaCollections\Models\Media;
  * @property int $vat_rate_bp
  * @property string $currency
  * @property ?string $notes
+ * @property bool $reminders_enabled
+ * @property ReminderFrequency $reminders_frequency
+ * @property ?list<string> $reminder_recipients
+ * @property-read Collection<int, DocumentEmail> $emails
  * @property CarbonImmutable $created_at
  * @property CarbonImmutable $updated_at
  * @property-read Client $client
@@ -102,6 +107,9 @@ use Spatie\MediaLibrary\MediaCollections\Models\Media;
     'amount_ttc_cents',
     'vat_rate_bp',
     'notes',
+    'reminders_enabled',
+    'reminders_frequency',
+    'reminder_recipients',
 ])]
 class Invoice extends Model
 {
@@ -126,6 +134,8 @@ class Invoice extends Model
      */
     #[\Override]
     protected $attributes = [
+        'reminders_enabled' => false,
+        'reminders_frequency' => 0,
         'source' => InvoiceSource::External->value,
         'payment_terms_end_of_month' => false,
         'show_iban' => false,
@@ -185,6 +195,9 @@ class Invoice extends Model
             'amount_ht_cents' => MoneyIntegerCast::class.':currency',
             'amount_ttc_cents' => MoneyIntegerCast::class.':currency',
             'vat_rate_bp' => 'integer',
+            'reminders_enabled' => 'boolean',
+            'reminders_frequency' => ReminderFrequency::class,
+            'reminder_recipients' => 'array',
         ];
     }
 
@@ -279,6 +292,12 @@ class Invoice extends Model
         $this->loadMissing('client');
 
         return $this->document()->first();
+    }
+
+    /** @return HasMany<DocumentEmail, $this> */
+    public function emails(): HasMany
+    {
+        return $this->hasMany(DocumentEmail::class)->orderBy('sent_at')->orderBy('id');
     }
 
     /** @return HasMany<TimeEntry, $this> */

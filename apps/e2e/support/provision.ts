@@ -5,9 +5,13 @@ import type {
   CreateInvoiceData,
   CreateMissionData,
   InvoiceData,
+  InvoiceDetailData,
   MissionData,
   RegisterUserData,
+  SaveInvoiceDraftData,
+  SettingsData,
   TimeEntryInputData,
+  UpdateSettingsData,
 } from "@opusline/api-client";
 import type { Api } from "./api";
 
@@ -93,4 +97,71 @@ export async function addInvoice(
  */
 export async function joinInvoicingBeta(api: Api): Promise<void> {
   await api.put("/api/user/features/invoicing", { active: true });
+}
+
+/** The seller identity an invoice needs before it can be validated. */
+export async function fillInvoicingIdentity(api: Api): Promise<void> {
+  const current = await api.get<SettingsData>("/api/settings");
+  const identity: UpdateSettingsData = {
+    ...current,
+    tradeName: "Camille Aubrac",
+    siret: "12345678200002",
+    companyAddressLine1: "12 rue de Strasbourg",
+    companyPostalCode: "44000",
+    companyCity: "Nantes",
+    contactEmail: "camille@aubrac.test",
+    iban: "FR7630006000011234567890189",
+    bic: "AGRIFRPP",
+  };
+
+  await api.put("/api/settings", identity);
+}
+
+/** A client the invoices can be issued to: it needs a billing address. */
+export async function createBillableClient(
+  api: Api,
+  client: Partial<CreateClientData> & Pick<CreateClientData, "name">,
+): Promise<ClientData> {
+  return createClient(api, {
+    billingAddressLine1: "3 impasse des Potiers",
+    billingPostalCode: "44100",
+    billingCity: "Nantes",
+    ...client,
+  });
+}
+
+/** An invoice written in Opusline and validated: numbered, its PDF filed. */
+export async function issueInvoice(
+  api: Api,
+  client: ClientData,
+  overrides: Partial<SaveInvoiceDraftData> = {},
+): Promise<InvoiceDetailData> {
+  const draft: SaveInvoiceDraftData = {
+    clientId: client.id,
+    issuedOn: "2026-08-01",
+    paymentTermsDays: 30,
+    paymentTermsEndOfMonth: false,
+    showIban: true,
+    showEmail: true,
+    language: 0,
+    lines: [
+      {
+        label: "Journée de développement frontend",
+        quantityMilli: 2_000,
+        unit: 0,
+        unitPrice: { amount: 60_000, currency: "EUR" },
+        vatRateBp: 0,
+      },
+    ],
+    ...overrides,
+  };
+  const created = await api.post<InvoiceDetailData>(
+    "/api/invoicing/invoices",
+    draft,
+  );
+
+  return api.post<InvoiceDetailData>(
+    `/api/invoicing/invoices/${created.invoice.id}/issue`,
+    {},
+  );
 }

@@ -45,7 +45,9 @@ import { Route as AuthedInvoicingQuotesExternalRouteImport } from './routes/_aut
 import { Route as AuthedInvoicingQuotesNewRouteImport } from './routes/_authed/invoicing.quotes_.new'
 import { Route as AuthedClientsClientSlugMissionsMissionSlugRouteImport } from './routes/_authed/clients_.$clientSlug_.missions.$missionSlug'
 import { Route as AuthedInvoicingInvoicesInvoiceIdEditRouteImport } from './routes/_authed/invoicing.invoices_.$invoiceId_.edit'
+import { Route as AuthedInvoicingInvoicesInvoiceIdSendRouteImport } from './routes/_authed/invoicing.invoices_.$invoiceId_.send'
 import { Route as AuthedInvoicingQuotesQuoteIdEditRouteImport } from './routes/_authed/invoicing.quotes_.$quoteId_.edit'
+import { Route as AuthedInvoicingQuotesQuoteIdSendRouteImport } from './routes/_authed/invoicing.quotes_.$quoteId_.send'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -232,10 +234,22 @@ const AuthedInvoicingInvoicesInvoiceIdEditRoute =
     path: '/invoicing/invoices/$invoiceId/edit',
     getParentRoute: () => AuthedRoute,
   } as any)
+const AuthedInvoicingInvoicesInvoiceIdSendRoute =
+  AuthedInvoicingInvoicesInvoiceIdSendRouteImport.update({
+    id: '/invoicing/invoices_/$invoiceId_/send',
+    path: '/invoicing/invoices/$invoiceId/send',
+    getParentRoute: () => AuthedRoute,
+  } as any)
 const AuthedInvoicingQuotesQuoteIdEditRoute =
   AuthedInvoicingQuotesQuoteIdEditRouteImport.update({
     id: '/invoicing/quotes_/$quoteId_/edit',
     path: '/invoicing/quotes/$quoteId/edit',
+    getParentRoute: () => AuthedRoute,
+  } as any)
+const AuthedInvoicingQuotesQuoteIdSendRoute =
+  AuthedInvoicingQuotesQuoteIdSendRouteImport.update({
+    id: '/invoicing/quotes_/$quoteId_/send',
+    path: '/invoicing/quotes/$quoteId/send',
     getParentRoute: () => AuthedRoute,
   } as any)
 
@@ -274,7 +288,9 @@ export interface FileRoutesByFullPath {
   '/invoicing/quotes/new': typeof AuthedInvoicingQuotesNewRoute
   '/clients/$clientSlug/missions/$missionSlug': typeof AuthedClientsClientSlugMissionsMissionSlugRoute
   '/invoicing/invoices/$invoiceId/edit': typeof AuthedInvoicingInvoicesInvoiceIdEditRoute
+  '/invoicing/invoices/$invoiceId/send': typeof AuthedInvoicingInvoicesInvoiceIdSendRoute
   '/invoicing/quotes/$quoteId/edit': typeof AuthedInvoicingQuotesQuoteIdEditRoute
+  '/invoicing/quotes/$quoteId/send': typeof AuthedInvoicingQuotesQuoteIdSendRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -311,7 +327,9 @@ export interface FileRoutesByTo {
   '/invoicing/quotes/new': typeof AuthedInvoicingQuotesNewRoute
   '/clients/$clientSlug/missions/$missionSlug': typeof AuthedClientsClientSlugMissionsMissionSlugRoute
   '/invoicing/invoices/$invoiceId/edit': typeof AuthedInvoicingInvoicesInvoiceIdEditRoute
+  '/invoicing/invoices/$invoiceId/send': typeof AuthedInvoicingInvoicesInvoiceIdSendRoute
   '/invoicing/quotes/$quoteId/edit': typeof AuthedInvoicingQuotesQuoteIdEditRoute
+  '/invoicing/quotes/$quoteId/send': typeof AuthedInvoicingQuotesQuoteIdSendRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -351,7 +369,9 @@ export interface FileRoutesById {
   '/_authed/invoicing/quotes_/new': typeof AuthedInvoicingQuotesNewRoute
   '/_authed/clients_/$clientSlug_/missions/$missionSlug': typeof AuthedClientsClientSlugMissionsMissionSlugRoute
   '/_authed/invoicing/invoices_/$invoiceId_/edit': typeof AuthedInvoicingInvoicesInvoiceIdEditRoute
+  '/_authed/invoicing/invoices_/$invoiceId_/send': typeof AuthedInvoicingInvoicesInvoiceIdSendRoute
   '/_authed/invoicing/quotes_/$quoteId_/edit': typeof AuthedInvoicingQuotesQuoteIdEditRoute
+  '/_authed/invoicing/quotes_/$quoteId_/send': typeof AuthedInvoicingQuotesQuoteIdSendRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -390,7 +410,9 @@ export interface FileRouteTypes {
     | '/invoicing/quotes/new'
     | '/clients/$clientSlug/missions/$missionSlug'
     | '/invoicing/invoices/$invoiceId/edit'
+    | '/invoicing/invoices/$invoiceId/send'
     | '/invoicing/quotes/$quoteId/edit'
+    | '/invoicing/quotes/$quoteId/send'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -427,7 +449,9 @@ export interface FileRouteTypes {
     | '/invoicing/quotes/new'
     | '/clients/$clientSlug/missions/$missionSlug'
     | '/invoicing/invoices/$invoiceId/edit'
+    | '/invoicing/invoices/$invoiceId/send'
     | '/invoicing/quotes/$quoteId/edit'
+    | '/invoicing/quotes/$quoteId/send'
   id:
     | '__root__'
     | '/'
@@ -466,7 +490,9 @@ export interface FileRouteTypes {
     | '/_authed/invoicing/quotes_/new'
     | '/_authed/clients_/$clientSlug_/missions/$missionSlug'
     | '/_authed/invoicing/invoices_/$invoiceId_/edit'
+    | '/_authed/invoicing/invoices_/$invoiceId_/send'
     | '/_authed/invoicing/quotes_/$quoteId_/edit'
+    | '/_authed/invoicing/quotes_/$quoteId_/send'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -731,11 +757,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthedInvoicingInvoicesInvoiceIdEditRouteImport
       parentRoute: typeof AuthedRoute
     }
+    '/_authed/invoicing/invoices_/$invoiceId_/send': {
+      id: '/_authed/invoicing/invoices_/$invoiceId_/send'
+      path: '/invoicing/invoices/$invoiceId/send'
+      fullPath: '/invoicing/invoices/$invoiceId/send'
+      preLoaderRoute: typeof AuthedInvoicingInvoicesInvoiceIdSendRouteImport
+      parentRoute: typeof AuthedRoute
+    }
     '/_authed/invoicing/quotes_/$quoteId_/edit': {
       id: '/_authed/invoicing/quotes_/$quoteId_/edit'
       path: '/invoicing/quotes/$quoteId/edit'
       fullPath: '/invoicing/quotes/$quoteId/edit'
       preLoaderRoute: typeof AuthedInvoicingQuotesQuoteIdEditRouteImport
+      parentRoute: typeof AuthedRoute
+    }
+    '/_authed/invoicing/quotes_/$quoteId_/send': {
+      id: '/_authed/invoicing/quotes_/$quoteId_/send'
+      path: '/invoicing/quotes/$quoteId/send'
+      fullPath: '/invoicing/quotes/$quoteId/send'
+      preLoaderRoute: typeof AuthedInvoicingQuotesQuoteIdSendRouteImport
       parentRoute: typeof AuthedRoute
     }
   }
@@ -770,7 +810,9 @@ interface AuthedRouteChildren {
   AuthedInvoicingQuotesNewRoute: typeof AuthedInvoicingQuotesNewRoute
   AuthedClientsClientSlugMissionsMissionSlugRoute: typeof AuthedClientsClientSlugMissionsMissionSlugRoute
   AuthedInvoicingInvoicesInvoiceIdEditRoute: typeof AuthedInvoicingInvoicesInvoiceIdEditRoute
+  AuthedInvoicingInvoicesInvoiceIdSendRoute: typeof AuthedInvoicingInvoicesInvoiceIdSendRoute
   AuthedInvoicingQuotesQuoteIdEditRoute: typeof AuthedInvoicingQuotesQuoteIdEditRoute
+  AuthedInvoicingQuotesQuoteIdSendRoute: typeof AuthedInvoicingQuotesQuoteIdSendRoute
 }
 
 const AuthedRouteChildren: AuthedRouteChildren = {
@@ -804,7 +846,10 @@ const AuthedRouteChildren: AuthedRouteChildren = {
     AuthedClientsClientSlugMissionsMissionSlugRoute,
   AuthedInvoicingInvoicesInvoiceIdEditRoute:
     AuthedInvoicingInvoicesInvoiceIdEditRoute,
+  AuthedInvoicingInvoicesInvoiceIdSendRoute:
+    AuthedInvoicingInvoicesInvoiceIdSendRoute,
   AuthedInvoicingQuotesQuoteIdEditRoute: AuthedInvoicingQuotesQuoteIdEditRoute,
+  AuthedInvoicingQuotesQuoteIdSendRoute: AuthedInvoicingQuotesQuoteIdSendRoute,
 }
 
 const AuthedRouteWithChildren =

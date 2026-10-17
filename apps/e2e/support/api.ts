@@ -1,6 +1,7 @@
 import type { APIResponse, BrowserContext } from "@playwright/test";
 
 export type Api = {
+  get: <ResponseBody>(path: string) => Promise<ResponseBody>;
   post: <ResponseBody>(path: string, body: unknown) => Promise<ResponseBody>;
   put: <ResponseBody>(path: string, body: unknown) => Promise<ResponseBody>;
   /** The raw response, for files the app serves: status, headers and bytes. */
@@ -46,13 +47,13 @@ export function createApi(context: BrowserContext, baseURL: string): Api {
   }
 
   async function send<ResponseBody>(
-    method: "POST" | "PUT",
+    method: "GET" | "POST" | "PUT",
     path: string,
-    body: unknown,
+    body?: unknown,
   ): Promise<ResponseBody> {
     const response = await context.request.fetch(`${origin}${path}`, {
       method,
-      data: body,
+      data: body === undefined ? undefined : body,
       headers: { ...spaHeaders, "X-XSRF-TOKEN": await csrfToken() },
     });
 
@@ -72,6 +73,7 @@ export function createApi(context: BrowserContext, baseURL: string): Api {
   }
 
   return {
+    get: <ResponseBody>(path: string) => send<ResponseBody>("GET", path),
     post: <ResponseBody>(path: string, body: unknown) =>
       send<ResponseBody>("POST", path, body),
     put: <ResponseBody>(path: string, body: unknown) =>

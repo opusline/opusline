@@ -672,6 +672,18 @@ export const zEmailTemplateKind = z.union([
 ]);
 
 /**
+ * DocumentEmailData
+ */
+export const zDocumentEmailData = z.object({
+    id: z.int(),
+    kind: zEmailTemplateKind,
+    recipients: z.array(z.string()),
+    copyToSender: z.boolean(),
+    subject: z.string(),
+    sentAt: z.iso.datetime()
+});
+
+/**
  * EmailTemplateData
  */
 export const zEmailTemplateData = z.object({
@@ -963,13 +975,23 @@ export const zInvoiceCountsData = z.object({
 
 /**
  * InvoiceEventKind
+ *
+ * | |
+ * |---|
+ * | `0` <br/>  |
+ * | `1` <br/>  |
+ * | `2` <br/>  |
+ * | `3` <br/>  |
+ * | `4` <br/>  |
+ * | `5` <br/> E-mailed to the client from Opusline; the note names the recipients. |
  */
 export const zInvoiceEventKind = z.union([
     z.literal(0),
     z.literal(1),
     z.literal(2),
     z.literal(3),
-    z.literal(4)
+    z.literal(4),
+    z.literal(5)
 ]);
 
 /**
@@ -1486,30 +1508,6 @@ export const zInvoiceClientTotalsData = z.object({
 });
 
 /**
- * InvoiceData
- */
-export const zInvoiceData = z.object({
-    id: z.int(),
-    clientId: z.int(),
-    missionId: z.nullable(z.int()),
-    number: z.nullable(z.string()),
-    status: zInvoiceStatus,
-    source: zInvoiceSource,
-    isLate: z.boolean(),
-    issuedOn: z.iso.date(),
-    dueOn: z.iso.date(),
-    paidOn: z.nullable(z.iso.date()),
-    periodStart: z.nullable(z.iso.date()),
-    periodEnd: z.nullable(z.iso.date()),
-    amountHt: zMoneyData,
-    amountVat: zMoneyData,
-    amountTtc: zMoneyData,
-    ttcOverridden: z.boolean(),
-    vatRateBp: z.int(),
-    notes: z.nullable(z.string())
-});
-
-/**
  * InvoiceForecastData
  */
 export const zInvoiceForecastData = z.object({
@@ -1627,24 +1625,6 @@ export const zCraDetailData = z.object({
     client: zClientData,
     mission: zMissionData,
     recipientName: z.string()
-});
-
-/**
- * InvoiceListItemData
- */
-export const zInvoiceListItemData = z.object({
-    invoice: zInvoiceData,
-    client: zClientData,
-    mission: z.nullable(zMissionData)
-});
-
-/**
- * InvoiceListData
- */
-export const zInvoiceListData = z.object({
-    invoices: z.array(zInvoiceListItemData),
-    clientTotals: z.array(zInvoiceClientTotalsData),
-    nextCursor: z.nullable(z.string())
 });
 
 /**
@@ -2180,6 +2160,51 @@ export const zReminderFrequency = z.union([
 ]);
 
 /**
+ * InvoiceData
+ */
+export const zInvoiceData = z.object({
+    id: z.int(),
+    clientId: z.int(),
+    missionId: z.nullable(z.int()),
+    number: z.nullable(z.string()),
+    status: zInvoiceStatus,
+    source: zInvoiceSource,
+    isLate: z.boolean(),
+    issuedOn: z.iso.date(),
+    dueOn: z.iso.date(),
+    paidOn: z.nullable(z.iso.date()),
+    periodStart: z.nullable(z.iso.date()),
+    periodEnd: z.nullable(z.iso.date()),
+    amountHt: zMoneyData,
+    amountVat: zMoneyData,
+    amountTtc: zMoneyData,
+    ttcOverridden: z.boolean(),
+    vatRateBp: z.int(),
+    notes: z.nullable(z.string()),
+    remindersEnabled: z.boolean(),
+    remindersFrequency: zReminderFrequency,
+    reminderRecipients: z.array(z.string())
+});
+
+/**
+ * InvoiceListItemData
+ */
+export const zInvoiceListItemData = z.object({
+    invoice: zInvoiceData,
+    client: zClientData,
+    mission: z.nullable(zMissionData)
+});
+
+/**
+ * InvoiceListData
+ */
+export const zInvoiceListData = z.object({
+    invoices: z.array(zInvoiceListItemData),
+    clientTotals: z.array(zInvoiceClientTotalsData),
+    nextCursor: z.nullable(z.string())
+});
+
+/**
  * ReminderDefaultsData
  */
 export const zReminderDefaultsData = z.object({
@@ -2381,10 +2406,32 @@ export const zSendCraData = z.object({
 });
 
 /**
+ * SendDocumentEmailData
+ */
+export const zSendDocumentEmailData = z.object({
+    recipients: z.array(z.email().check(z.maxLength(254))).check(z.minLength(1), z.maxLength(10)),
+    copyToSender: z.optional(z.boolean()),
+    subject: z.nullish(z.string().check(z.minLength(1), z.maxLength(255))),
+    body: z.nullish(z.string().check(z.minLength(1), z.maxLength(5000)))
+});
+
+/**
  * SendInvoiceData
  */
 export const zSendInvoiceData = z.object({
     sentOn: z.nullish(z.iso.date())
+});
+
+/**
+ * SendInvoiceEmailData
+ */
+export const zSendInvoiceEmailData = z.object({
+    recipients: z.array(z.email().check(z.maxLength(254))).check(z.minLength(1), z.maxLength(10)),
+    copyToSender: z.optional(z.boolean()),
+    subject: z.nullish(z.string().check(z.minLength(1), z.maxLength(255))),
+    body: z.nullish(z.string().check(z.minLength(1), z.maxLength(5000))),
+    remindersEnabled: z.nullish(z.boolean()),
+    remindersFrequency: z.nullish(zReminderFrequency)
 });
 
 /**
@@ -3377,7 +3424,8 @@ export const zInvoiceDetailData = z.object({
     history: z.array(zInvoiceEventData),
     document: z.nullable(zDocumentData),
     content: z.nullable(zInvoiceContentData),
-    quote: z.nullable(zInvoiceQuoteLinkData)
+    quote: z.nullable(zInvoiceQuoteLinkData),
+    emails: z.array(z.string())
 });
 
 /**
@@ -3404,7 +3452,8 @@ export const zQuoteDetailData = z.object({
     mission: z.nullable(zMissionData),
     content: zQuoteContentData,
     document: z.nullable(zDocumentData),
-    billing: zQuoteBillingData
+    billing: zQuoteBillingData,
+    emails: z.array(z.string())
 });
 
 /**
@@ -4238,6 +4287,33 @@ export const zIssueInvoicePath = z.object({
 
 export const zIssueInvoiceResponse = zInvoiceDetailData;
 
+export const zPreviewInvoiceEmailBody = zPreviewEmailTemplateData;
+
+export const zPreviewInvoiceEmailPath = z.object({
+    invoice: z.int()
+});
+
+export const zPreviewInvoiceEmailResponse = zEmailPreviewData;
+
+export const zSendInvoiceEmailBody = zSendInvoiceEmailData;
+
+export const zSendInvoiceEmailPath = z.object({
+    invoice: z.int()
+});
+
+export const zSendInvoiceEmailResponse = zDocumentEmailData;
+
+export const zTestInvoiceEmailBody = zPreviewEmailTemplateData;
+
+export const zTestInvoiceEmailPath = z.object({
+    invoice: z.int()
+});
+
+/**
+ * No content
+ */
+export const zTestInvoiceEmailResponse = z.void();
+
 export const zPreviewInvoicePaperBody = zSaveInvoiceDraftData;
 
 export const zPreviewInvoicePaperResponse = zInvoicePaperData;
@@ -4477,6 +4553,33 @@ export const zReopenQuotePath = z.object({
 });
 
 export const zReopenQuoteResponse = zQuoteDetailData;
+
+export const zPreviewQuoteEmailBody = zPreviewEmailTemplateData;
+
+export const zPreviewQuoteEmailPath = z.object({
+    quote: z.int()
+});
+
+export const zPreviewQuoteEmailResponse = zEmailPreviewData;
+
+export const zSendQuoteEmailBody = zSendDocumentEmailData;
+
+export const zSendQuoteEmailPath = z.object({
+    quote: z.int()
+});
+
+export const zSendQuoteEmailResponse = zDocumentEmailData;
+
+export const zTestQuoteEmailBody = zPreviewEmailTemplateData;
+
+export const zTestQuoteEmailPath = z.object({
+    quote: z.int()
+});
+
+/**
+ * No content
+ */
+export const zTestQuoteEmailResponse = z.void();
 
 export const zCreateQuoteInvoiceBody = zInvoiceQuoteData;
 
