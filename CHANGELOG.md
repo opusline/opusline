@@ -1,5 +1,37 @@
 # Changelog
 
+## [0.34.0](https://github.com/opusline/opusline/compare/v0.33.5...v0.34.0) (2026-10-17)
+
+
+### Features
+
+* **api:** add a service catalogue for invoices and quotes ([#533](https://github.com/opusline/opusline/issues/533)) ([fe5fd3d](https://github.com/opusline/opusline/commit/fe5fd3d774006f17459f655f2cfa09f9547544ad))
+* **api:** add invoicing settings for new documents ([#530](https://github.com/opusline/opusline/issues/530)) ([eb4fb7f](https://github.com/opusline/opusline/commit/eb4fb7fb381f23dd304f536b8f1250df8395d20b))
+* **api:** automatic payment reminders ([#586](https://github.com/opusline/opusline/issues/586)) ([e773747](https://github.com/opusline/opusline/commit/e7737472b8434b190069cfe863a9997664fb7667))
+* **api:** client e-mail engine with templates ([#582](https://github.com/opusline/opusline/issues/582)) ([bf7bafc](https://github.com/opusline/opusline/commit/bf7bafc9dab5ae2434eb41287cbd2078624290a1))
+* **api:** company logo, IBAN and RCS in settings ([#529](https://github.com/opusline/opusline/issues/529)) ([dee166d](https://github.com/opusline/opusline/commit/dee166d8cb19ba8601eb47fa5c7de045997a6a08))
+* **api:** connect an account's super pdp application ([#573](https://github.com/opusline/opusline/issues/573)) ([06a81b8](https://github.com/opusline/opusline/commit/06a81b8871f9384e4acf229c6d046b5ce4d6f65a))
+* **api:** invoice lines and Opusline drafts ([#534](https://github.com/opusline/opusline/issues/534)) ([0729af1](https://github.com/opusline/opusline/commit/0729af12f3ee226b5bebf09c5e9a8400434036c8))
+* **api:** issue invoices with their legal number ([#535](https://github.com/opusline/opusline/issues/535)) ([4e1c4f9](https://github.com/opusline/opusline/commit/4e1c4f9346f1ddaf8f13e05b612236ff12615a66))
+* **api:** quotes with their own series and sheet ([#577](https://github.com/opusline/opusline/issues/577)) ([c1a65df](https://github.com/opusline/opusline/commit/c1a65df478fa2baedeb0a0652f69ff6d43a7eaf2))
+* **api:** record the supplier invoices the platform received ([#574](https://github.com/opusline/opusline/issues/574)) ([e9efe6e](https://github.com/opusline/opusline/commit/e9efe6e377404fb062a3532b7d7f773533e4438c))
+* **api:** render invoices as their printed sheet and PDF ([#537](https://github.com/opusline/opusline/issues/537)) ([29fd1d6](https://github.com/opusline/opusline/commit/29fd1d6eadd934b7127d8cd3f5c798c0610cb6bb))
+* **api:** ship unfinished features behind flags ([#541](https://github.com/opusline/opusline/issues/541)) ([6b15934](https://github.com/opusline/opusline/commit/6b15934e8fd47c9934da532051a277e9e7de7795))
+* **api:** turn an accepted quote into invoices ([#580](https://github.com/opusline/opusline/issues/580)) ([4c2733d](https://github.com/opusline/opusline/commit/4c2733d248235b822d5f0ddef08c3b0421124623))
+* **web:** e-mails page to reword the client templates ([#583](https://github.com/opusline/opusline/issues/583)) ([0894245](https://github.com/opusline/opusline/commit/0894245ef0f1bf57af6aa6b7c11a04fde42d14fd))
+* **web:** give each written invoice its own page ([#539](https://github.com/opusline/opusline/issues/539)) ([d6d749c](https://github.com/opusline/opusline/commit/d6d749cc269451fa41cef087fadb713c151c4cb7))
+* **web:** give invoicing its own section ([#532](https://github.com/opusline/opusline/issues/532)) ([f9ed457](https://github.com/opusline/opusline/commit/f9ed4573616782f4e9c1b694292dc82e8e42c0ca))
+* **web:** let the invoices list follow the mode ([#540](https://github.com/opusline/opusline/issues/540)) ([c2f373d](https://github.com/opusline/opusline/commit/c2f373d930b07b27301fcff943637eeffeef07dc))
+* **web:** quote screens behind the invoicing beta ([#579](https://github.com/opusline/opusline/issues/579)) ([19ca3ab](https://github.com/opusline/opusline/commit/19ca3ab87c42c78626cb2d421bd5ff7496ac72c6))
+* **web:** quotes issued in another tool ([#581](https://github.com/opusline/opusline/issues/581)) ([8e2f02b](https://github.com/opusline/opusline/commit/8e2f02b21ca76445b845c244870edcca92e000bd))
+* **web:** send page for invoices and quotes ([#585](https://github.com/opusline/opusline/issues/585)) ([2016b78](https://github.com/opusline/opusline/commit/2016b78adb16e0d9d3ed445d2b0b86a6ee9da108))
+* **web:** write invoices in a live editor ([#538](https://github.com/opusline/opusline/issues/538)) ([fa65ead](https://github.com/opusline/opusline/commit/fa65eada0d1d0c310fe306b414034979faf9df6c))
+
+
+### Bug Fixes
+
+* **web:** word the sync refusal for the settings card ([#575](https://github.com/opusline/opusline/issues/575)) ([2e29568](https://github.com/opusline/opusline/commit/2e295684d924b2c3b9c2bd81de80e840a0c0e97e))
+
 ## [0.33.5](https://github.com/opusline/opusline/compare/v0.33.4...v0.33.5) (2026-10-16)
 
 
