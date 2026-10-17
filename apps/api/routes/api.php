@@ -11,7 +11,6 @@ Route::pattern('mission', '[a-z0-9-]+');
 
 Route::get('/ping', fn (): JsonResponse => response()->json(PingData::fromConfig()));
 
-require __DIR__.'/api/access-tokens.php';
 require __DIR__.'/api/auth.php';
 require __DIR__.'/api/bank.php';
 require __DIR__.'/api/clients.php';
@@ -28,5 +27,6 @@ require __DIR__.'/api/settings.php';
 require __DIR__.'/api/subscriptions.php';
 require __DIR__.'/api/time-entries.php';
 require __DIR__.'/api/timers.php';
+require __DIR__.'/api/tokens.php';
 require __DIR__.'/api/treasury.php';
 require __DIR__.'/api/two-factor.php';
