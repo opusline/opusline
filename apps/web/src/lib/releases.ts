@@ -13,6 +13,16 @@ export type Release = {
 export const RELEASES: Release[] = [
   // release-notes:insert
   {
+    version: "0.33.6",
+    date: "2026-10-17",
+    items: [
+      {
+        kind: "new",
+        text: "Personal access tokens: create one in Settings › Security to let another application read your invoices.", // i18n-ignore
+      },
+    ],
+  },
+  {
     version: "0.33.5",
     date: "2026-10-16",
     items: [
