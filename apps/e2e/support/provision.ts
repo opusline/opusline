@@ -7,8 +7,10 @@ import type {
   InvoiceData,
   InvoiceDetailData,
   MissionData,
+  QuoteDetailData,
   RegisterUserData,
   SaveInvoiceDraftData,
+  SaveQuoteDraftData,
   SettingsData,
   TimeEntryInputData,
   UpdateSettingsData,
@@ -162,6 +164,41 @@ export async function issueInvoice(
 
   return api.post<InvoiceDetailData>(
     `/api/invoicing/invoices/${created.invoice.id}/issue`,
+    {},
+  );
+}
+
+/** A quote written in Opusline and validated, waiting for the client's answer. */
+export async function issueQuote(
+  api: Api,
+  client: ClientData,
+  overrides: Partial<SaveQuoteDraftData> = {},
+): Promise<QuoteDetailData> {
+  const draft: SaveQuoteDraftData = {
+    clientId: client.id,
+    validityDays: 30,
+    paymentTermsDays: 30,
+    paymentTermsEndOfMonth: false,
+    showEmail: true,
+    language: 0,
+    lines: [
+      {
+        label: "Audit de performance",
+        quantityMilli: 2_000,
+        unit: 0,
+        unitPrice: { amount: 60_000, currency: "EUR" },
+        vatRateBp: 0,
+      },
+    ],
+    ...overrides,
+  };
+  const created = await api.post<QuoteDetailData>(
+    "/api/invoicing/quotes",
+    draft,
+  );
+
+  return api.post<QuoteDetailData>(
+    `/api/invoicing/quotes/${created.quote.id}/issue`,
     {},
   );
 }
