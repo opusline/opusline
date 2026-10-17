@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.33.6](https://github.com/opusline/opusline/compare/v0.33.5...v0.33.6) (2026-10-17)
+
+
+### Features
+
+* **api:** personal access tokens for invoices ([#590](https://github.com/opusline/opusline/issues/590)) ([07f1694](https://github.com/opusline/opusline/commit/07f1694ea06087e4056f75bd043ed0dfad1d0781))
+
 ## [0.33.5](https://github.com/opusline/opusline/compare/v0.33.4...v0.33.5) (2026-10-16)
 
 
