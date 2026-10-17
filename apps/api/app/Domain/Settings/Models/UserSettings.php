@@ -7,6 +7,7 @@ namespace App\Domain\Settings\Models;
 use App\Domain\Invoices\Enums\DocumentLanguage;
 use App\Domain\Invoices\Enums\InvoicingMode;
 use App\Domain\Invoices\Enums\OperationCategory;
+use App\Domain\Invoices\Enums\ReminderFrequency;
 use App\Domain\Settings\Enums\DateFormat;
 use App\Domain\Settings\Enums\Locale;
 use App\Domain\Settings\Enums\UrssafPeriodicity;
@@ -75,6 +76,8 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property bool $vat_on_debits
  * @property ?string $custom_mentions
  * @property DocumentLanguage $document_language
+ * @property bool $reminders_default_enabled
+ * @property ReminderFrequency $reminders_default_frequency
  * @property ?Money $treasury_buffer_cents
  * @property ?Money $bank_balance_cents
  * @property ?CarbonImmutable $bank_balance_recorded_on
@@ -150,6 +153,8 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
     'vat_on_debits',
     'custom_mentions',
     'document_language',
+    'reminders_default_enabled',
+    'reminders_default_frequency',
     'treasury_buffer_cents',
     'bank_balance_cents',
     'bank_balance_recorded_on',
@@ -225,6 +230,8 @@ class UserSettings extends Model
             'default_payment_terms_days' => 'integer',
             'default_payment_terms_end_of_month' => 'boolean',
             'invoicing_mode' => InvoicingMode::class,
+            'reminders_default_enabled' => 'boolean',
+            'reminders_default_frequency' => ReminderFrequency::class,
             'quote_validity_days' => 'integer',
             'late_penalty_rate_bp' => 'integer',
             'operation_category' => OperationCategory::class,

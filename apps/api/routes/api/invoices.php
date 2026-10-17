@@ -95,6 +95,8 @@ Route::middleware(['auth:sanctum', EnsureSessionIsUnlocked::class])->group(funct
 
         Route::get('/invoicing/emails', [EmailTemplateController::class, 'index'])
             ->name('listEmailTemplates');
+        Route::put('/invoicing/emails/reminders', [EmailTemplateController::class, 'updateReminderDefaults'])
+            ->name('updateReminderDefaults');
         Route::put('/invoicing/emails/{kind}', [EmailTemplateController::class, 'update'])
             ->whereNumber('kind')
             ->name('updateEmailTemplate');

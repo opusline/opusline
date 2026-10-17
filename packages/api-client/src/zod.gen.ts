@@ -683,13 +683,6 @@ export const zEmailTemplateData = z.object({
 });
 
 /**
- * EmailTemplatesData
- */
-export const zEmailTemplatesData = z.object({
-    templates: z.array(zEmailTemplateData)
-});
-
-/**
  * EnableBankingSettingsData
  */
 export const zEnableBankingSettingsData = z.object({
@@ -2175,6 +2168,34 @@ export const zRemindInvoiceData = z.object({
 });
 
 /**
+ * ReminderFrequency
+ *
+ * How often an unpaid invoice is reminded about once its due date has passed.
+ *
+ */
+export const zReminderFrequency = z.union([
+    z.literal(0),
+    z.literal(1),
+    z.literal(2)
+]);
+
+/**
+ * ReminderDefaultsData
+ */
+export const zReminderDefaultsData = z.object({
+    enabled: z.boolean(),
+    frequency: zReminderFrequency
+});
+
+/**
+ * EmailTemplatesData
+ */
+export const zEmailTemplatesData = z.object({
+    templates: z.array(zEmailTemplateData),
+    reminderDefaults: zReminderDefaultsData
+});
+
+/**
  * RenamePasskeyData
  */
 export const zRenamePasskeyData = z.object({
@@ -3178,6 +3199,14 @@ export const zUpdateReleaseNotesSeenData = z.object({
 });
 
 /**
+ * UpdateReminderDefaultsData
+ */
+export const zUpdateReminderDefaultsData = z.object({
+    enabled: z.boolean(),
+    frequency: zReminderFrequency
+});
+
+/**
  * UpdateSettingsCurrencyData
  */
 export const zUpdateSettingsCurrencyData = z.object({
@@ -3949,6 +3978,10 @@ export const zListDocumentLibraryResponse = zDocumentLibraryData;
 export const zSyncReceivedEInvoicesResponse = zEInvoiceSyncData;
 
 export const zListEmailTemplatesResponse = zEmailTemplatesData;
+
+export const zUpdateReminderDefaultsBody = zUpdateReminderDefaultsData;
+
+export const zUpdateReminderDefaultsResponse = zReminderDefaultsData;
 
 export const zResetEmailTemplatePath = z.object({
     kind: z.int()

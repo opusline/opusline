@@ -2,14 +2,17 @@ import type {
   EmailPreviewData,
   EmailTemplateData,
   EmailTemplateKind,
+  ReminderDefaultsData,
 } from "@opusline/api-client";
 import { Alert, AlertDescription } from "@opusline/ui/components/alert";
 import { Badge } from "@opusline/ui/components/badge";
 import { Button } from "@opusline/ui/components/button";
 import { Field, FieldLabel } from "@opusline/ui/components/field";
 import { Input } from "@opusline/ui/components/input";
+import { NativeSelect } from "@opusline/ui/components/native-select";
 import { Panel, PanelTitle } from "@opusline/ui/components/panel";
 import { Skeleton } from "@opusline/ui/components/skeleton";
+import { Switch } from "@opusline/ui/components/switch";
 import { Textarea } from "@opusline/ui/components/textarea";
 import { cn } from "@opusline/ui/lib/utils";
 import { CircleAlert } from "lucide-react";
@@ -24,6 +27,8 @@ import {
   emailKindDetail,
   emailKindLabel,
   insertToken,
+  REMINDER_FREQUENCIES,
+  reminderFrequencyLabel,
 } from "../lib/email-templates";
 
 const LABEL = "text-muted-foreground-2 text-xs";
@@ -47,6 +52,9 @@ type EmailTemplatesPageProps = {
   mailEnabled: boolean;
   isSendingTest: boolean;
   onSendTest: () => void;
+  /** What a new invoice starts with for its reminders; saved as soon as it changes. */
+  reminderDefaults: ReminderDefaultsData;
+  onReminderDefaultsChange: (defaults: ReminderDefaultsData) => void;
   error: string | null;
 };
 
@@ -67,9 +75,11 @@ export function EmailTemplatesPage({
   mailEnabled,
   isSendingTest,
   onSendTest,
+  reminderDefaults,
+  onReminderDefaultsChange,
   error,
 }: EmailTemplatesPageProps) {
-  const ids = { subject: useId(), body: useId() };
+  const ids = { subject: useId(), body: useId(), frequency: useId() };
   const bodyField = useRef<HTMLTextAreaElement>(null);
   const current = templates.find((template) => template.kind === selected);
 
@@ -215,6 +225,55 @@ export function EmailTemplatesPage({
               </button>
             ))}
           </div>
+          {selected === 3 ? (
+            <div
+              className="flex flex-col gap-3 border-t pt-3.5"
+              data-testid="emails-reminders"
+            >
+              <div className="flex items-center justify-between gap-3.5">
+                <div>
+                  <div className="text-foreground-2 text-sm">
+                    {m.emails_reminders_toggle()}
+                  </div>
+                  <div className="mt-0.75 text-muted-foreground-3 text-xs">
+                    {m.emails_reminders_toggle_hint()}
+                  </div>
+                </div>
+                <Switch
+                  aria-label={m.emails_reminders_toggle()}
+                  checked={reminderDefaults.enabled}
+                  data-testid="emails-reminders-toggle"
+                  onCheckedChange={(enabled) =>
+                    onReminderDefaultsChange({ ...reminderDefaults, enabled })
+                  }
+                />
+              </div>
+              <Field className="max-w-90">
+                <FieldLabel className={LABEL} htmlFor={ids.frequency}>
+                  {m.emails_reminders_frequency()}
+                </FieldLabel>
+                <NativeSelect
+                  data-testid="emails-reminders-frequency"
+                  id={ids.frequency}
+                  onChange={(event) =>
+                    onReminderDefaultsChange({
+                      ...reminderDefaults,
+                      frequency: Number(
+                        event.target.value,
+                      ) as ReminderDefaultsData["frequency"],
+                    })
+                  }
+                  value={String(reminderDefaults.frequency)}
+                >
+                  {REMINDER_FREQUENCIES.map((frequency) => (
+                    <option key={frequency} value={String(frequency)}>
+                      {reminderFrequencyLabel(frequency)}
+                    </option>
+                  ))}
+                </NativeSelect>
+              </Field>
+            </div>
+          ) : null}
           <div className="flex flex-wrap items-center justify-between gap-3 border-t pt-3.5">
             <span className="text-muted-foreground-3 text-xs">
               {mailEnabled ? "" : m.emails_test_unavailable()}

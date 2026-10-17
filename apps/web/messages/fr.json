@@ -1185,6 +1185,10 @@
   "emails_modified": "modifié",
   "emails_preview_failed": "L'aperçu n'a pas pu être rendu.",
   "emails_preview_label": "Aperçu · avec des chiffres d'exemple",
+  "emails_reminders_frequency": "Fréquence par défaut",
+  "emails_reminders_save_failed": "Les réglages de relance n'ont pas pu être enregistrés.",
+  "emails_reminders_toggle": "Activer les relances sur chaque nouvelle facture",
+  "emails_reminders_toggle_hint": "Modifiable facture par facture, au moment de l'envoi.",
   "emails_reset": "Rétablir le modèle",
   "emails_reset_failed": "Le modèle n'a pas pu être rétabli.",
   "emails_save_failed": "Le modèle n'a pas pu être enregistré.",
@@ -2252,6 +2256,9 @@
       }
     }
   ],
+  "reminder_frequency_day_three_and_ten": "À J+3 puis à J+10",
+  "reminder_frequency_once_day_after": "Une fois, le lendemain de l'échéance",
+  "reminder_frequency_weekly": "Chaque semaine jusqu'au paiement",
   "revenue_basis_aria": "Base de calcul",
   "revenue_basis_collected": "Encaissé",
   "revenue_basis_invoiced": "Facturé",

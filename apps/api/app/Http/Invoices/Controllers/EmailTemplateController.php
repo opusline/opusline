@@ -9,10 +9,13 @@ use App\Domain\Invoices\Actions\ResetEmailTemplate;
 use App\Domain\Invoices\Actions\ResolveEmailTemplate;
 use App\Domain\Invoices\Actions\SaveEmailTemplate;
 use App\Domain\Invoices\Actions\SendEmailTemplateToMyself;
+use App\Domain\Invoices\Actions\UpdateReminderDefaults;
 use App\Domain\Invoices\Data\EmailTemplateData;
 use App\Domain\Invoices\Data\EmailTemplatesData;
 use App\Domain\Invoices\Data\PreviewEmailTemplateData;
+use App\Domain\Invoices\Data\ReminderDefaultsData;
 use App\Domain\Invoices\Data\UpdateEmailTemplateData;
+use App\Domain\Invoices\Data\UpdateReminderDefaultsData;
 use App\Domain\Invoices\Enums\EmailTemplateKind;
 use App\Domain\Users\Models\User;
 use App\Http\Controllers\Controller;
@@ -26,7 +29,15 @@ class EmailTemplateController extends Controller
 {
     public function index(#[CurrentUser] User $user, ResolveEmailTemplate $resolveEmailTemplate): EmailTemplatesData
     {
-        return new EmailTemplatesData(templates: $resolveEmailTemplate->all($user));
+        return new EmailTemplatesData(
+            templates: $resolveEmailTemplate->all($user),
+            reminderDefaults: ReminderDefaultsData::fromSettings($user->settingsOrFail()),
+        );
+    }
+
+    public function updateReminderDefaults(UpdateReminderDefaultsData $data, #[CurrentUser] User $user, UpdateReminderDefaults $updateReminderDefaults): ReminderDefaultsData
+    {
+        return $updateReminderDefaults->handle($user->settingsOrFail(), $data);
     }
 
     public function update(UpdateEmailTemplateData $data, int $kind, #[CurrentUser] User $user, SaveEmailTemplate $saveEmailTemplate): EmailTemplateData

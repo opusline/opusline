@@ -75,3 +75,28 @@ test("the sample e-mail is sent to the account itself", async ({
     .poll(() => emailCountFor(request, account.email), { timeout: 30_000 })
     .toBe(before + 1);
 });
+
+test("the reminder defaults are kept for the next invoices", async ({
+  page,
+  account: _registered,
+}) => {
+  await page.goto("/invoicing/emails");
+  await byTestId(page, "emails-kind", { kind: "payment-reminder" }).click();
+
+  const saved = page.waitForResponse(
+    (response) =>
+      response.url().endsWith("/api/invoicing/emails/reminders") &&
+      response.request().method() === "PUT",
+  );
+  await page.getByTestId("emails-reminders-frequency").selectOption("2");
+  expect((await saved).status()).toBe(200);
+  await page.getByTestId("emails-reminders-toggle").click();
+
+  await page.reload();
+  await byTestId(page, "emails-kind", { kind: "payment-reminder" }).click();
+  await expect(page.getByTestId("emails-reminders-frequency")).toHaveValue("2");
+  await expect(page.getByTestId("emails-reminders-toggle")).toHaveAttribute(
+    "aria-checked",
+    "true",
+  );
+});

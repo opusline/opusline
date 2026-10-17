@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 use App\Domain\Invoices\Enums\DocumentLanguage;
 use App\Domain\Invoices\Enums\EmailTemplateKind;
+use App\Domain\Invoices\Enums\ReminderFrequency;
 use App\Domain\Invoices\Mail\ClientDocumentMail;
 use App\Domain\Invoices\Mail\ClientEmailContent;
 use App\Domain\Invoices\Models\EmailTemplate;
@@ -251,4 +252,38 @@ test('the test send does not exist on an instance that sends no mail', function 
     $this->actingAs($user)->postJson('/api/invoicing/emails/'.EmailTemplateKind::NewInvoice->value.'/test')->assertNotFound();
 
     Mail::assertNothingSent();
+});
+
+test('the list carries the reminder defaults, off until the account turns them on', function (): void {
+    $user = invoicingUser();
+
+    $this->actingAs($user)
+        ->getJson('/api/invoicing/emails')
+        ->assertOk()
+        ->assertJsonPath('reminderDefaults.enabled', false)
+        ->assertJsonPath('reminderDefaults.frequency', ReminderFrequency::OnceDayAfterDue->value);
+});
+
+test('sets what a new invoice starts with for its reminders', function (): void {
+    $user = invoicingUser();
+
+    $this->actingAs($user)
+        ->putJson('/api/invoicing/emails/reminders', ['enabled' => true, 'frequency' => ReminderFrequency::WeeklyUntilPaid->value])
+        ->assertOk()
+        ->assertJsonPath('enabled', true)
+        ->assertJsonPath('frequency', ReminderFrequency::WeeklyUntilPaid->value);
+
+    $settings = $user->settingsOrFail()->refresh();
+
+    expect($settings->reminders_default_enabled)->toBeTrue()
+        ->and($settings->reminders_default_frequency)->toBe(ReminderFrequency::WeeklyUntilPaid);
+});
+
+test('refuses a reminder frequency it does not know', function (): void {
+    $user = invoicingUser();
+
+    $this->actingAs($user)
+        ->putJson('/api/invoicing/emails/reminders', ['enabled' => true, 'frequency' => 9])
+        ->assertUnprocessable()
+        ->assertJsonValidationErrors(['frequency']);
 });

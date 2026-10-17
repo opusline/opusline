@@ -14,6 +14,7 @@ function renderPage(
   const onSave = vi.fn();
   const onReset = vi.fn();
   const onSendTest = vi.fn();
+  const onReminderDefaultsChange = vi.fn();
 
   render(
     <StoryRouter>
@@ -30,11 +31,13 @@ function renderPage(
         mailEnabled={true}
         onCancel={vi.fn()}
         onDraftChange={onDraftChange}
+        onReminderDefaultsChange={onReminderDefaultsChange}
         onReset={onReset}
         onSave={onSave}
         onSelect={onSelect}
         onSendTest={onSendTest}
         preview={EMAIL_PREVIEW}
+        reminderDefaults={{ enabled: false, frequency: 0 }}
         selected={0}
         templates={EMAIL_TEMPLATES}
         {...props}
@@ -42,7 +45,14 @@ function renderPage(
     </StoryRouter>,
   );
 
-  return { onSelect, onDraftChange, onSave, onReset, onSendTest };
+  return {
+    onSelect,
+    onDraftChange,
+    onSave,
+    onReset,
+    onSendTest,
+    onReminderDefaultsChange,
+  };
 }
 
 it("lists the four templates and marks the reworded one", async () => {
@@ -150,4 +160,29 @@ it("shows the rendered e-mail and its subject", async () => {
     "srcdoc",
     expect.stringContaining("Bonjour Sophie,"),
   );
+});
+
+it("keeps the reminder defaults on the reminder template alone, saved as they change", async () => {
+  const { onReminderDefaultsChange } = renderPage({ selected: 3 });
+
+  fireEvent.click(await screen.findByTestId("emails-reminders-toggle"));
+  expect(onReminderDefaultsChange).toHaveBeenCalledWith({
+    enabled: true,
+    frequency: 0,
+  });
+
+  fireEvent.change(screen.getByTestId("emails-reminders-frequency"), {
+    target: { value: "2" },
+  });
+  expect(onReminderDefaultsChange).toHaveBeenLastCalledWith({
+    enabled: false,
+    frequency: 2,
+  });
+});
+
+it("shows no reminder defaults on the other templates", async () => {
+  renderPage();
+
+  await screen.findByTestId("emails-editor");
+  expect(screen.queryByTestId("emails-reminders")).toBeNull();
 });

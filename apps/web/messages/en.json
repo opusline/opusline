@@ -1185,6 +1185,10 @@
   "emails_modified": "edited",
   "emails_preview_failed": "The preview could not be rendered.",
   "emails_preview_label": "Preview · with sample figures",
+  "emails_reminders_frequency": "Default frequency",
+  "emails_reminders_save_failed": "The reminder defaults could not be saved.",
+  "emails_reminders_toggle": "Turn reminders on for every new invoice",
+  "emails_reminders_toggle_hint": "Adjustable invoice by invoice, when it is sent.",
   "emails_reset": "Restore the template",
   "emails_reset_failed": "The template could not be restored.",
   "emails_save_failed": "The template could not be saved.",
@@ -2252,6 +2256,9 @@
       }
     }
   ],
+  "reminder_frequency_day_three_and_ten": "On day 3, then on day 10",
+  "reminder_frequency_once_day_after": "Once, the day after the due date",
+  "reminder_frequency_weekly": "Every week until paid",
   "revenue_basis_aria": "Revenue basis",
   "revenue_basis_collected": "Collected",
   "revenue_basis_invoiced": "Invoiced",

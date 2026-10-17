@@ -1,4 +1,7 @@
-import type { EmailTemplateKind } from "@opusline/api-client";
+import type {
+  EmailTemplateKind,
+  ReminderFrequency,
+} from "@opusline/api-client";
 
 import { m } from "@/paraglide/messages.js";
 
@@ -57,4 +60,16 @@ export function insertToken(
     text: text.slice(0, start) + inserted + text.slice(end),
     caret: start + inserted.length,
   };
+}
+
+export const REMINDER_FREQUENCIES: readonly ReminderFrequency[] = [0, 1, 2];
+
+const REMINDER_FREQUENCY_LABELS: Record<ReminderFrequency, () => string> = {
+  0: m.reminder_frequency_once_day_after,
+  1: m.reminder_frequency_day_three_and_ten,
+  2: m.reminder_frequency_weekly,
+};
+
+export function reminderFrequencyLabel(frequency: ReminderFrequency): string {
+  return REMINDER_FREQUENCY_LABELS[frequency]();
 }

@@ -13,5 +13,7 @@ class EmailTemplatesData extends Data
      */
     public function __construct(
         public array $templates,
+        /** What the payment-reminder template's automation starts from on a new invoice. */
+        public ReminderDefaultsData $reminderDefaults,
     ) {}
 }

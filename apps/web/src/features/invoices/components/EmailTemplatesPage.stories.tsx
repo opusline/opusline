@@ -34,6 +34,8 @@ const meta = {
     mailEnabled: true,
     isSendingTest: false,
     onSendTest: () => {},
+    reminderDefaults: { enabled: false, frequency: 0 },
+    onReminderDefaultsChange: () => {},
     error: null,
   },
 } satisfies Meta<typeof EmailTemplatesPage>;
@@ -44,10 +46,11 @@ type Story = StoryObj<typeof meta>;
 /** The new-invoice template as shipped, with its preview. */
 export const Default: Story = {};
 
-/** A reworded reminder, « modifié » in the list, with a way back to the default. */
+/** A reworded reminder, « modifié » in the list, with a way back to the default and the automation's defaults. */
 export const Reworded: Story = {
   args: {
     selected: 3,
+    reminderDefaults: { enabled: true, frequency: 1 },
     draft: {
       subject: EMAIL_TEMPLATES[3]?.subject ?? "",
       body: EMAIL_TEMPLATES[3]?.body ?? "",

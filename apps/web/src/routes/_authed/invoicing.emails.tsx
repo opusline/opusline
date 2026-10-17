@@ -2,6 +2,7 @@ import type {
   EmailTemplateData,
   EmailTemplateKind,
   EmailTemplatesData,
+  ReminderDefaultsData,
 } from "@opusline/api-client";
 import { previewEmailTemplate } from "@opusline/api-client";
 import {
@@ -11,6 +12,7 @@ import {
   resetEmailTemplateMutation,
   testEmailTemplateMutation,
   updateEmailTemplateMutation,
+  updateReminderDefaultsMutation,
 } from "@opusline/api-client/react-query";
 import { Alert, AlertDescription } from "@opusline/ui/components/alert";
 import { Skeleton } from "@opusline/ui/components/skeleton";
@@ -91,6 +93,7 @@ function EmailTemplatesRoute() {
       listEmailTemplatesQueryKey(),
       (current) =>
         current && {
+          ...current,
           templates: current.templates.map((template) =>
             template.kind === saved.kind ? saved : template,
           ),
@@ -117,6 +120,17 @@ function EmailTemplatesRoute() {
     },
     onError: (failure) =>
       setError(serverErrorMessage(failure, m.emails_reset_failed())),
+  });
+  const saveReminderDefaults = useMutation({
+    ...updateReminderDefaultsMutation(),
+    onMutate: () => setError(null),
+    onSuccess: (saved: ReminderDefaultsData) =>
+      queryClient.setQueryData<EmailTemplatesData>(
+        listEmailTemplatesQueryKey(),
+        (current) => current && { ...current, reminderDefaults: saved },
+      ),
+    onError: (failure) =>
+      setError(serverErrorMessage(failure, m.emails_reminders_save_failed())),
   });
   const sendTest = useMutation({
     ...testEmailTemplateMutation(),
@@ -163,8 +177,14 @@ function EmailTemplatesRoute() {
         setSelected(kind);
         setEdited(null);
       }}
+      onReminderDefaultsChange={(defaults) =>
+        saveReminderDefaults.mutate({ body: defaults })
+      }
       onSendTest={() => sendTest.mutate(path)}
       preview={preview.data ?? null}
+      reminderDefaults={
+        saveReminderDefaults.variables?.body ?? templates.data.reminderDefaults
+      }
       selected={selected}
       templates={templates.data.templates}
     />
