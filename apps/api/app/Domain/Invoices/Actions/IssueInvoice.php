@@ -10,7 +10,7 @@ use App\Domain\Invoices\Documents\DocumentParties;
 use App\Domain\Invoices\Documents\PaymentTerm;
 use App\Domain\Invoices\Enums\DocumentLanguage;
 use App\Domain\Invoices\Enums\InvoiceEventKind;
-use App\Domain\Invoices\Enums\InvoiceStatus;
+use App\Domain\Invoices\Lifecycle\Invoice\InvoiceSent;
 use App\Domain\Invoices\Models\Invoice;
 use App\Domain\Invoices\Models\InvoiceLine;
 use App\Domain\Settings\Models\UserSettings;
@@ -42,8 +42,8 @@ class IssueInvoice
         return $this->lockInvoice->handle($invoice, function (Invoice $locked) use ($user): Invoice {
             // Judged on the refreshed row, under the lock: two requests racing
             // on the same draft would otherwise both pass and number it twice.
-            abort_if(
-                ! $locked->isWrittenInOpusline() || $locked->status !== InvoiceStatus::Draft,
+            abort_unless(
+                $locked->isWrittenInOpusline() && $locked->lifecycle->canTransitionTo(InvoiceSent::class),
                 409,
                 __('invoices.not_an_opusline_draft'),
             );
@@ -56,11 +56,10 @@ class IssueInvoice
             $term = new PaymentTerm($locked->payment_terms_days ?? 0, $locked->payment_terms_end_of_month);
 
             try {
-                $locked->update([
+                $locked->fill([
                     // The series continues from whatever the account last numbered,
                     // in Opusline or before it: one business, one sequence.
                     'number' => $this->suggestInvoiceNumber->handle($user)->number,
-                    'status' => InvoiceStatus::Sent,
                     'issued_on' => $issuedOn,
                     'due_on' => $term->dueOn($issuedOn),
                     'seller_snapshot' => DocumentParties::seller($settings, $locked->show_iban, $locked->show_email),
@@ -68,6 +67,7 @@ class IssueInvoice
                     'vat_on_debits' => $settings->vat_regime->isLiable() && $settings->vat_on_debits,
                     'buyer_snapshot' => DocumentParties::buyer($locked->client),
                 ]);
+                $locked->lifecycle->transitionTo(InvoiceSent::class);
             } catch (UniqueConstraintViolationException) {
                 throw ValidationException::withMessages([
                     'number' => __('invoices.number_taken'),

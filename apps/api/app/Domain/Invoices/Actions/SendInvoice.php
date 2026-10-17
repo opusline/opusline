@@ -6,7 +6,7 @@ namespace App\Domain\Invoices\Actions;
 
 use App\Domain\Invoices\Data\SendInvoiceData;
 use App\Domain\Invoices\Enums\InvoiceEventKind;
-use App\Domain\Invoices\Enums\InvoiceStatus;
+use App\Domain\Invoices\Lifecycle\Invoice\InvoiceSent;
 use App\Domain\Invoices\Models\Invoice;
 use Carbon\CarbonImmutable;
 
@@ -20,7 +20,7 @@ class SendInvoice
     public function handle(Invoice $invoice, SendInvoiceData $data): Invoice
     {
         return $this->lockInvoice->handle($invoice, function (Invoice $locked) use ($data): Invoice {
-            abort_if($locked->status !== InvoiceStatus::Draft, 409, __('invoices.cannot_send_unless_draft'));
+            abort_unless($locked->lifecycle->canTransitionTo(InvoiceSent::class), 409, __('invoices.cannot_send_unless_draft'));
             // An Opusline draft is issued by validating it, which numbers it.
             abort_if($locked->isWrittenInOpusline(), 409, __('invoices.validate_before_send'));
 
@@ -34,7 +34,7 @@ class SendInvoice
 
             abort_if($sentOn->isBefore($locked->issued_on), 409, __('invoices.sent_on_before_issued'));
 
-            $locked->update(['status' => InvoiceStatus::Sent]);
+            $locked->lifecycle->transitionTo(InvoiceSent::class);
 
             $this->recordInvoiceEvent->handle($locked, InvoiceEventKind::Sent, $sentOn);
 

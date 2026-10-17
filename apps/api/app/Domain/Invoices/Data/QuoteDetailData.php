@@ -6,6 +6,7 @@ namespace App\Domain\Invoices\Data;
 
 use App\Domain\Clients\Data\ClientData;
 use App\Domain\Documents\Data\DocumentData;
+use App\Domain\Invoices\Enums\QuoteStatus;
 use App\Domain\Invoices\Models\Quote;
 use App\Domain\Missions\Data\MissionData;
 use Spatie\LaravelData\Attributes\DataCollectionOf;
@@ -14,6 +15,9 @@ use Spatie\MediaLibrary\MediaCollections\Models\Media;
 
 class QuoteDetailData extends Data
 {
+    /**
+     * @param  list<QuoteStatus>  $nextStatuses
+     */
     public function __construct(
         public QuoteData $quote,
         public ClientData $client,
@@ -25,6 +29,8 @@ class QuoteDetailData extends Data
         /** @var list<DocumentEmailData> The e-mails it was sent in, oldest first. */
         #[DataCollectionOf(DocumentEmailData::class)]
         public array $emails,
+        /** The statuses it can move to from where it stands; Sent on a sent quote means it expired and only reopens. */
+        public array $nextStatuses,
     ) {}
 
     public static function fromModel(Quote $quote): self
@@ -39,6 +45,7 @@ class QuoteDetailData extends Data
             document: $document instanceof Media ? DocumentData::fromMedia($document) : null,
             billing: QuoteBillingData::fromQuote($quote),
             emails: array_values($quote->emails->map(DocumentEmailData::fromModel(...))->all()),
+            nextStatuses: $quote->lifecycle->nextStatuses(),
         );
     }
 }

@@ -13702,6 +13702,12 @@
                             "null"
                         ],
                         "format": "date"
+                    },
+                    "nextStatuses": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/InvoiceStatus"
+                        }
                     }
                 },
                 "required": [
@@ -13713,7 +13719,8 @@
                     "content",
                     "quote",
                     "emails",
-                    "nextReminderOn"
+                    "nextReminderOn",
+                    "nextStatuses"
                 ],
                 "title": "InvoiceDetailData"
             },
@@ -15588,6 +15595,12 @@
                         "items": {
                             "$ref": "#/components/schemas/DocumentEmailData"
                         }
+                    },
+                    "nextStatuses": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/QuoteStatus"
+                        }
                     }
                 },
                 "required": [
@@ -15597,7 +15610,8 @@
                     "content",
                     "document",
                     "billing",
-                    "emails"
+                    "emails",
+                    "nextStatuses"
                 ],
                 "title": "QuoteDetailData"
             },

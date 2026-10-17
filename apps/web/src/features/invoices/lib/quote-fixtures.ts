@@ -5,6 +5,7 @@ import type {
   QuoteData,
   QuoteDetailData,
   QuoteListItemData,
+  QuoteStatus,
 } from "@opusline/api-client";
 import { CLIENT_FIXTURE, eur, MISSION_FIXTURE } from "@/test/fixtures";
 import { invoicePaperFixture } from "./invoice-paper-fixture";
@@ -104,6 +105,14 @@ export const DEPOSIT_BILLED: QuoteBillingData = {
 };
 
 /** A quote written in Opusline, sent and awaiting the client's answer. */
+/** Mirrors the API's quote lifecycle for a quote still within its validity. */
+const NEXT_QUOTE_STATUSES: Record<QuoteStatus, QuoteStatus[]> = {
+  0: [1],
+  1: [2, 3],
+  2: [],
+  3: [1],
+};
+
 export function quoteDetail(
   overrides: Partial<QuoteData> = {},
   billing: QuoteBillingData = NO_BILLING,
@@ -116,6 +125,7 @@ export function quoteDetail(
     document: null,
     billing,
     emails: [],
+    nextStatuses: NEXT_QUOTE_STATUSES[overrides.status ?? QUOTE_FIXTURE.status],
   };
 }
 

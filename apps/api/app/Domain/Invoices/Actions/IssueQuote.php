@@ -8,7 +8,7 @@ use App\Domain\Documents\Actions\StoreGeneratedDocument;
 use App\Domain\Documents\Enums\DocumentCategory;
 use App\Domain\Invoices\Documents\DocumentParties;
 use App\Domain\Invoices\Enums\DocumentLanguage;
-use App\Domain\Invoices\Enums\QuoteStatus;
+use App\Domain\Invoices\Lifecycle\Quote\QuoteSent;
 use App\Domain\Invoices\Models\Quote;
 use App\Domain\Invoices\Models\QuoteLine;
 use App\Domain\Settings\Models\UserSettings;
@@ -34,7 +34,8 @@ class IssueQuote
     public function handle(User $user, Quote $quote): Quote
     {
         return $this->lockQuote->handle($quote, function (Quote $locked) use ($user): Quote {
-            abort_if($locked->status !== QuoteStatus::Draft, 409, __('quotes.not_a_draft'));
+            // A refused or expired quote also goes to Sent, by being reopened: issuing numbers a draft.
+            abort_unless(! $locked->status->isIssued() && $locked->lifecycle->canTransitionTo(QuoteSent::class), 409, __('quotes.not_a_draft'));
 
             $settings = $user->settingsOrFail();
             $locked->load(['client', 'lines']);
@@ -43,14 +44,14 @@ class IssueQuote
             $issuedOn = $settings->today();
 
             try {
-                $locked->update([
+                $locked->fill([
                     'number' => $this->suggestQuoteNumber->handle($user),
-                    'status' => QuoteStatus::Sent,
                     'issued_on' => $issuedOn,
                     'valid_until' => $issuedOn->addDays($locked->validity_days),
                     'seller_snapshot' => DocumentParties::seller($settings, false, $locked->show_email),
                     'buyer_snapshot' => DocumentParties::buyer($locked->client),
                 ]);
+                $locked->lifecycle->transitionTo(QuoteSent::class);
             } catch (UniqueConstraintViolationException) {
                 throw ValidationException::withMessages(['number' => __('quotes.number_taken')]);
             }

@@ -5,6 +5,7 @@ import type {
   InvoiceClientTotalsData,
   InvoiceData,
   InvoiceDetailData,
+  InvoiceStatus,
   InvoiceTodoData,
   InvoiceTodoWorkData,
   MoneyData,
@@ -85,6 +86,13 @@ export function clientRevenue(
   };
 }
 
+/** Mirrors the API's invoice lifecycle: draft → sent → paid. */
+const NEXT_INVOICE_STATUSES: Record<InvoiceStatus, InvoiceStatus[]> = {
+  0: [1],
+  1: [2],
+  2: [],
+};
+
 export function invoiceDetail(
   overrides: Partial<InvoiceData> = {},
   document: DocumentData | null = null,
@@ -100,6 +108,7 @@ export function invoiceDetail(
     quote: null,
     emails: [],
     nextReminderOn: null,
+    nextStatuses: NEXT_INVOICE_STATUSES[item.invoice.status],
     history: [
       { id: 1, kind: 0, occurredOn: "2026-06-30", note: null },
       { id: 2, kind: 1, occurredOn: "2026-06-30", note: null },
