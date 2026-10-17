@@ -27,9 +27,10 @@ test("a pasted block fills the client, the lines and the term of a new invoice",
   await page.getByTestId("paste-fill-sample").click();
   await page.getByTestId("paste-fill-apply").click();
 
+  // Client, title, lines and term: the sample fills four things.
   await expect(page.getByTestId("paste-fill-filled")).toHaveAttribute(
     "data-count",
-    "3",
+    "4",
   );
   await expect(
     byTestId(page, "paste-fill-chip", { kind: "client" }),
