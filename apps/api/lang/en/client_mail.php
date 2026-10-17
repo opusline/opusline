@@ -71,4 +71,5 @@ return [
     'validate_before_sending' => 'Validate the document first: a draft has nothing to send.',
     'no_document' => 'No PDF to attach: file the document first.',
     'written_elsewhere' => 'This document was issued in another tool, which sent it: Opusline only e-mails what it wrote.',
+    'no_reminder_recipients' => 'This invoice was never e-mailed from Opusline, so there is nobody to remind: send it first.',
 ];

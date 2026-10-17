@@ -71,4 +71,5 @@ return [
     'validate_before_sending' => 'Validez d\'abord le document : un brouillon n\'a rien à envoyer.',
     'no_document' => 'Aucun PDF à joindre : classez d\'abord le document.',
     'written_elsewhere' => 'Ce document a été émis dans un autre outil, qui l\'a envoyé : Opusline n\'envoie que ce qu\'il a rédigé.',
+    'no_reminder_recipients' => 'Cette facture n\'a jamais été envoyée depuis Opusline, il n\'y a donc personne à relancer : envoyez-la d\'abord.',
 ];
