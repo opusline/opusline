@@ -14,6 +14,7 @@ return [
     'issue_needs_positive_total' => 'Un devis ne peut pas totaliser zéro ou moins.',
     'issue_needs_vat_rework' => 'Votre régime de TVA a changé depuis l\'enregistrement de ce brouillon : ouvrez-le dans l\'éditeur et enregistrez-le à nouveau.',
     'issue_needs_seller_identity' => 'Complétez votre nom, votre adresse et votre SIRET dans les Réglages : ils sont obligatoires sur un devis.',
+    'issue_needs_vat_number' => 'Ajoutez votre numéro de TVA dans les Réglages : une entreprise assujettie doit l\'imprimer sur ses devis.',
     'issue_needs_buyer_address' => 'Complétez l\'adresse de facturation du client sur sa fiche : elle est obligatoire sur un devis.',
     'cannot_delete_client_with_quotes' => 'Un client qui a encore des devis ne peut pas être supprimé. Supprimez-les d\'abord.',
     'cannot_delete_mission_with_quotes' => 'Une mission qui a encore des devis ne peut pas être supprimée. Supprimez-les d\'abord.',

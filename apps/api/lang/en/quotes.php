@@ -14,6 +14,7 @@ return [
     'issue_needs_positive_total' => 'A quote cannot total zero or less.',
     'issue_needs_vat_rework' => 'Your VAT regime changed since this draft was saved: open it in the editor and save it again.',
     'issue_needs_seller_identity' => 'Complete your name, address and SIRET in Settings: they are mandatory on a quote.',
+    'issue_needs_vat_number' => 'Add your VAT number in Settings: a VAT-liable business must print it on its quotes.',
     'issue_needs_buyer_address' => 'Complete the client\'s billing address on its record: it is mandatory on a quote.',
     'cannot_delete_client_with_quotes' => 'A client that still has quotes cannot be deleted. Delete them first.',
     'cannot_delete_mission_with_quotes' => 'A mission that still has quotes cannot be deleted. Delete them first.',
