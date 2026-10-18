@@ -5,12 +5,12 @@ declare(strict_types=1);
 return [
     'templates' => [
         'new_invoice' => [
-            'subject' => 'Invoice {numero} ({titre})',
-            'body' => "Hello {contact},\n\nHere is invoice {numero} for {titre}, {montant} incl. VAT, due by {echeance}.\n\nThe transfer can go to the account below. Please quote {numero} in the reference, it helps me match it.\n\nHave a good day,",
+            'subject' => 'Invoice {numero}',
+            'body' => "Hello {contact},\n\nHere is invoice {numero}, {montant} incl. VAT, due by {echeance}.\n\nThe transfer can go to the account below. Please quote {numero} in the reference, it helps me match it.\n\nHave a good day,",
         ],
         'new_quote' => [
-            'subject' => 'Quote {numero} ({titre})',
-            'body' => "Hello {contact},\n\nAs agreed, here is quote {numero} for {titre}: {montant} excl. VAT, valid until {validite}.\n\nTo accept it, return it signed with the words \"approved\", or reply to this e-mail. If anything should change, tell me and I will adjust it.\n\nHave a good day,",
+            'subject' => 'Quote {numero}',
+            'body' => "Hello {contact},\n\nAs agreed, here is quote {numero}: {montant} excl. VAT, valid until {validite}.\n\nTo accept it, return it signed with the words \"approved\", or reply to this e-mail. If anything should change, tell me and I will adjust it.\n\nHave a good day,",
         ],
         'credit_note' => [
             'subject' => 'Credit note {numero} (invoice {facture})',

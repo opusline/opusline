@@ -26,7 +26,7 @@ final class ClientEmailComposer
         $kind = $figures->kind;
         $ht = $format->money($figures->amountHt);
         $ttc = $format->money($figures->amountTtc);
-        $title = $figures->title ?? $figures->number;
+        $title = $figures->title ?? '';
         $due = $format->money($figures->amountDue);
         $dueOn = $figures->dueOn instanceof CarbonImmutable ? $format->date($figures->dueOn) : '';
         $validUntil = $figures->validUntil instanceof CarbonImmutable ? $format->date($figures->validUntil) : '';
@@ -97,10 +97,13 @@ final class ClientEmailComposer
             EmailTemplateKind::PaymentReminder => [['subject', $title], ['due_passed', $dueOn], ['transfer_reference', $figures->number]],
         };
 
-        return array_map(static fn (array $pair): array => [
+        // A document with neither title nor mission has no « Objet » to show.
+        $pairs = array_filter($pairs, static fn (array $pair): bool => $pair[1] !== '');
+
+        return array_values(array_map(static fn (array $pair): array => [
             'label' => (string) __("client_mail.card.{$pair[0]}", [], $locale),
             'value' => $pair[1],
-        ], $pairs);
+        ], $pairs));
     }
 
     /**

@@ -33,7 +33,7 @@ test('lists one template per kind, the built-in copy in the documents\' language
         ->assertOk()
         ->assertJsonCount(4, 'templates')
         ->assertJsonPath('templates.0.kind', EmailTemplateKind::NewInvoice->value)
-        ->assertJsonPath('templates.0.subject', 'Invoice {numero} ({titre})')
+        ->assertJsonPath('templates.0.subject', 'Invoice {numero}')
         ->assertJsonPath('templates.0.isCustom', false)
         ->assertJsonPath('templates.0.variables', ['numero', 'titre', 'montant', 'reste', 'echeance', 'contact', 'client'])
         ->assertJsonPath('templates.1.subject', 'Our quote {numero}')
@@ -142,7 +142,7 @@ test('previews the e-mail with sample figures, dates counted from today', functi
     $response = $this->actingAs($user)
         ->postJson('/api/invoicing/emails/'.EmailTemplateKind::NewInvoice->value.'/preview')
         ->assertOk()
-        ->assertJsonPath('subject', 'Facture F-2026-014 (Refonte du site)');
+        ->assertJsonPath('subject', 'Facture F-2026-014');
 
     expect($response->json('text'))
         ->toContain('Bonjour Sophie,')
@@ -162,7 +162,7 @@ test('previews a wording before it is saved, falling back to the stored one fiel
     $this->actingAs($user)
         ->postJson('/api/invoicing/emails/'.EmailTemplateKind::NewQuote->value.'/preview', ['body' => 'Bonjour {contact}, voici {numero} pour {montant}.'])
         ->assertOk()
-        ->assertJsonPath('subject', 'Devis D-2026-003 (Refonte du site)')
+        ->assertJsonPath('subject', 'Devis D-2026-003')
         ->assertJsonPath('text', "Bonjour Sophie, voici D-2026-003 pour 1\u{00A0}200,00\u{00A0}€.");
 
     expect($user->emailTemplates()->count())->toBe(0);
@@ -209,7 +209,7 @@ test('sends the sample e-mail to the account itself, from the instance in the ac
             && $envelope->from?->address === 'opusline@example.test'
             && $envelope->from->name === 'Studio Lorem'
             && $envelope->replyTo[0]->address === 'bonjour@studio-lorem.test'
-            && $envelope->subject === 'Facture F-2026-014 (Refonte du site)'
+            && $envelope->subject === 'Facture F-2026-014'
             && $mail->content->isTest;
     });
 });

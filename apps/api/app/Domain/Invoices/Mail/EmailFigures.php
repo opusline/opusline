@@ -30,6 +30,7 @@ final readonly class EmailFigures
     public function __construct(
         public EmailTemplateKind $kind,
         public string $number,
+        /** What the document is for: its title, else its mission's name; null when it has neither. */
         public ?string $title,
         public Money $amountHt,
         public Money $amountTtc,
@@ -87,7 +88,7 @@ final readonly class EmailFigures
         return new self(
             kind: $kind,
             number: (string) $invoice->number,
-            title: $invoice->title,
+            title: $invoice->title ?? $invoice->mission?->name,
             amountHt: $invoice->amount_ht_cents,
             amountTtc: $invoice->amount_ttc_cents,
             amountDue: $invoice->balanceDue(),
@@ -105,7 +106,7 @@ final readonly class EmailFigures
         return new self(
             kind: EmailTemplateKind::NewQuote,
             number: (string) $quote->number,
-            title: $quote->title,
+            title: $quote->title ?? $quote->mission?->name,
             amountHt: $quote->amount_ht_cents,
             amountTtc: $quote->amount_ttc_cents,
             amountDue: $quote->amount_ttc_cents,

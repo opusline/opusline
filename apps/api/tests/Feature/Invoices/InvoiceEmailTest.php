@@ -9,6 +9,7 @@ use App\Domain\Invoices\Enums\ReminderFrequency;
 use App\Domain\Invoices\Mail\ClientDocumentMail;
 use App\Domain\Invoices\Models\Invoice;
 use App\Domain\Invoices\Models\Quote;
+use App\Domain\Missions\Models\Mission;
 use App\Domain\Users\Models\User;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Mail;
@@ -46,7 +47,7 @@ test('previews the e-mail an invoice would go out in, filled with its own figure
     $response = $this->actingAs($user)
         ->postJson("/api/invoicing/invoices/{$invoice->id}/email/preview", ['body' => 'Bonjour {contact}, voici {numero} ({titre}) : {montant}, avant le {echeance}.'])
         ->assertOk()
-        ->assertJsonPath('subject', 'Facture 2026-001 (Refonte du site)');
+        ->assertJsonPath('subject', 'Facture 2026-001');
 
     expect($response->json('text'))
         ->toBe("Bonjour Sophie Reix, voici 2026-001 (Refonte du site) : 12\u{00A0}540,00\u{00A0}€, avant le 09/09/2026.")
@@ -62,7 +63,7 @@ test('sends the invoice with its PDF to the recipients, a copy to the account wh
         ->assertJsonPath('kind', EmailTemplateKind::NewInvoice->value)
         ->assertJsonPath('recipients', ['compta@nordlys.test', 'sophie@nordlys.test'])
         ->assertJsonPath('copyToSender', true)
-        ->assertJsonPath('subject', 'Facture 2026-001 (Refonte du site)');
+        ->assertJsonPath('subject', 'Facture 2026-001');
 
     Mail::assertQueued(ClientDocumentMail::class, fn (ClientDocumentMail $mail): bool => $mail->hasTo('compta@nordlys.test')
         && $mail->hasTo('sophie@nordlys.test')
@@ -194,7 +195,7 @@ test('a validated quote goes out the same way, its PDF attached', function (): v
         ->postJson("/api/invoicing/quotes/{$quoteId}/email", ['recipients' => ['compta@nordlys.test']])
         ->assertCreated()
         ->assertJsonPath('kind', EmailTemplateKind::NewQuote->value)
-        ->assertJsonPath('subject', "Devis D-2026-001 (Refonte de l'espace client)");
+        ->assertJsonPath('subject', 'Devis D-2026-001');
 
     Mail::assertQueued(ClientDocumentMail::class, fn (ClientDocumentMail $mail): bool => $mail->hasTo('compta@nordlys.test') && count($mail->attachments()) === 1);
     expect($this->actingAs($user)->getJson("/api/invoicing/quotes/{$quoteId}")->json('emails'))->toHaveCount(1);
@@ -207,4 +208,33 @@ test('a quote still in draft has nothing to send', function (): void {
     $this->actingAs($user)
         ->postJson("/api/invoicing/quotes/{$quoteId}/email", ['recipients' => ['compta@nordlys.test']])
         ->assertConflict();
+});
+
+test('names an untitled invoice after its mission', function (): void {
+    $user = issuableAccount();
+    $client = billableClient($user, ['billing_email' => 'compta@nordlys.test']);
+    $mission = Mission::factory()->for($client, 'client')->create(['user_id' => $user->id, 'name' => 'Refonte vitrine']);
+    $id = draftFor($user, $client, ['title' => null, 'missionId' => $mission->id]);
+    $this->actingAs($user)->postJson("/api/invoicing/invoices/{$id}/issue")->assertOk();
+
+    $response = $this->actingAs($user)
+        ->postJson("/api/invoicing/invoices/{$id}/email/preview", ['body' => 'Pour {titre}.'])
+        ->assertOk();
+
+    expect($response->json('text'))->toBe('Pour Refonte vitrine.')
+        ->and($response->json('html'))->toContain('Objet')->toContain('Refonte vitrine');
+});
+
+test('leaves an invoice with neither title nor mission without an object, rather than repeating its number', function (): void {
+    $user = issuableAccount();
+    $id = draftFor($user, billableClient($user, ['billing_email' => 'compta@nordlys.test']), ['title' => null]);
+    $this->actingAs($user)->postJson("/api/invoicing/invoices/{$id}/issue")->assertOk();
+
+    $response = $this->actingAs($user)
+        ->postJson("/api/invoicing/invoices/{$id}/email/preview")
+        ->assertOk()
+        ->assertJsonPath('subject', 'Facture 2026-001');
+
+    expect($response->json('text'))->toStartWith('Bonjour')->toContain('Voici la facture 2026-001, d')
+        ->and($response->json('html'))->not->toContain('Objet');
 });
