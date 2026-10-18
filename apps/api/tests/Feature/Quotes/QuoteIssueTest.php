@@ -5,9 +5,11 @@ declare(strict_types=1);
 use App\Domain\Clients\Models\Client;
 use App\Domain\Documents\Enums\DocumentCategory;
 use App\Domain\Invoices\Enums\InvoiceStatus;
+use App\Domain\Invoices\Enums\LineUnit;
 use App\Domain\Invoices\Enums\QuoteStatus;
 use App\Domain\Invoices\Models\Invoice;
 use App\Domain\Invoices\Models\Quote;
+use App\Domain\Settings\Enums\VatRegime;
 use App\Domain\Users\Models\User;
 use Illuminate\Support\Facades\Storage;
 
@@ -94,6 +96,11 @@ test('refuses to validate a quote missing a mandatory mention', function (callab
     'no seller siret' => [fn (User $user) => $user->settingsOrFail()->update(['siret' => null]), 'seller'],
     'no buyer address' => [fn (User $user, $client) => $client->update(['billing_city' => null]), 'buyer'],
     'no lines' => [fn (User $user, Client $client, int $id) => test()->actingAs($user)->putJson("/api/invoicing/quotes/{$id}", quotePayloadFor($client, ['lines' => []]))->assertOk(), 'lines'],
+    'a total of zero' => [fn (User $user, Client $client, int $id) => test()->actingAs($user)->putJson("/api/invoicing/quotes/{$id}", quotePayloadFor($client, ['lines' => [
+        ['label' => 'Atelier', 'quantityMilli' => 1000, 'unit' => LineUnit::Flat->value, 'unitPrice' => ['amount' => 50_000, 'currency' => 'EUR'], 'vatRateBp' => 2000],
+        ['label' => 'Remise', 'quantityMilli' => 1000, 'unit' => LineUnit::Flat->value, 'unitPrice' => ['amount' => -50_000, 'currency' => 'EUR'], 'vatRateBp' => 2000],
+    ]]))->assertOk(), 'lines'],
+    'priced under a VAT regime the account left' => [fn (User $user) => $user->settingsOrFail()->update(['vat_regime' => VatRegime::FranchiseEnBase]), 'lines'],
 ]);
 
 test('validates a draft once, whatever a racing request holds', function (): void {

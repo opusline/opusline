@@ -81,6 +81,7 @@ use Spatie\MediaLibrary\MediaCollections\Models\Media;
  * @property-read ?int $paid_cents Sum of the payments, when loaded via withPaymentFigures.
  * @property-read ?string $last_paid_on Day of the last payment, when loaded via withPaymentFigures.
  * @property-read ?int $credited_cents Sum of the credit notes' TTC, when loaded via withPaymentFigures.
+ * @property-read ?int $credited_ht_cents Sum of the credit notes' HT, when a revenue query selects it.
  * @property-read Collection<int, CreditNote> $creditNotes
  */
 #[Fillable([

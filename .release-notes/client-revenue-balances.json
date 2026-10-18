@@ -1,0 +1,4 @@
+{
+  "kind": "fixed",
+  "text": "Clients: the pending amount counts only what is left after payments and credit notes, and the year to date takes credit notes off, matching the invoices and revenue pages."
+}

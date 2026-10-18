@@ -169,7 +169,8 @@ class SummarizeClientRevenue
     {
         return $user->invoices()
             ->select(self::INVOICE_COLUMNS)
-            ->withMax('payments as last_paid_on', 'paid_on')
+            ->withPaymentFigures()
+            ->withSum('creditNotes as credited_ht_cents', 'amount_ht_cents')
             ->whereIn('status', [InvoiceStatus::Sent, InvoiceStatus::Paid]);
     }
 
@@ -333,7 +334,8 @@ class SummarizeClientRevenue
                 continue;
             }
 
-            $total = $total->add($invoice->amount_ht_cents);
+            // A credit note takes its HT back off the revenue, as on the revenue page.
+            $total = $total->add($invoice->amount_ht_cents)->subtract(new Money((int) $invoice->credited_ht_cents, $window->currency));
         }
 
         return $total;
@@ -344,7 +346,8 @@ class SummarizeClientRevenue
      *
      * Counted TTC, unlike every other figure here: this is a debt, not turnover,
      * and the client owes the VAT too. It is the same base as the "to collect"
-     * total of the invoices dashboard, which the two must agree on.
+     * total of the invoices dashboard, which the two must agree on: what is
+     * left after payments and credit notes.
      *
      * @param  Collection<int, Invoice>  $invoices
      */
@@ -357,7 +360,7 @@ class SummarizeClientRevenue
                 continue;
             }
 
-            $total = $total->add($invoice->amount_ttc_cents);
+            $total = $total->add($invoice->balanceDue());
         }
 
         return $total;
