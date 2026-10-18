@@ -1,0 +1,4 @@
+{
+  "kind": "new",
+  "text": "Claude can read your receipts in Expenses, scans and photos included: paste your own Anthropic API key under Settings › Integrations. Without a key, PDFs are still read on your server."
+}

@@ -5,7 +5,11 @@ import { afterEach, expect, it, vi } from "vitest";
 
 import { INVOICING } from "@/lib/features";
 import { seedCurrentUser } from "@/test/current-user";
-import { eInvoicingConnected, eInvoicingUnconfigured } from "@/test/fixtures";
+import {
+  anthropicWithoutKey,
+  eInvoicingConnected,
+  eInvoicingUnconfigured,
+} from "@/test/fixtures";
 import { StoryRouter } from "@/test/story-router";
 import { IntegrationsSettings } from "./integrations-settings";
 
@@ -28,6 +32,7 @@ function integrations(
       superPdpClientId === null
         ? eInvoicingUnconfigured
         : { ...eInvoicingConnected, clientId: superPdpClientId },
+    anthropic: anthropicWithoutKey,
   };
 }
 

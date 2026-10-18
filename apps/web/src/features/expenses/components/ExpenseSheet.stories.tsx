@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from "@storybook/react";
-
+import { nothingReadFromReceipt } from "@/test/fixtures";
 import { emptyExpenseDraft } from "../lib/expense-draft";
 import { deferredExpense, expense } from "../lib/fixtures";
 import { ExpenseSheet, type ExpenseSheetState } from "./expense-sheet";
@@ -19,7 +19,7 @@ const meta = {
     fieldErrors: null,
     onOpenChange: () => {},
     onSubmit: () => {},
-    onReadReceipt: async () => ({ textFound: false }),
+    onReadReceipt: async () => nothingReadFromReceipt,
   },
 } satisfies Meta<typeof ExpenseSheet>;
 

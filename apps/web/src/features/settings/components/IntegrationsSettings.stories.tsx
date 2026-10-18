@@ -6,7 +6,11 @@ import { useState } from "react";
 
 import { INVOICING } from "@/lib/features";
 import { seedCurrentUser } from "@/test/current-user";
-import { eInvoicingConnected, eInvoicingUnconfigured } from "@/test/fixtures";
+import {
+  anthropicWithoutKey,
+  eInvoicingConnected,
+  eInvoicingUnconfigured,
+} from "@/test/fixtures";
 import { StoryRouter } from "@/test/story-router";
 import { IntegrationsSettings } from "./integrations-settings";
 
@@ -45,6 +49,7 @@ const meta = {
         redirectUrl: "https://opusline.example/bank-account",
       },
       eInvoicing: eInvoicingUnconfigured,
+      anthropic: anthropicWithoutKey,
     },
   },
 } satisfies Meta<typeof Example>;
@@ -62,6 +67,7 @@ export const Configured: Story = {
         redirectUrl: "https://opusline.example/bank-account",
       },
       eInvoicing: eInvoicingConnected,
+      anthropic: { hasApiKey: true, model: "claude-opus-5-5" },
     },
   },
 };

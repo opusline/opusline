@@ -6,6 +6,7 @@ namespace App\Domain\Settings\Data;
 
 use App\Domain\Bank\Data\EnableBankingSettingsData;
 use App\Domain\EInvoicing\Data\EInvoicingSettingsData;
+use App\Domain\Shared\Anthropic\Data\AnthropicSettingsData;
 use Spatie\LaravelData\Data;
 
 /** The third-party services an account has plugged in (Réglages › Intégrations). */
@@ -14,5 +15,6 @@ class IntegrationsData extends Data
     public function __construct(
         public EnableBankingSettingsData $enableBanking,
         public EInvoicingSettingsData $eInvoicing,
+        public AnthropicSettingsData $anthropic,
     ) {}
 }

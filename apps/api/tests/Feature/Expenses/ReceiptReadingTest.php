@@ -5,6 +5,7 @@ declare(strict_types=1);
 use App\Domain\Expenses\Enums\ExpenseCategory;
 use App\Domain\Expenses\Enums\ExpenseVatTreatment;
 use App\Domain\Expenses\Enums\ReceiptFieldConfidence;
+use App\Domain\Expenses\Enums\ReceiptReader;
 use App\Domain\Users\Models\User;
 use Dompdf\Dompdf;
 use Dompdf\Options;
@@ -89,7 +90,7 @@ test('a PDF shaped to exhaust the parser is not read', function (string $appende
 test('an image has no text to read', function (): void {
     readReceiptAs(User::factory()->create(), UploadedFile::fake()->image('ticket.png'))
         ->assertOk()
-        ->assertExactJson(['textFound' => false, 'supplier' => null, 'spentOn' => null, 'amountTtc' => null, 'vat' => null, 'description' => null, 'category' => null]);
+        ->assertExactJson(['textFound' => false, 'reader' => ReceiptReader::Heuristics->value, 'claudeFailure' => null, 'supplier' => null, 'spentOn' => null, 'amountTtc' => null, 'vat' => null, 'description' => null, 'category' => null]);
 });
 
 test('a damaged PDF reads as nothing rather than failing', function (): void {

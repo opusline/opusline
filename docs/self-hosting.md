@@ -442,7 +442,12 @@ and records the supplier invoices it finds in Dépenses. Everything that writes
 *to* the platform is part of the invoicing beta (`FEATURE_INVOICING`).
 
 **Receipt reading.** Dépenses reads a dropped PDF receipt on the instance,
-with heuristics over its text. Nothing leaves the server.
+with heuristics over its text. An account that pastes its own Anthropic API key
+under Réglages → Intégrations has Claude read its receipts instead, scans and
+photos included: the file goes to Anthropic on that account's key, encrypted at
+rest with `APP_KEY`, and the heuristics take over whenever Claude cannot answer.
+Set `ANTHROPIC_MODEL` to change the model every account uses (default
+`claude-opus-5-5`). Without a key, nothing leaves the server.
 
 **Email.** Opusline sends none until you name a mailer. Set `MAIL_MAILER=smtp`
 with the `MAIL_HOST`, `MAIL_PORT`, `MAIL_USERNAME` and `MAIL_PASSWORD` of any

@@ -12,6 +12,7 @@
     "ext-libxml": "*",
     "ext-mbstring": "*",
     "ext-simplexml": "*",
+    "anthropic-ai/sdk": "^0.59.0",
     "cknow/laravel-money": "^8.5",
     "dedoc/scramble": "^0.13.37",
     "dompdf/dompdf": "^3.1",

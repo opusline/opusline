@@ -3,6 +3,14 @@
 import * as z from 'zod/mini';
 
 /**
+ * AnthropicSettingsData
+ */
+export const zAnthropicSettingsData = z.object({
+    hasApiKey: z.boolean(),
+    model: z.string()
+});
+
+/**
  * BackupRecordData
  */
 export const zBackupRecordData = z.object({
@@ -225,6 +233,22 @@ export const zChooseBankAccountData = z.object({
 export const zChooseBetaFeatureData = z.object({
     active: z.boolean()
 });
+
+/**
+ * ClaudeReadingFailure
+ *
+ * Why Claude did not read a receipt the account asked it to, so the heuristics did.
+ * | |
+ * |---|
+ * | `0` <br/> Anthropic refused the key: the account has to replace it. |
+ * | `1` <br/> Anthropic was unreachable, busy or rate-limiting: trying again later may work. |
+ * | `2` <br/> Claude answered without a usable reading: a file it cannot open, or it declined. |
+ */
+export const zClaudeReadingFailure = z.union([
+    z.literal(0),
+    z.literal(1),
+    z.literal(2)
+]);
 
 /**
  * ClientType
@@ -2051,7 +2075,8 @@ export const zEInvoicingSettingsData = z.object({
  */
 export const zIntegrationsData = z.object({
     enableBanking: zEnableBankingSettingsData,
-    eInvoicing: zEInvoicingSettingsData
+    eInvoicing: zEInvoicingSettingsData,
+    anthropic: zAnthropicSettingsData
 });
 
 /**
@@ -2231,6 +2256,17 @@ export const zReceiptDateFieldData = z.object({
 });
 
 /**
+ * ReceiptReader
+ *
+ * Who read the receipt, so the form can say how far to trust it.
+ * | |
+ * |---|
+ * | `0` <br/> Patterns over the PDF's text layer, on the instance. |
+ * | `1` <br/> A Claude model, on the account's own Anthropic key. |
+ */
+export const zReceiptReader = z.union([z.literal(0), z.literal(1)]);
+
+/**
  * ReceiptTextFieldData
  */
 export const zReceiptTextFieldData = z.object({
@@ -2252,6 +2288,8 @@ export const zReceiptVatFieldData = z.object({
  */
 export const zReceiptSuggestionData = z.object({
     textFound: z.boolean(),
+    reader: zReceiptReader,
+    claudeFailure: z.nullable(zClaudeReadingFailure),
     supplier: z.nullish(zReceiptTextFieldData),
     spentOn: z.nullish(zReceiptDateFieldData),
     amountTtc: z.nullish(zReceiptAmountFieldData),
@@ -2470,6 +2508,13 @@ export const zRevenueNetData = z.object({
 export const zRevenueVatData = z.object({
     amount: zMoneyData,
     rateBp: z.nullable(z.int())
+});
+
+/**
+ * SaveAnthropicApiKeyData
+ */
+export const zSaveAnthropicApiKeyData = z.object({
+    apiKey: z.string().check(z.maxLength(255), z.regex(/^sk-ant-[A-Za-z0-9_-]+$/))
 });
 
 /**
@@ -4530,6 +4575,12 @@ export const zDeleteEnableBankingCredentialsResponse = zIntegrationsData;
 export const zSaveEnableBankingCredentialsBody = zSaveEnableBankingCredentialsData;
 
 export const zSaveEnableBankingCredentialsResponse = zIntegrationsData;
+
+export const zDeleteAnthropicApiKeyResponse = zIntegrationsData;
+
+export const zSaveAnthropicApiKeyBody = zSaveAnthropicApiKeyData;
+
+export const zSaveAnthropicApiKeyResponse = zIntegrationsData;
 
 export const zDeleteSuperPdpCredentialsResponse = zIntegrationsData;
 

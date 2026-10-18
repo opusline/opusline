@@ -31,6 +31,8 @@ export const Done: Story = {
   args: {
     state: {
       status: "done",
+      reader: 0,
+      claudeFailure: null,
       fileName: "lunaprint-facture-9921.pdf",
       readCount: 4,
       hasCategory: true,
@@ -38,8 +40,43 @@ export const Done: Story = {
   },
 };
 
+/** A photo only Claude can read: the account gave an Anthropic key. */
+export const ReadByClaude: Story = {
+  args: {
+    state: {
+      status: "done",
+      reader: 1,
+      claudeFailure: null,
+      fileName: "photo-ticket-callisto.jpg",
+      readCount: 5,
+      hasCategory: true,
+    },
+  },
+};
+
+/** The key was revoked: the heuristics read the PDF and the form says why. */
+export const ClaudeKeyRejected: Story = {
+  args: {
+    state: {
+      status: "done",
+      reader: 0,
+      claudeFailure: 0,
+      fileName: "lunaprint-facture-9921.pdf",
+      readCount: 3,
+      hasCategory: false,
+    },
+  },
+};
+
 export const Unreadable: Story = {
-  args: { state: { status: "unreadable", fileName: "photo-facture.png" } },
+  args: {
+    state: {
+      status: "unreadable",
+      fileName: "photo-facture.png",
+      reader: 0,
+      claudeFailure: null,
+    },
+  },
 };
 
 export const Failed: Story = {

@@ -33,6 +33,11 @@ Route::middleware(['auth:sanctum', EnsureSessionIsUnlocked::class, RefuseAccessT
         ->name('saveEnableBankingCredentials');
     Route::delete('/settings/integrations/enable-banking', [IntegrationsController::class, 'deleteEnableBanking'])
         ->name('deleteEnableBankingCredentials');
+    Route::put('/settings/integrations/anthropic', [IntegrationsController::class, 'saveAnthropic'])
+        ->middleware('throttle:6,1')
+        ->name('saveAnthropicApiKey');
+    Route::delete('/settings/integrations/anthropic', [IntegrationsController::class, 'deleteAnthropic'])
+        ->name('deleteAnthropicApiKey');
     // The connection serves nothing until the e-invoicing rungs land: behind
     // the invoicing flag with them, so a flag-off instance is unchanged.
     Route::middleware(EnsureFeatureIsActive::class.':invoicing')->group(function (): void {

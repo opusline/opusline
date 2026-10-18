@@ -115,6 +115,7 @@ return [
     'periodKey' => 'période',
     'periodStart' => 'début de période',
     'privateKey' => 'clé privée',
+    'apiKey' => 'clé d\'API',
     'proShareBp' => 'quote-part pro',
     'provisionMonthly' => 'provision mensuelle',
     'psuType' => 'type de compte',

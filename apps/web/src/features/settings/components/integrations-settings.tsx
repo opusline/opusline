@@ -1,12 +1,15 @@
 import type {
   IntegrationsData,
+  SaveAnthropicApiKeyData,
   SaveEnableBankingCredentialsData,
   SaveSuperPdpCredentialsData,
 } from "@opusline/api-client";
 import {
   checkSuperPdpConnectionMutation,
+  deleteAnthropicApiKeyMutation,
   deleteEnableBankingCredentialsMutation,
   deleteSuperPdpCredentialsMutation,
+  saveAnthropicApiKeyMutation,
   saveEnableBankingCredentialsMutation,
   saveSuperPdpCredentialsMutation,
   showBankAccountQueryKey,
@@ -23,6 +26,7 @@ import { INVOICING, useFeature } from "@/lib/features";
 import type { FormSubmitResult } from "@/lib/form";
 import { serverErrorMessage, serverFieldErrors } from "@/lib/validation";
 import { m } from "@/paraglide/messages.js";
+import { AnthropicCard } from "./anthropic-card";
 import { EnableBankingCard } from "./enable-banking-card";
 import { SuperPdpCard } from "./super-pdp-card";
 
@@ -41,6 +45,9 @@ export function IntegrationsSettings() {
   const saveSuperPdp = useMutation(saveSuperPdpCredentialsMutation());
   const checkSuperPdp = useMutation(checkSuperPdpConnectionMutation());
   const deleteSuperPdp = useMutation(deleteSuperPdpCredentialsMutation());
+  const [anthropicError, setAnthropicError] = useState<string | null>(null);
+  const saveAnthropic = useMutation(saveAnthropicApiKeyMutation());
+  const deleteAnthropic = useMutation(deleteAnthropicApiKeyMutation());
 
   const applyIntegrations = (data: IntegrationsData) => {
     queryClient.setQueryData(showIntegrationsQueryKey(), data);
@@ -139,6 +146,42 @@ export function IntegrationsSettings() {
     );
   };
 
+  const saveAnthropicKey = async (
+    body: SaveAnthropicApiKeyData,
+  ): Promise<FormSubmitResult> => {
+    setAnthropicError(null);
+
+    try {
+      applyIntegrations(await saveAnthropic.mutateAsync({ body }));
+
+      return { status: "success" };
+    } catch (saveError) {
+      const fieldErrors = serverFieldErrors(saveError);
+
+      if (fieldErrors !== null) {
+        return { status: "invalid", fieldErrors };
+      }
+
+      setAnthropicError(serverErrorMessage(saveError, m.common_save_failed()));
+
+      return { status: "failed" };
+    }
+  };
+
+  const removeAnthropicKey = () => {
+    setAnthropicError(null);
+    deleteAnthropic.mutate(
+      {},
+      {
+        onSuccess: applyIntegrations,
+        onError: (removeError) =>
+          setAnthropicError(
+            serverErrorMessage(removeError, m.common_action_failed()),
+          ),
+      },
+    );
+  };
+
   if (integrations.isPending) {
     return <Skeleton className="h-96 w-full" />;
   }
@@ -162,6 +205,13 @@ export function IntegrationsSettings() {
         onRemove={remove}
         onSave={save}
         settings={integrations.data.enableBanking}
+      />
+      <AnthropicCard
+        error={anthropicError}
+        isRemoving={deleteAnthropic.isPending}
+        onRemove={removeAnthropicKey}
+        onSave={saveAnthropicKey}
+        settings={integrations.data.anthropic}
       />
       {hasInvoicing ? (
         <SuperPdpCard

@@ -14,6 +14,10 @@ use App\Domain\EInvoicing\Actions\DisconnectSuperPdp;
 use App\Domain\EInvoicing\Data\EInvoicingSettingsData;
 use App\Domain\EInvoicing\Data\SaveSuperPdpCredentialsData;
 use App\Domain\Settings\Data\IntegrationsData;
+use App\Domain\Shared\Anthropic\Actions\DeleteAnthropicApiKey;
+use App\Domain\Shared\Anthropic\Actions\SaveAnthropicApiKey;
+use App\Domain\Shared\Anthropic\Data\AnthropicSettingsData;
+use App\Domain\Shared\Anthropic\Data\SaveAnthropicApiKeyData;
 use App\Domain\Users\Models\User;
 use App\Http\Controllers\Controller;
 use Illuminate\Container\Attributes\CurrentUser;
@@ -75,6 +79,25 @@ class IntegrationsController extends Controller
         return response()->json($this->integrations($this->reloaded($user)));
     }
 
+    public function saveAnthropic(
+        SaveAnthropicApiKeyData $data,
+        #[CurrentUser] User $user,
+        SaveAnthropicApiKey $saveAnthropicApiKey,
+    ): JsonResponse {
+        $saveAnthropicApiKey->handle($user, $data->apiKey);
+
+        return response()->json($this->integrations($this->reloaded($user)));
+    }
+
+    public function deleteAnthropic(
+        #[CurrentUser] User $user,
+        DeleteAnthropicApiKey $deleteAnthropicApiKey,
+    ): JsonResponse {
+        $deleteAnthropicApiKey->handle($user);
+
+        return response()->json($this->integrations($this->reloaded($user)));
+    }
+
     /** The writes go through locked copies of the rows, so the answer re-reads them. */
     private function reloaded(User $user): User
     {
@@ -86,6 +109,7 @@ class IntegrationsController extends Controller
         return new IntegrationsData(
             enableBanking: EnableBankingSettingsData::fromSettings($user->settingsOrFail()),
             eInvoicing: EInvoicingSettingsData::fromConnection($user->eInvoicingConnection),
+            anthropic: AnthropicSettingsData::fromSettings($user->settingsOrFail()),
         );
     }
 }

@@ -9,6 +9,8 @@ it("turns what the receipt says into draft changes, each tagged", () => {
     DEFAULT_MONEY_FORMAT,
     {
       textFound: true,
+      reader: 0,
+      claudeFailure: null,
       supplier: { value: "Lunaprint", confidence: 2 },
       spentOn: { value: "2026-08-19", confidence: 2 },
       amountTtc: { value: { amount: 42_900, currency: "EUR" }, confidence: 2 },
@@ -44,6 +46,8 @@ it("says nothing about a field the receipt missed", () => {
     DEFAULT_MONEY_FORMAT,
     {
       textFound: true,
+      reader: 0,
+      claudeFailure: null,
       amountTtc: { value: { amount: 1_000, currency: "EUR" }, confidence: 0 },
     },
     true,
@@ -56,7 +60,12 @@ it("says nothing about a field the receipt missed", () => {
 it("keeps a rate no chip covers as the row's own terms", () => {
   const { changes } = receiptSuggestionChanges(
     DEFAULT_MONEY_FORMAT,
-    { textFound: true, vat: { treatment: 0, rateBp: 210, confidence: 1 } },
+    {
+      textFound: true,
+      reader: 0,
+      claudeFailure: null,
+      vat: { treatment: 0, rateBp: 210, confidence: 1 },
+    },
     true,
   );
 
@@ -67,7 +76,12 @@ it("keeps a rate no chip covers as the row's own terms", () => {
 it("drops the TVA under the franchise, where no field shows it", () => {
   const { changes, sources } = receiptSuggestionChanges(
     DEFAULT_MONEY_FORMAT,
-    { textFound: true, vat: { treatment: 0, rateBp: 2_000, confidence: 2 } },
+    {
+      textFound: true,
+      reader: 0,
+      claudeFailure: null,
+      vat: { treatment: 0, rateBp: 2_000, confidence: 2 },
+    },
     false,
   );
 

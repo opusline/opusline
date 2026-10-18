@@ -1,7 +1,7 @@
 import { fireEvent, render, screen } from "@testing-library/react";
 import type { ComponentProps } from "react";
 import { expect, it, vi } from "vitest";
-
+import { nothingReadFromReceipt } from "@/test/fixtures";
 import { emptyExpenseDraft } from "../lib/expense-draft";
 import { blockedExpense, expense } from "../lib/fixtures";
 import { ExpenseSheet, type ExpenseSheetState } from "./expense-sheet";
@@ -18,7 +18,7 @@ function renderSheet(
     fieldErrors: null,
     onOpenChange: vi.fn(),
     onSubmit: vi.fn(),
-    onReadReceipt: vi.fn(async () => ({ textFound: false })),
+    onReadReceipt: vi.fn(async () => nothingReadFromReceipt),
     ...overrides,
   };
 

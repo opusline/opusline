@@ -1,7 +1,7 @@
 import type { Meta, StoryObj } from "@storybook/react";
 
 import { DEFAULT_MONEY_FORMAT } from "@/lib/billing";
-
+import { nothingReadFromReceipt } from "@/test/fixtures";
 import { emptyExpenseDraft, expenseToDraft } from "../lib/expense-draft";
 import { reverseChargedExpense } from "../lib/fixtures";
 import { ExpenseForm } from "./expense-form";
@@ -20,7 +20,7 @@ const meta = {
     fieldErrors: null,
     onSubmit: () => {},
     onCancel: () => {},
-    onReadReceipt: async () => ({ textFound: false }),
+    onReadReceipt: async () => nothingReadFromReceipt,
   },
   decorators: [
     (Story) => (

@@ -4180,6 +4180,60 @@
                 }
             }
         },
+        "/settings/integrations/anthropic": {
+            "put": {
+                "operationId": "saveAnthropicApiKey",
+                "tags": [
+                    "Integrations"
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/SaveAnthropicApiKeyData"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/IntegrationsData"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    }
+                }
+            },
+            "delete": {
+                "operationId": "deleteAnthropicApiKey",
+                "tags": [
+                    "Integrations"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/IntegrationsData"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    }
+                }
+            }
+        },
         "/settings/integrations/super-pdp": {
             "put": {
                 "operationId": "saveSuperPdpCredentials",
@@ -9644,6 +9698,22 @@
                 ],
                 "title": "AnnualDeclarationsData"
             },
+            "AnthropicSettingsData": {
+                "type": "object",
+                "properties": {
+                    "hasApiKey": {
+                        "type": "boolean"
+                    },
+                    "model": {
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "hasApiKey",
+                    "model"
+                ],
+                "title": "AnthropicSettingsData"
+            },
             "BackupRecordData": {
                 "type": "object",
                 "properties": {
@@ -10752,6 +10822,21 @@
                     "active"
                 ],
                 "title": "ChooseBetaFeatureData"
+            },
+            "ClaudeReadingFailure": {
+                "type": "integer",
+                "description": "Why Claude did not read a receipt the account asked it to, so the heuristics did.\n| |\n|---|\n| `0` <br/> Anthropic refused the key: the account has to replace it. |\n| `1` <br/> Anthropic was unreachable, busy or rate-limiting: trying again later may work. |\n| `2` <br/> Claude answered without a usable reading: a file it cannot open, or it declined. |",
+                "enum": [
+                    0,
+                    1,
+                    2
+                ],
+                "x-enum-varnames": [
+                    "KeyRejected",
+                    "Unavailable",
+                    "Unreadable"
+                ],
+                "title": "ClaudeReadingFailure"
             },
             "ClientData": {
                 "type": "object",
@@ -14381,11 +14466,15 @@
                     },
                     "eInvoicing": {
                         "$ref": "#/components/schemas/EInvoicingSettingsData"
+                    },
+                    "anthropic": {
+                        "$ref": "#/components/schemas/AnthropicSettingsData"
                     }
                 },
                 "required": [
                     "enableBanking",
-                    "eInvoicing"
+                    "eInvoicing",
+                    "anthropic"
                 ],
                 "title": "IntegrationsData"
             },
@@ -17121,11 +17210,37 @@
                 ],
                 "title": "ReceiptFieldConfidence"
             },
+            "ReceiptReader": {
+                "type": "integer",
+                "description": "Who read the receipt, so the form can say how far to trust it.\n| |\n|---|\n| `0` <br/> Patterns over the PDF's text layer, on the instance. |\n| `1` <br/> A Claude model, on the account's own Anthropic key. |",
+                "enum": [
+                    0,
+                    1
+                ],
+                "x-enum-varnames": [
+                    "Heuristics",
+                    "Claude"
+                ],
+                "title": "ReceiptReader"
+            },
             "ReceiptSuggestionData": {
                 "type": "object",
                 "properties": {
                     "textFound": {
                         "type": "boolean"
+                    },
+                    "reader": {
+                        "$ref": "#/components/schemas/ReceiptReader"
+                    },
+                    "claudeFailure": {
+                        "anyOf": [
+                            {
+                                "$ref": "#/components/schemas/ClaudeReadingFailure"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ]
                     },
                     "supplier": {
                         "anyOf": [
@@ -17189,7 +17304,9 @@
                     }
                 },
                 "required": [
-                    "textFound"
+                    "textFound",
+                    "reader",
+                    "claudeFailure"
                 ],
                 "title": "ReceiptSuggestionData"
             },
@@ -17829,6 +17946,20 @@
                     "rateBp"
                 ],
                 "title": "RevenueVatData"
+            },
+            "SaveAnthropicApiKeyData": {
+                "type": "object",
+                "properties": {
+                    "apiKey": {
+                        "type": "string",
+                        "pattern": "^sk-ant-[A-Za-z0-9_-]+$",
+                        "maxLength": 255
+                    }
+                },
+                "required": [
+                    "apiKey"
+                ],
+                "title": "SaveAnthropicApiKeyData"
             },
             "SaveEnableBankingCredentialsData": {
                 "type": "object",
