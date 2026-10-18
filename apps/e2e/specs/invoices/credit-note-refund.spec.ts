@@ -29,7 +29,9 @@ test("a credit note on a paid invoice is refunded, then marked refunded", async 
   await page.getByTestId("credit-note-take-line").first().click();
   await page.getByTestId("credit-note-line-quantity").fill("1");
   await byTestId(page, "credit-note-reason", { reason: 2 }).click();
-  await byTestId(page, "credit-note-settlement", { settlement: "refund" }).click();
+  await byTestId(page, "credit-note-settlement", {
+    settlement: "refund",
+  }).click();
   await page.getByTestId("credit-note-issue").click();
 
   await expect(page).toHaveURL(/\/invoicing\/invoices\/\d+$/);
