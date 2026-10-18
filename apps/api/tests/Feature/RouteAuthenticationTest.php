@@ -100,6 +100,7 @@ test('every authenticated API route but the ways out refuses a locked session', 
 const TOKEN_API_ROUTES = [
     'api/invoices',
     'api/invoices/{invoice}',
+    'api/uninvoiced-periods',
 ];
 
 test('every authenticated API route but the invoice reads refuses a personal access token', function (): void {

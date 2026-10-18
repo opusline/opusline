@@ -6,6 +6,7 @@ namespace App\Domain\Invoices\Data;
 
 use App\Domain\Invoices\Enums\InvoiceStatus;
 use App\Domain\Invoices\Models\Invoice;
+use App\Domain\Invoices\Revenue\NetIncome;
 use App\Domain\Shared\Data\MoneyData;
 use Carbon\CarbonImmutable;
 use Spatie\LaravelData\Attributes\WithTransformer;
@@ -34,13 +35,26 @@ class InvoiceData extends Data
         public MoneyData $amountHt,
         public MoneyData $amountVat,
         public MoneyData $amountTtc,
+        /**
+         * What reaches the personal account from this invoice (since 0.33.7): `amountHt`
+         * less the URSSAF settlement (cotisations, CFP, and the versement libératoire when
+         * the option is on) at the rate of the declaration period it is collected in, and,
+         * without the versement libératoire, less the income tax at the withholding rate on
+         * `amountHt` minus the 34 % micro-BNC abatement. The TVA is not in `amountHt` to
+         * begin with; the CFE, subscriptions and matelas are not deducted. A paid invoice
+         * is priced on its `paidOn`, any other on today. Null for a draft, and for an
+         * account outside French fiscality.
+         */
+        public ?MoneyData $amountNet,
         public bool $ttcOverridden,
         public int $vatRateBp,
         public ?string $notes,
     ) {}
 
-    public static function fromModel(Invoice $invoice): self
+    public static function fromModel(Invoice $invoice, ?NetIncome $netIncome): self
     {
+        $amountNet = $netIncome?->ofInvoice($invoice);
+
         return new self(
             id: $invoice->id,
             clientId: $invoice->client_id,
@@ -56,6 +70,7 @@ class InvoiceData extends Data
             amountHt: MoneyData::fromMoney($invoice->amount_ht_cents),
             amountVat: MoneyData::fromMoney($invoice->vatAmount()),
             amountTtc: MoneyData::fromMoney($invoice->amount_ttc_cents),
+            amountNet: $amountNet === null ? null : MoneyData::fromMoney($amountNet),
             ttcOverridden: $invoice->isTtcOverridden(),
             vatRateBp: $invoice->vat_rate_bp,
             notes: $invoice->notes,

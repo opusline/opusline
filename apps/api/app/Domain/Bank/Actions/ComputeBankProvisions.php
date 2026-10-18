@@ -90,7 +90,7 @@ class ComputeBankProvisions
         $chainStart = $declared instanceof DeclaredCa3Months && $settings->filesMonthlyCa3()
             ? Ca3ChainStart::resolve($user, $settings, $declared, $vatPeriod['previousStart'])
             : null;
-        $collected = $this->collectedInvoices($user, $today, $lookbackStart, $vatPeriod, $urssafPeriod, $chainStart, $this->owesIncomeTax($settings));
+        $collected = $this->collectedInvoices($user, $today, $lookbackStart, $vatPeriod, $urssafPeriod, $chainStart, $settings->owesIncomeTax());
         $fiscDebits = $this->fiscDebits($user, $settings, $lookbackStart, $vatPeriod, $urssafPeriod, $today);
         $paid = $settings->hasFrenchFiscality() ? $this->paidPeriods($user) : [];
         $rates = $settings->hasFrenchFiscality() ? $this->contributionRateHistory->timeline($settings) : null;
@@ -102,7 +102,7 @@ class ComputeBankProvisions
             ? null
             : $this->urssaf($settings, $rates, $urssafPeriod, $lookbackStart, $collected, $paid, $fiscDebits, $today, $currency);
         $cfe = $this->cfe($settings, $paid, $fiscDebits, $today, $currency);
-        $incomeTax = $rates instanceof ContributionRateTimeline && $this->owesIncomeTax($settings)
+        $incomeTax = $rates instanceof ContributionRateTimeline && $settings->owesIncomeTax()
             ? $this->incomeTax($settings, $rates, $collected, $paid, $today, $currency)
             : null;
         $subscriptions = $this->subscriptions($user, $today, $currency);
@@ -542,14 +542,6 @@ class ComputeBankProvisions
         $taxable = Money::max(new Money(0, $currency), $receipts->subtract(MicroBnc::abatementOf($receipts)));
 
         return (int) Rate::of($taxable, $rateBp)->getAmount();
-    }
-
-    /** Whether the account owes the income tax the provision prices: French, off the option, with a rate to price it at. */
-    private function owesIncomeTax(UserSettings $settings): bool
-    {
-        return $settings->hasFrenchFiscality()
-            && ! $settings->liberating_payment
-            && $settings->income_tax_rate_bp !== null;
     }
 
     /**
