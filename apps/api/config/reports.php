@@ -16,6 +16,9 @@ return [
     // answers 404 as if it were switched off.
     'relay_url' => env('OPUSLINE_REPORTS_RELAY_URL'),
 
+    // Where Claude looks for an open issue the report may repeat.
+    'repository' => env('OPUSLINE_REPORTS_REPOSITORY', 'opusline/opusline'),
+
     'timeout_seconds' => 10,
 
     // A relay asking for more is refused rather than left to hold a worker:

@@ -2174,6 +2174,15 @@ export type NotificationPreferencesData = {
 };
 
 /**
+ * OpenIssueData
+ */
+export type OpenIssueData = {
+    number: number;
+    title: string;
+    url: string;
+};
+
+/**
  * OperationCategory
  *
  * A mandatory invoice mention since 1 September 2026 (e-invoicing reform).
@@ -2657,6 +2666,25 @@ export type RenamePasskeyData = {
 };
 
 /**
+ * ReportConversationData
+ */
+export type ReportConversationData = {
+    messages: Array<{
+        speaker: ReportSpeaker;
+        text: string;
+    }>;
+};
+
+/**
+ * ReportConversationTurnData
+ */
+export type ReportConversationTurnData = {
+    reply: string;
+    draft: ReportDraftData | null;
+    duplicates: Array<OpenIssueData>;
+};
+
+/**
  * ReportData
  */
 export type ReportData = {
@@ -2671,9 +2699,26 @@ export type ReportData = {
 };
 
 /**
+ * ReportDraftData
+ */
+export type ReportDraftData = {
+    kind: ReportKind;
+    title: string;
+    body: string;
+};
+
+/**
  * ReportKind
  */
 export type ReportKind = 0 | 1;
+
+/**
+ * ReportSpeaker
+ *
+ * Who said a line of the conversation that drafts a report.
+ *
+ */
+export type ReportSpeaker = 0 | 1;
 
 /**
  * RequestPasswordResetData
@@ -10691,6 +10736,33 @@ export type SendReportResponses = {
 };
 
 export type SendReportResponse = SendReportResponses[keyof SendReportResponses];
+
+export type ContinueReportConversationData = {
+    body: ReportConversationData;
+    path?: never;
+    query?: never;
+    url: '/reports/conversation';
+};
+
+export type ContinueReportConversationErrors = {
+    /**
+     * Unauthenticated
+     */
+    401: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+};
+
+export type ContinueReportConversationError = ContinueReportConversationErrors[keyof ContinueReportConversationErrors];
+
+export type ContinueReportConversationResponses = {
+    200: ReportConversationTurnData;
+};
+
+export type ContinueReportConversationResponse = ContinueReportConversationResponses[keyof ContinueReportConversationResponses];
 
 export type ShowRevenueData = {
     body?: never;

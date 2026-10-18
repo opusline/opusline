@@ -4,7 +4,7 @@ import { useState } from "react";
 
 import { ReportLauncher } from "./report-launcher";
 
-function Example() {
+function Example({ canDraftWithClaude }: { canDraftWithClaude: boolean }) {
   const [queryClient] = useState(
     () => new QueryClient({ defaultOptions: { mutations: { retry: false } } }),
   );
@@ -13,6 +13,7 @@ function Example() {
     <QueryClientProvider client={queryClient}>
       <div className="h-150">
         <ReportLauncher
+          canDraftWithClaude={canDraftWithClaude}
           context={{
             route: "/week",
             browser:
@@ -36,4 +37,7 @@ export default meta;
 type Story = StoryObj<typeof Example>;
 
 /** Pinned to the corner of every signed-in screen; opens the report form. */
-export const Default: Story = {};
+export const Default: Story = { args: { canDraftWithClaude: false } };
+
+/** With an Anthropic key, Claude asks what is missing, then drafts the report. */
+export const DraftWithClaude: Story = { args: { canDraftWithClaude: true } };

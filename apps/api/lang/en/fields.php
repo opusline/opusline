@@ -117,6 +117,8 @@ return [
     'privateKey' => 'private key',
     'apiKey' => 'API key',
     'reader' => 'reader',
+    'messages' => 'conversation',
+    'speaker' => 'speaker',
     'proShareBp' => 'business share',
     'provisionMonthly' => 'monthly provision',
     'psuType' => 'account type',

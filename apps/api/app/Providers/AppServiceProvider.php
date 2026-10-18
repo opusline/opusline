@@ -141,6 +141,8 @@ class AppServiceProvider extends ServiceProvider
             Limit::perDay(20)->by('relay-ip:'.$request->ip()),
         ]);
         // Under the relay's allowance per instance, so one account cannot spend it all.
+        // Each turn spends the account's own Anthropic key; this only stops a loop.
+        RateLimiter::for('report-conversations', fn (Request $request): Limit => Limit::perHour(60)->by('report-conversations:'.$caller($request)));
         RateLimiter::for('reports', fn (Request $request): Limit => Limit::perHour(3)->by('reports:'.$caller($request)));
         RateLimiter::for('two-factor-setup', fn (Request $request): Limit => Limit::perMinute(6)->by('2fa-setup:'.$caller($request)));
 

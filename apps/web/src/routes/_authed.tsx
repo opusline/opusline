@@ -172,6 +172,7 @@ function AuthedLayout() {
                 <Toaster closeLabel={m.common_close()} />
                 {user.canSendReports ? (
                   <ReportLauncher
+                    canDraftWithClaude={user.hasAnthropicApiKey}
                     context={{
                       route: pathname,
                       browser: navigator.userAgent.slice(0, 255),
