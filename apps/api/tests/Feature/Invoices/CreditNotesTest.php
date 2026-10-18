@@ -452,3 +452,112 @@ test('the ledger counts a credited invoice for what is left due', function (): v
         ->assertOk()
         ->assertJsonPath('clientTotals.0.open.amount', $invoice->amount_ttc_cents->getAmount() - $credited);
 });
+
+test('refuses a balance credit note on an invoice billed at several rates', function (): void {
+    $user = issuableAccount();
+    $id = draftFor($user, billableClient($user), ['lines' => [
+        creditLine(['label' => 'Développement', 'unitPrice' => ['amount' => 60_000, 'currency' => 'EUR'], 'vatRateBp' => 2000]),
+        creditLine(['label' => 'Contenus imprimés', 'unitPrice' => ['amount' => 50_000, 'currency' => 'EUR'], 'vatRateBp' => 1000]),
+    ]]);
+    $this->actingAs($user)->postJson("/api/invoicing/invoices/{$id}/issue")->assertOk();
+
+    $this->actingAs($user)
+        ->postJson("/api/invoicing/invoices/{$id}/credit-notes", creditNotePayload(['kind' => CreditNoteKind::Balance->value]))
+        ->assertUnprocessable()
+        ->assertJsonPath('errors.kind.0', __('credit_notes.balance_mixed_rates'));
+});
+
+test('refuses a balance credit note once nothing is left to pay', function (): void {
+    $user = issuableAccount();
+    $invoice = issuedInvoiceOf($user);
+    $this->actingAs($user)->postJson("/api/invoices/{$invoice->id}/pay", ['paidOn' => '2026-08-10'])->assertOk();
+
+    $this->actingAs($user)
+        ->postJson("/api/invoicing/invoices/{$invoice->id}/credit-notes", creditNotePayload(['kind' => CreditNoteKind::Balance->value]))
+        ->assertUnprocessable()
+        ->assertJsonPath('errors.kind.0', __('credit_notes.nothing_left_to_pay'));
+});
+
+test('refuses a partial credit note whose lines round to nothing', function (): void {
+    $user = issuableAccount();
+    $invoice = issuedInvoiceOf($user);
+
+    $this->actingAs($user)
+        ->postJson("/api/invoicing/invoices/{$invoice->id}/credit-notes", creditNotePayload([
+            'kind' => CreditNoteKind::Partial->value,
+            'lines' => [creditLine(['quantityMilli' => 1, 'unitPrice' => ['amount' => 1, 'currency' => 'EUR']])],
+        ]))
+        ->assertUnprocessable()
+        ->assertJsonPath('errors.lines.0', __('credit_notes.needs_positive_total'));
+});
+
+test('refuses to refund a credit note that cancelled an unpaid invoice', function (): void {
+    $user = issuableAccount();
+    $invoice = issuedInvoiceOf($user);
+    $id = $this->actingAs($user)->postJson("/api/invoicing/invoices/{$invoice->id}/credit-notes", creditNotePayload())->json('creditNote.id');
+
+    $this->actingAs($user)
+        ->postJson("/api/invoicing/credit-notes/{$id}/refund", ['refundedOn' => '2026-08-10'])
+        ->assertConflict()
+        ->assertJsonPath('message', __('credit_notes.not_to_refund'));
+});
+
+test('refuses a refund dated before its credit note', function (): void {
+    $user = issuableAccount();
+    $invoice = issuedInvoiceOf($user);
+    $this->actingAs($user)->postJson("/api/invoices/{$invoice->id}/pay", ['paidOn' => '2026-08-10'])->assertOk();
+    $this->travelTo('2026-08-14 12:00:00');
+    $user->refresh();
+    $id = $this->actingAs($user)->postJson("/api/invoicing/invoices/{$invoice->id}/credit-notes", creditNotePayload([
+        'kind' => CreditNoteKind::Partial->value,
+        'lines' => [creditLine()],
+        'settlement' => CreditNoteSettlement::Refund->value,
+    ]))->json('creditNote.id');
+
+    $this->actingAs($user)
+        ->postJson("/api/invoicing/credit-notes/{$id}/refund", ['refundedOn' => '2026-08-12'])
+        ->assertConflict()
+        ->assertJsonPath('message', __('credit_notes.refund_before_issue'));
+});
+
+test('refuses to issue an invoice that deducts more than it bills', function (): void {
+    $user = issuableAccount();
+    $first = issuedInvoiceOf($user);
+    $this->actingAs($user)->postJson("/api/invoices/{$first->id}/pay", ['paidOn' => '2026-08-10'])->assertOk();
+    $creditNoteId = $this->actingAs($user)->postJson("/api/invoicing/invoices/{$first->id}/credit-notes", creditNotePayload([
+        'kind' => CreditNoteKind::Partial->value,
+        'lines' => [creditLine()],
+        'settlement' => CreditNoteSettlement::DeductFromNextInvoice->value,
+    ]))->json('creditNote.id');
+    // 50 € HT, 60 € TTC: less than the 120 € the credit note owes back.
+    $draft = draftFor($user, $first->client, [
+        'creditNoteIds' => [$creditNoteId],
+        'lines' => [creditLine(['unitPrice' => ['amount' => 5_000, 'currency' => 'EUR']])],
+    ]);
+
+    $this->actingAs($user)
+        ->postJson("/api/invoicing/invoices/{$draft}/issue")
+        ->assertUnprocessable()
+        ->assertJsonPath('errors.creditNoteIds.0', __('credit_notes.deduction_exceeds_invoice'));
+
+    expect(Invoice::query()->findOrFail($draft)->number)->toBeNull();
+});
+
+test('keeps a deduction once made: its payment cannot be taken back alone', function (): void {
+    $user = issuableAccount();
+    $first = issuedInvoiceOf($user);
+    $this->actingAs($user)->postJson("/api/invoices/{$first->id}/pay", ['paidOn' => '2026-08-10'])->assertOk();
+    $creditNoteId = $this->actingAs($user)->postJson("/api/invoicing/invoices/{$first->id}/credit-notes", creditNotePayload([
+        'kind' => CreditNoteKind::Partial->value,
+        'lines' => [creditLine()],
+        'settlement' => CreditNoteSettlement::DeductFromNextInvoice->value,
+    ]))->json('creditNote.id');
+    $draft = draftFor($user, $first->client, ['creditNoteIds' => [$creditNoteId]]);
+    $this->actingAs($user)->postJson("/api/invoicing/invoices/{$draft}/issue")->assertOk();
+    $deduction = Invoice::query()->findOrFail($draft)->payments()->sole();
+
+    $this->actingAs($user)
+        ->deleteJson("/api/invoices/{$draft}/payments/{$deduction->id}")
+        ->assertConflict()
+        ->assertJsonPath('message', __('credit_notes.deduction_payment_fixed'));
+});
