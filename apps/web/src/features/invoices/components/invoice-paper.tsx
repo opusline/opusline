@@ -1,6 +1,38 @@
 import type { InvoicePaperData } from "@opusline/api-client";
+import { type RefObject, useLayoutEffect, useRef, useState } from "react";
 
 import { INVOICE_PAPER as P } from "@/lib/paper";
+
+/** The narrowest the sheet is drawn at (`min-w-150`): below it, it keeps its print proportions. */
+const SHEET_MIN_WIDTH_PX = 600;
+
+/** How much a column this wide shrinks the sheet: never enlarges it, like a print preview. */
+export function fitScale(columnWidthPx: number): number {
+  return columnWidthPx > 0
+    ? Math.min(1, columnWidthPx / SHEET_MIN_WIDTH_PX)
+    : 1;
+}
+
+function useFitScale(column: RefObject<HTMLDivElement | null>): number {
+  const [scale, setScale] = useState(1);
+
+  useLayoutEffect(() => {
+    const element = column.current;
+
+    if (element === null) {
+      return;
+    }
+
+    const observer = new ResizeObserver(([entry]) => {
+      setScale(fitScale(entry?.contentRect.width ?? 0));
+    });
+    observer.observe(element);
+
+    return () => observer.disconnect();
+  }, [column]);
+
+  return scale;
+}
 
 type InvoicePaperProps = {
   paper: InvoicePaperData;
@@ -15,10 +47,18 @@ type InvoicePaperProps = {
  * Paper is white whatever the theme.
  */
 export function InvoicePaper({ paper, logoSrc }: InvoicePaperProps) {
+  const column = useRef<HTMLDivElement>(null);
+  const scale = useFitScale(column);
+
   return (
-    // The sheet keeps its print proportions: a phone scrolls across it.
-    <div className="overflow-x-auto">
-      <div className="min-w-150">
+    // A column narrower than the sheet shrinks it whole, like a print preview,
+    // rather than cutting its right edge: `zoom` also shrinks the box it takes.
+    <div ref={column}>
+      <div
+        className="min-w-150"
+        data-scale={scale}
+        style={scale < 1 ? { zoom: scale } : undefined}
+      >
         <article
           className="flex min-h-200 flex-col overflow-hidden rounded-xs text-xs leading-normal shadow-2xl"
           data-testid="invoice-paper"
