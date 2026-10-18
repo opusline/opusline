@@ -1,4 +1,4 @@
-import { Button } from "@opusline/ui/components/button";
+import { ButtonLink } from "@opusline/ui/components/button";
 import {
   Empty,
   EmptyContent,
@@ -34,12 +34,16 @@ export function WeekMissionsEmptyState() {
         </EmptyDescription>
       </EmptyHeader>
       <EmptyContent className="flex-row flex-wrap justify-center gap-2">
-        <Button render={<Link to="/clients/new" />} size="2xl">
+        <ButtonLink render={<Link to="/clients/new" />} size="2xl">
           {m.clients_create_short()}
-        </Button>
-        <Button render={<Link to="/clients" />} size="2xl" variant="outline">
+        </ButtonLink>
+        <ButtonLink
+          render={<Link to="/clients" />}
+          size="2xl"
+          variant="outline"
+        >
           {m.week_view_clients()}
-        </Button>
+        </ButtonLink>
       </EmptyContent>
     </Empty>
   );
