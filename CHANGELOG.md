@@ -1,5 +1,71 @@
 # Changelog
 
+## [0.34.0](https://github.com/opusline/opusline/compare/v0.33.5...v0.34.0) (2026-10-18)
+
+
+### Features
+
+* **api:** add a service catalogue for invoices and quotes ([#533](https://github.com/opusline/opusline/issues/533)) ([fe5fd3d](https://github.com/opusline/opusline/commit/fe5fd3d774006f17459f655f2cfa09f9547544ad))
+* **api:** add invoicing settings for new documents ([#530](https://github.com/opusline/opusline/issues/530)) ([eb4fb7f](https://github.com/opusline/opusline/commit/eb4fb7fb381f23dd304f536b8f1250df8395d20b))
+* **api:** add the net amount to every invoice ([4d5f19c](https://github.com/opusline/opusline/commit/4d5f19cfe9be0a01541c0dd3531885fc4b688942))
+* **api:** automatic payment reminders ([#586](https://github.com/opusline/opusline/issues/586)) ([e773747](https://github.com/opusline/opusline/commit/e7737472b8434b190069cfe863a9997664fb7667))
+* **api:** client e-mail engine with templates ([#582](https://github.com/opusline/opusline/issues/582)) ([bf7bafc](https://github.com/opusline/opusline/commit/bf7bafc9dab5ae2434eb41287cbd2078624290a1))
+* **api:** company logo, IBAN and RCS in settings ([#529](https://github.com/opusline/opusline/issues/529)) ([dee166d](https://github.com/opusline/opusline/commit/dee166d8cb19ba8601eb47fa5c7de045997a6a08))
+* **api:** connect an account's super pdp application ([#573](https://github.com/opusline/opusline/issues/573)) ([06a81b8](https://github.com/opusline/opusline/commit/06a81b8871f9384e4acf229c6d046b5ce4d6f65a))
+* **api:** draft reports with claude in the app ([#642](https://github.com/opusline/opusline/issues/642)) ([e3b8269](https://github.com/opusline/opusline/commit/e3b826948509c5ad6eb622e1ab1b29a40cd5b2c8))
+* **api:** invoice lines and Opusline drafts ([#534](https://github.com/opusline/opusline/issues/534)) ([0729af1](https://github.com/opusline/opusline/commit/0729af12f3ee226b5bebf09c5e9a8400434036c8))
+* **api:** issue credit notes on invoices ([#598](https://github.com/opusline/opusline/issues/598)) ([03fe063](https://github.com/opusline/opusline/commit/03fe0638b6a6aeb31f24479deb8eb79bdd348d59))
+* **api:** issue invoices with their legal number ([#535](https://github.com/opusline/opusline/issues/535)) ([4e1c4f9](https://github.com/opusline/opusline/commit/4e1c4f9346f1ddaf8f13e05b612236ff12615a66))
+* **api:** list the worked periods not invoiced yet ([4d5f19c](https://github.com/opusline/opusline/commit/4d5f19cfe9be0a01541c0dd3531885fc4b688942))
+* **api:** pay an invoice by its payments ([#597](https://github.com/opusline/opusline/issues/597)) ([4ffe62d](https://github.com/opusline/opusline/commit/4ffe62d316ac9f962481fbd091cc3320b991cae0))
+* **api:** personal access tokens for invoices ([#591](https://github.com/opusline/opusline/issues/591)) ([662ca42](https://github.com/opusline/opusline/commit/662ca42d53c79804a7ea75921ad678da2462229c)), closes [#588](https://github.com/opusline/opusline/issues/588)
+* **api:** quotes with their own series and sheet ([#577](https://github.com/opusline/opusline/issues/577)) ([c1a65df](https://github.com/opusline/opusline/commit/c1a65df478fa2baedeb0a0652f69ff6d43a7eaf2))
+* **api:** read receipts with claude on the account key ([#639](https://github.com/opusline/opusline/issues/639)) ([967def0](https://github.com/opusline/opusline/commit/967def0cfee1fc83becf380883a28899f32bf271))
+* **api:** record the supplier invoices the platform received ([#574](https://github.com/opusline/opusline/issues/574)) ([e9efe6e](https://github.com/opusline/opusline/commit/e9efe6e377404fb062a3532b7d7f773533e4438c))
+* **api:** relay in-app reports to GitHub ([#631](https://github.com/opusline/opusline/issues/631)) ([d1f7347](https://github.com/opusline/opusline/commit/d1f7347c5247b166ca31d5e8784bd1e16291faa7))
+* **api:** render invoices as their printed sheet and PDF ([#537](https://github.com/opusline/opusline/issues/537)) ([29fd1d6](https://github.com/opusline/opusline/commit/29fd1d6eadd934b7127d8cd3f5c798c0610cb6bb))
+* **api:** send in-app reports to the relay ([#634](https://github.com/opusline/opusline/issues/634)) ([4c96b08](https://github.com/opusline/opusline/commit/4c96b08c0e58726b9bb53cf487ac9aabda37eee0))
+* **api:** settle credit notes by refund or deduction ([#599](https://github.com/opusline/opusline/issues/599)) ([e013bd4](https://github.com/opusline/opusline/commit/e013bd4a2c898af7d4637186b97645fda9d3b770))
+* **api:** ship unfinished features behind flags ([#541](https://github.com/opusline/opusline/issues/541)) ([6b15934](https://github.com/opusline/opusline/commit/6b15934e8fd47c9934da532051a277e9e7de7795))
+* **api:** turn an accepted quote into invoices ([#580](https://github.com/opusline/opusline/issues/580)) ([4c2733d](https://github.com/opusline/opusline/commit/4c2733d248235b822d5f0ddef08c3b0421124623))
+* **web:** credit note editor and panels ([#600](https://github.com/opusline/opusline/issues/600)) ([7635a22](https://github.com/opusline/opusline/commit/7635a2274c84e301ce3590b619b642b4860a1cb7))
+* **web:** e-mails page to reword the client templates ([#583](https://github.com/opusline/opusline/issues/583)) ([0894245](https://github.com/opusline/opusline/commit/0894245ef0f1bf57af6aa6b7c11a04fde42d14fd))
+* **web:** fill a document from a pasted tagged text ([#595](https://github.com/opusline/opusline/issues/595)) ([a16904f](https://github.com/opusline/opusline/commit/a16904f1bf2b9561f32ff065d25d30b14110698b))
+* **web:** give each written invoice its own page ([#539](https://github.com/opusline/opusline/issues/539)) ([d6d749c](https://github.com/opusline/opusline/commit/d6d749cc269451fa41cef087fadb713c151c4cb7))
+* **web:** give invoicing its own section ([#532](https://github.com/opusline/opusline/issues/532)) ([f9ed457](https://github.com/opusline/opusline/commit/f9ed4573616782f4e9c1b694292dc82e8e42c0ca))
+* **web:** let the invoices list follow the mode ([#540](https://github.com/opusline/opusline/issues/540)) ([c2f373d](https://github.com/opusline/opusline/commit/c2f373d930b07b27301fcff943637eeffeef07dc))
+* **web:** mark invoices as a beta in the sidebar ([#640](https://github.com/opusline/opusline/issues/640)) ([e47f000](https://github.com/opusline/opusline/commit/e47f000b4d68e7bf69aaac19ccbfa825b5cad7f0))
+* **web:** pick who reads each receipt ([#641](https://github.com/opusline/opusline/issues/641)) ([219e824](https://github.com/opusline/opusline/commit/219e824399562664fe42339a8448137c007d3159))
+* **web:** quote screens behind the invoicing beta ([#579](https://github.com/opusline/opusline/issues/579)) ([19ca3ab](https://github.com/opusline/opusline/commit/19ca3ab87c42c78626cb2d421bd5ff7496ac72c6))
+* **web:** quotes issued in another tool ([#581](https://github.com/opusline/opusline/issues/581)) ([8e2f02b](https://github.com/opusline/opusline/commit/8e2f02b21ca76445b845c244870edcca92e000bd))
+* **web:** report a bug or an idea from any screen ([#635](https://github.com/opusline/opusline/issues/635)) ([ce2c889](https://github.com/opusline/opusline/commit/ce2c8894d2630db0751cb489021cb128da21b178))
+* **web:** send page for invoices and quotes ([#585](https://github.com/opusline/opusline/issues/585)) ([2016b78](https://github.com/opusline/opusline/commit/2016b78adb16e0d9d3ed445d2b0b86a6ee9da108))
+* **web:** write invoices in a live editor ([#538](https://github.com/opusline/opusline/issues/538)) ([fa65ead](https://github.com/opusline/opusline/commit/fa65eada0d1d0c310fe306b414034979faf9df6c))
+
+
+### Bug Fixes
+
+* **api:** deposits, reminder balances and flag-off jobs ([#610](https://github.com/opusline/opusline/issues/610)) ([1bfd2f8](https://github.com/opusline/opusline/commit/1bfd2f8db8505844139adb8e9246ee93f8995f92))
+* **api:** invoicing balances, races and mail limit ([#602](https://github.com/opusline/opusline/issues/602)) ([ba39743](https://github.com/opusline/opusline/commit/ba3974367b0004f145cc9d9c58e965a9e0a4ab0a))
+* **api:** keep a deduction's payment in place ([#611](https://github.com/opusline/opusline/issues/611)) ([a6fbc01](https://github.com/opusline/opusline/commit/a6fbc012a19e3d24a96439e8b923080bb2d8c737))
+* **api:** net client revenue of payments and credit notes ([#612](https://github.com/opusline/opusline/issues/612)) ([2602ec6](https://github.com/opusline/opusline/commit/2602ec66f0265e942b334ca5ecc2e5b378b64313))
+* **api:** print an issued document in the language asked ([#614](https://github.com/opusline/opusline/issues/614)) ([e89beae](https://github.com/opusline/opusline/commit/e89beaef4c057886ff4c834ed18f79703868201e))
+* **api:** stop naming an untitled document by its number ([#628](https://github.com/opusline/opusline/issues/628)) ([1b530e6](https://github.com/opusline/opusline/commit/1b530e6a7f6c5de5aebe3c943dcdbc7e98e3214b))
+* **repo:** keep the dev API on the port compose maps ([#609](https://github.com/opusline/opusline/issues/609)) ([7df185d](https://github.com/opusline/opusline/commit/7df185d69129775b9997792a3463ad3c4989fac6))
+* **ui:** darken the chip count to pass contrast ([#626](https://github.com/opusline/opusline/issues/626)) ([7979928](https://github.com/opusline/opusline/commit/7979928423eab7c6699b5fbaad8b08549b760fa5))
+* **ui:** keep a button-shaped link a link ([#621](https://github.com/opusline/opusline/issues/621)) ([f38d80f](https://github.com/opusline/opusline/commit/f38d80f2c51478208dff14ece816301cca058018))
+* **web:** follow APP_PORT in the dev API proxy ([#618](https://github.com/opusline/opusline/issues/618)) ([6c63c96](https://github.com/opusline/opusline/commit/6c63c9695bb9dd21f1c6e1c7360e72e89b1f4d08))
+* **web:** keep the devtools off the report button ([#643](https://github.com/opusline/opusline/issues/643)) ([fa9f7ea](https://github.com/opusline/opusline/commit/fa9f7ea9213f9e993846f5b2c8e4c8c80cf86aa1))
+* **web:** show a payment's amount in the history ([#620](https://github.com/opusline/opusline/issues/620)) ([5e0f2e0](https://github.com/opusline/opusline/commit/5e0f2e0d9ed381cee81398f8808748bd557c2f5e))
+* **web:** shrink the document sheet to fit its column ([#627](https://github.com/opusline/opusline/issues/627)) ([deed0b5](https://github.com/opusline/opusline/commit/deed0b55f4e2112f1d4d7514f8dd07786d1ca9a0))
+* **web:** wait for the settled body before previewing ([#619](https://github.com/opusline/opusline/issues/619)) ([7210a88](https://github.com/opusline/opusline/commit/7210a88468044a86b1d8ab5fbc6f3ef7c016d511))
+* **web:** word the sync refusal for the settings card ([#575](https://github.com/opusline/opusline/issues/575)) ([2e29568](https://github.com/opusline/opusline/commit/2e295684d924b2c3b9c2bd81de80e840a0c0e97e))
+
+
+### Performance Improvements
+
+* **api:** spare the invoice ledger its revenue fold ([#603](https://github.com/opusline/opusline/issues/603)) ([7698ebe](https://github.com/opusline/opusline/commit/7698ebea3424d5b49fe82195b329a389b1274e75))
+
 ## [0.33.5](https://github.com/opusline/opusline/compare/v0.33.4...v0.33.5) (2026-10-16)
 
 
