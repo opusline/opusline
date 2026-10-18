@@ -2305,6 +2305,23 @@ export const zRegisterUserData = z.object({
 });
 
 /**
+ * RelayChallengeData
+ */
+export const zRelayChallengeData = z.object({
+    challenge: z.string(),
+    difficulty: z.int(),
+    expiresAt: z.iso.datetime()
+});
+
+/**
+ * RelayedIssueData
+ */
+export const zRelayedIssueData = z.object({
+    number: z.int(),
+    url: z.string()
+});
+
+/**
  * RemindInvoiceData
  */
 export const zRemindInvoiceData = z.object({
@@ -2345,6 +2362,24 @@ export const zEmailTemplatesData = z.object({
  */
 export const zRenamePasskeyData = z.object({
     name: z.string().check(z.minLength(1), z.maxLength(100))
+});
+
+/**
+ * ReportKind
+ */
+export const zReportKind = z.union([z.literal(0), z.literal(1)]);
+
+/**
+ * RelayReportData
+ */
+export const zRelayReportData = z.object({
+    kind: zReportKind,
+    title: z.string().check(z.minLength(5), z.maxLength(120)),
+    body: z.string().check(z.minLength(10), z.maxLength(8000)),
+    instanceId: z.uuid(),
+    version: z.string().check(z.maxLength(32)),
+    challenge: z.string().check(z.maxLength(128)),
+    nonce: z.string().check(z.maxLength(32))
 });
 
 /**
@@ -4950,6 +4985,12 @@ export const zReadExpenseReceiptResponse = zReceiptSuggestionData;
 export const zShowRecoveryCodesResponse = zRecoveryCodesData;
 
 export const zRegenerateRecoveryCodesResponse = zRecoveryCodesData;
+
+export const zIssueRelayChallengeResponse = zRelayChallengeData;
+
+export const zFileRelayedReportBody = zRelayReportData;
+
+export const zFileRelayedReportResponse = zRelayedIssueData;
 
 export const zShowRevenueQuery = z.object({
     period: z.nullish(z.string().check(z.regex(/^\d{4}(-(0[1-9]|1[0-2])|-Q[1-4])?$/))),

@@ -2560,6 +2560,36 @@ export type RegisterUserData = {
 };
 
 /**
+ * RelayChallengeData
+ */
+export type RelayChallengeData = {
+    challenge: string;
+    difficulty: number;
+    expiresAt: string;
+};
+
+/**
+ * RelayReportData
+ */
+export type RelayReportData = {
+    kind: ReportKind;
+    title: string;
+    body: string;
+    instanceId: string;
+    version: string;
+    challenge: string;
+    nonce: string;
+};
+
+/**
+ * RelayedIssueData
+ */
+export type RelayedIssueData = {
+    number: number;
+    url: string;
+};
+
+/**
  * RemindInvoiceData
  */
 export type RemindInvoiceData = {
@@ -2589,6 +2619,11 @@ export type ReminderFrequency = 0 | 1 | 2;
 export type RenamePasskeyData = {
     name: string;
 };
+
+/**
+ * ReportKind
+ */
+export type ReportKind = 0 | 1;
 
 /**
  * RequestPasswordResetData
@@ -10469,6 +10504,32 @@ export type RegenerateRecoveryCodesResponses = {
 };
 
 export type RegenerateRecoveryCodesResponse = RegenerateRecoveryCodesResponses[keyof RegenerateRecoveryCodesResponses];
+
+export type IssueRelayChallengeData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/relay/challenge';
+};
+
+export type IssueRelayChallengeResponses = {
+    200: RelayChallengeData;
+};
+
+export type IssueRelayChallengeResponse = IssueRelayChallengeResponses[keyof IssueRelayChallengeResponses];
+
+export type FileRelayedReportData = {
+    body: RelayReportData;
+    path?: never;
+    query?: never;
+    url: '/relay/reports';
+};
+
+export type FileRelayedReportResponses = {
+    201: RelayedIssueData;
+};
+
+export type FileRelayedReportResponse = FileRelayedReportResponses[keyof FileRelayedReportResponses];
 
 export type ShowRevenueData = {
     body?: never;

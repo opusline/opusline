@@ -181,4 +181,7 @@ return [
     'copyToSender' => 'copy to me',
     'remindersEnabled' => 'automatic reminders',
     'remindersFrequency' => 'reminder frequency',
+    'instanceId' => 'instance',
+    'challenge' => 'challenge',
+    'nonce' => 'proof of work',
 ];

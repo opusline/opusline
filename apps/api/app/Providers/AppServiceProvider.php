@@ -134,6 +134,12 @@ class AppServiceProvider extends ServiceProvider
         // Sends reach addresses the account typed, from the instance's own
         // sender: an open registration must not turn it into a spam relay.
         RateLimiter::for('client-mail', fn (Request $request): Limit => Limit::perMinute(10)->by('client-mail:'.$caller($request)));
+        // The relay is public: an instance and an address each get a small allowance.
+        RateLimiter::for('relay-challenges', fn (Request $request): Limit => Limit::perMinute(30)->by('relay-challenge:'.$request->ip()));
+        RateLimiter::for('relay-reports', fn (Request $request): array => [
+            Limit::perHour(5)->by('relay-instance:'.$request->string('instanceId')),
+            Limit::perDay(20)->by('relay-ip:'.$request->ip()),
+        ]);
         RateLimiter::for('two-factor-setup', fn (Request $request): Limit => Limit::perMinute(6)->by('2fa-setup:'.$caller($request)));
 
         RateLimiter::for('passkey-login', fn (Request $request): Limit => Limit::perMinute(10)->by('passkey:'.($request->ip() ?? 'unknown')));

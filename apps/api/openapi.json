@@ -7571,6 +7571,60 @@
                 }
             }
         },
+        "/relay/challenge": {
+            "get": {
+                "operationId": "issueRelayChallenge",
+                "summary": "A fresh puzzle to solve before sending one report",
+                "tags": [
+                    "Relay"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/RelayChallengeData"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": []
+            }
+        },
+        "/relay/reports": {
+            "post": {
+                "operationId": "fileRelayedReport",
+                "summary": "Files a report another instance sent as an issue on the repository",
+                "tags": [
+                    "Relay"
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/RelayReportData"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/RelayedIssueData"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": []
+            }
+        },
         "/revenue": {
             "get": {
                 "operationId": "showRevenue",
@@ -17212,6 +17266,87 @@
                 ],
                 "title": "RegisterUserData"
             },
+            "RelayChallengeData": {
+                "type": "object",
+                "properties": {
+                    "challenge": {
+                        "type": "string"
+                    },
+                    "difficulty": {
+                        "type": "integer"
+                    },
+                    "expiresAt": {
+                        "type": "string",
+                        "format": "date-time"
+                    }
+                },
+                "required": [
+                    "challenge",
+                    "difficulty",
+                    "expiresAt"
+                ],
+                "title": "RelayChallengeData"
+            },
+            "RelayReportData": {
+                "type": "object",
+                "properties": {
+                    "kind": {
+                        "$ref": "#/components/schemas/ReportKind"
+                    },
+                    "title": {
+                        "type": "string",
+                        "minLength": 5,
+                        "maxLength": 120
+                    },
+                    "body": {
+                        "type": "string",
+                        "minLength": 10,
+                        "maxLength": 8000
+                    },
+                    "instanceId": {
+                        "type": "string",
+                        "format": "uuid"
+                    },
+                    "version": {
+                        "type": "string",
+                        "maxLength": 32
+                    },
+                    "challenge": {
+                        "type": "string",
+                        "maxLength": 128
+                    },
+                    "nonce": {
+                        "type": "string",
+                        "maxLength": 32
+                    }
+                },
+                "required": [
+                    "kind",
+                    "title",
+                    "body",
+                    "instanceId",
+                    "version",
+                    "challenge",
+                    "nonce"
+                ],
+                "title": "RelayReportData"
+            },
+            "RelayedIssueData": {
+                "type": "object",
+                "properties": {
+                    "number": {
+                        "type": "integer"
+                    },
+                    "url": {
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "number",
+                    "url"
+                ],
+                "title": "RelayedIssueData"
+            },
             "RemindInvoiceData": {
                 "type": "object",
                 "properties": {
@@ -17276,6 +17411,18 @@
                     "name"
                 ],
                 "title": "RenamePasskeyData"
+            },
+            "ReportKind": {
+                "type": "integer",
+                "enum": [
+                    0,
+                    1
+                ],
+                "x-enum-varnames": [
+                    "Bug",
+                    "Feature"
+                ],
+                "title": "ReportKind"
             },
             "RequestPasswordResetData": {
                 "type": "object",

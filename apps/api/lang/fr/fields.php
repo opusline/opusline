@@ -181,4 +181,7 @@ return [
     'copyToSender' => 'copie pour moi',
     'remindersEnabled' => 'relances automatiques',
     'remindersFrequency' => 'fréquence des relances',
+    'instanceId' => 'instance',
+    'challenge' => 'défi',
+    'nonce' => 'preuve de travail',
 ];
