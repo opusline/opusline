@@ -94,6 +94,7 @@ test('refuses to validate a quote missing a mandatory mention', function (callab
 })->with([
     'no seller address' => [fn (User $user) => $user->settingsOrFail()->update(['company_address_line1' => null]), 'seller'],
     'no seller siret' => [fn (User $user) => $user->settingsOrFail()->update(['siret' => null]), 'seller'],
+    'no vat number while liable' => [fn (User $user) => $user->settingsOrFail()->update(['vat_number' => null]), 'seller'],
     'no buyer address' => [fn (User $user, $client) => $client->update(['billing_city' => null]), 'buyer'],
     'no lines' => [fn (User $user, Client $client, int $id) => test()->actingAs($user)->putJson("/api/invoicing/quotes/{$id}", quotePayloadFor($client, ['lines' => []]))->assertOk(), 'lines'],
     'a total of zero' => [fn (User $user, Client $client, int $id) => test()->actingAs($user)->putJson("/api/invoicing/quotes/{$id}", quotePayloadFor($client, ['lines' => [

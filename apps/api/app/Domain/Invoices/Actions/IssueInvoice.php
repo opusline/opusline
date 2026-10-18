@@ -7,13 +7,13 @@ namespace App\Domain\Invoices\Actions;
 use App\Domain\Documents\Actions\StoreGeneratedDocument;
 use App\Domain\Documents\Enums\DocumentCategory;
 use App\Domain\Invoices\Documents\DocumentParties;
+use App\Domain\Invoices\Documents\IssueReadiness;
 use App\Domain\Invoices\Documents\PaymentTerm;
 use App\Domain\Invoices\Enums\DocumentLanguage;
 use App\Domain\Invoices\Enums\InvoiceEventKind;
 use App\Domain\Invoices\Lifecycle\Invoice\InvoicePaid;
 use App\Domain\Invoices\Lifecycle\Invoice\InvoiceSent;
 use App\Domain\Invoices\Models\Invoice;
-use App\Domain\Invoices\Models\InvoiceLine;
 use App\Domain\Settings\Models\UserSettings;
 use App\Domain\Users\Models\User;
 use Illuminate\Database\UniqueConstraintViolationException;
@@ -104,28 +104,10 @@ class IssueInvoice
     /** What a French invoice cannot go out without (art. 242 nonies A CGI). */
     private function assertIssuable(Invoice $invoice, UserSettings $settings): void
     {
-        $errors = [];
-
-        if ($invoice->lines->isEmpty()) {
-            $errors['lines'] = __('invoices.issue_needs_lines');
-        } elseif (! $invoice->amount_ht_cents->isPositive()) {
-            $errors['lines'] = __('invoices.issue_needs_positive_total');
-        } elseif (! $settings->vat_regime->isLiable() && $invoice->lines->contains(static fn (InvoiceLine $line): bool => $line->vat_rate_bp > 0)) {
-            // The lines were priced under a regime the account has since left;
-            // only the editor can re-derive them, so the draft goes back there.
-            $errors['lines'] = __('invoices.issue_needs_vat_rework');
-        }
-
-        if (blank($settings->trade_name) || blank($settings->company_address_line1) || blank($settings->company_city)
-            || ($settings->hasFrenchFiscality() && blank($settings->siret))) {
-            $errors['seller'] = __('invoices.issue_needs_seller_identity');
-        } elseif ($settings->hasFrenchFiscality() && $settings->vat_regime->isLiable() && blank($settings->vat_number)) {
-            $errors['seller'] = __('invoices.issue_needs_vat_number');
-        }
-
-        if (blank($invoice->client->billing_address_line1) || blank($invoice->client->billing_city)) {
-            $errors['buyer'] = __('invoices.issue_needs_buyer_address');
-        }
+        $errors = array_map(
+            static fn (string $problem): string => __("invoices.issue_{$problem}"),
+            IssueReadiness::problems($settings, $invoice->client, $invoice->lines, $invoice->amount_ht_cents),
+        );
 
         if ($invoice->show_iban && blank($settings->iban)) {
             $errors['showIban'] = __('invoices.issue_needs_iban');

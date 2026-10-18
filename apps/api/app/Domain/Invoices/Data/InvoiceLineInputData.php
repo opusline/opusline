@@ -8,6 +8,7 @@ use App\Domain\Invoices\Documents\PaperDocument;
 use App\Domain\Invoices\Enums\LineUnit;
 use App\Domain\Shared\Data\SignedMoneyData;
 use App\Domain\Shared\Money\Rate;
+use Cknow\Money\Money;
 use Spatie\LaravelData\Attributes\Validation\Between;
 use Spatie\LaravelData\Attributes\Validation\Enum;
 use Spatie\LaravelData\Attributes\Validation\IntegerType;
@@ -34,20 +35,27 @@ class InvoiceLineInputData extends Data
     ) {}
 
     /**
-     * The line as the live preview prints it: under the franchise no line
+     * The figures the totals are computed from. Under the franchise no line
      * carries VAT, whatever the editor sent.
+     *
+     * @return array{quantityMilli: int, unitPrice: Money, vatRateBp: int}
+     */
+    public function priced(bool $vatApplies): array
+    {
+        return [
+            'quantityMilli' => $this->quantityMilli,
+            'unitPrice' => $this->unitPrice->toMoney(),
+            'vatRateBp' => $vatApplies ? $this->vatRateBp : 0,
+        ];
+    }
+
+    /**
+     * The line as the live preview prints it.
      *
      * @return PaperLine
      */
     public function toPaperLine(bool $vatApplies): array
     {
-        return [
-            'label' => $this->label,
-            'detail' => $this->detail,
-            'quantityMilli' => $this->quantityMilli,
-            'unit' => $this->unit,
-            'unitPrice' => $this->unitPrice->toMoney(),
-            'vatRateBp' => $vatApplies ? $this->vatRateBp : 0,
-        ];
+        return ['label' => $this->label, 'detail' => $this->detail, 'unit' => $this->unit, ...$this->priced($vatApplies)];
     }
 }

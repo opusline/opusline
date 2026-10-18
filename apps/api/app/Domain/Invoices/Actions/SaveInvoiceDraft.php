@@ -45,15 +45,15 @@ class SaveInvoiceDraft
         $settings = $user->settingsOrFail();
         $client = $user->clients()->whereKey($data->clientId)->firstOrFail();
         $currency = $settings->currency->value;
-        // Under the franchise no line carries VAT, whatever the editor sent.
         $vatApplies = $settings->vat_regime->isLiable();
-        $lines = array_map(static fn (InvoiceLineInputData $line): array => [
-            'quantityMilli' => $line->quantityMilli,
-            'unitPrice' => $line->unitPrice->toMoney(),
-            'vatRateBp' => $vatApplies ? $line->vatRateBp : 0,
-        ], $data->lines);
+        $lines = array_map(static fn (InvoiceLineInputData $line): array => $line->priced($vatApplies), $data->lines);
         $totals = DocumentTotals::of($lines, $currency);
-        $this->assertTotalsNotNegative($totals);
+
+        // The header amounts are unsigned, and a negative invoice is an avoir, not an invoice.
+        if ($totals->isNegative()) {
+            throw ValidationException::withMessages(['lines' => __('invoices.negative_total')]);
+        }
+
         $issuedOn = $data->issuedOn === null ? $settings->today() : CarbonImmutable::parse($data->issuedOn);
         $term = new PaymentTerm($data->paymentTermsDays, $data->paymentTermsEndOfMonth);
 
@@ -166,18 +166,5 @@ class SaveInvoiceDraft
         }
 
         $user->creditNotes()->whereKey($creditNoteIds)->update(['deduction_invoice_id' => $invoice->id]);
-    }
-
-    /**
-     * A deduction line may lower the total, never turn it negative: the header
-     * amounts are unsigned, and a negative invoice is an avoir, not an invoice.
-     */
-    private function assertTotalsNotNegative(DocumentTotals $totals): void
-    {
-        if ($totals->ht->isNegative() || $totals->ttc->isNegative()) {
-            throw ValidationException::withMessages([
-                'lines' => __('invoices.negative_total'),
-            ]);
-        }
     }
 }

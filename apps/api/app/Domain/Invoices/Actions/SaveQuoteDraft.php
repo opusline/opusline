@@ -36,14 +36,10 @@ class SaveQuoteDraft
         $client = $user->clients()->whereKey($data->clientId)->firstOrFail();
         $currency = $settings->currency->value;
         $vatApplies = $settings->vat_regime->isLiable();
-        $lines = array_map(static fn (InvoiceLineInputData $line): array => [
-            'quantityMilli' => $line->quantityMilli,
-            'unitPrice' => $line->unitPrice->toMoney(),
-            'vatRateBp' => $vatApplies ? $line->vatRateBp : 0,
-        ], $data->lines);
+        $lines = array_map(static fn (InvoiceLineInputData $line): array => $line->priced($vatApplies), $data->lines);
         $totals = DocumentTotals::of($lines, $currency);
 
-        if ($totals->ht->isNegative() || $totals->ttc->isNegative()) {
+        if ($totals->isNegative()) {
             throw ValidationException::withMessages(['lines' => __('quotes.negative_total')]);
         }
 

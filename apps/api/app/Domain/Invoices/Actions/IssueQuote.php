@@ -7,10 +7,10 @@ namespace App\Domain\Invoices\Actions;
 use App\Domain\Documents\Actions\StoreGeneratedDocument;
 use App\Domain\Documents\Enums\DocumentCategory;
 use App\Domain\Invoices\Documents\DocumentParties;
+use App\Domain\Invoices\Documents\IssueReadiness;
 use App\Domain\Invoices\Enums\DocumentLanguage;
 use App\Domain\Invoices\Lifecycle\Quote\QuoteSent;
 use App\Domain\Invoices\Models\Quote;
-use App\Domain\Invoices\Models\QuoteLine;
 use App\Domain\Settings\Models\UserSettings;
 use App\Domain\Users\Models\User;
 use Illuminate\Database\UniqueConstraintViolationException;
@@ -71,24 +71,10 @@ class IssueQuote
 
     private function assertIssuable(Quote $quote, UserSettings $settings): void
     {
-        $errors = [];
-
-        if ($quote->lines->isEmpty()) {
-            $errors['lines'] = __('quotes.issue_needs_lines');
-        } elseif (! $quote->amount_ht_cents->isPositive()) {
-            $errors['lines'] = __('quotes.issue_needs_positive_total');
-        } elseif (! $settings->vat_regime->isLiable() && $quote->lines->contains(static fn (QuoteLine $line): bool => $line->vat_rate_bp > 0)) {
-            $errors['lines'] = __('quotes.issue_needs_vat_rework');
-        }
-
-        if (blank($settings->trade_name) || blank($settings->company_address_line1) || blank($settings->company_city)
-            || ($settings->hasFrenchFiscality() && blank($settings->siret))) {
-            $errors['seller'] = __('quotes.issue_needs_seller_identity');
-        }
-
-        if (blank($quote->client->billing_address_line1) || blank($quote->client->billing_city)) {
-            $errors['buyer'] = __('quotes.issue_needs_buyer_address');
-        }
+        $errors = array_map(
+            static fn (string $problem): string => __("quotes.issue_{$problem}"),
+            IssueReadiness::problems($settings, $quote->client, $quote->lines, $quote->amount_ht_cents),
+        );
 
         if ($errors !== []) {
             throw ValidationException::withMessages($errors);

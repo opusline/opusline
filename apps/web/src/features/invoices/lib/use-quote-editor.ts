@@ -15,19 +15,14 @@ import {
   showSettingsOptions,
 } from "@opusline/api-client/react-query";
 import { useToast } from "@opusline/ui/components/toast";
-import {
-  keepPreviousData,
-  useQuery,
-  useQueryClient,
-} from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "@tanstack/react-router";
-import { useDeferredValue, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 
 import { useMoneyFormat } from "@/components/money-format-provider";
 import { accountTodayCalendarDate } from "@/lib/dates";
 import { companyLogoHref } from "@/lib/logos";
 import { invalidateQuoteWrites } from "@/lib/query-invalidation";
-import { useSettled } from "@/lib/use-settled";
 import { serverErrorMessage } from "@/lib/validation";
 import { m } from "@/paraglide/messages.js";
 import type { InvoiceEditorPageProps } from "../components/invoice-editor-page";
@@ -37,6 +32,7 @@ import {
   quoteDraftFromDetail,
   quoteDraftPayload,
 } from "./quote-draft";
+import { usePaperPreview } from "./use-paper-preview";
 
 type QuoteEditor =
   | { status: "pending" }
@@ -89,24 +85,15 @@ export function useQuoteEditor(
       : quoteDraftFromDetail(format, saved.data);
   }, [format, quoteId, sourceId, settings.data, saved.data]);
   const draft = edited ?? seed;
-  const payload = useDeferredValue(
+  const preview = usePaperPreview(
+    ["quote-editor-preview"],
     draft === null ? null : quoteDraftPayload(format, draft),
-  );
-  const previewBody = useSettled(JSON.stringify(payload));
-
-  const preview = useQuery({
-    queryKey: ["quote-editor-preview", previewBody],
-    queryFn: async () => {
-      const { data } = await previewQuotePaper({
-        body: JSON.parse(previewBody) as SaveQuoteDraftData,
-        throwOnError: true,
-      });
+    async (body: SaveQuoteDraftData) => {
+      const { data } = await previewQuotePaper({ body, throwOnError: true });
 
       return data;
     },
-    enabled: payload !== null,
-    placeholderData: keepPreviousData,
-  });
+  );
 
   // The page only hands over a draft with a client and complete lines.
   const bodyOf = (complete: InvoiceDraft): SaveQuoteDraftData =>
@@ -190,7 +177,7 @@ export function useQuoteEditor(
       defaultVatRateBp: settings.data.vatLiable ? user.effectiveVatRateBp : 0,
       today: accountTodayCalendarDate(user.timezone),
       logoSrc: identity.data.hasLogo ? companyLogoHref() : undefined,
-      paper: payload === null ? null : (preview.data ?? null),
+      paper: preview.paper,
       unbilledTime: null,
       isSaving,
       error,

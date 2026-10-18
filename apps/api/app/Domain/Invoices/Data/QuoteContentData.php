@@ -7,7 +7,6 @@ namespace App\Domain\Invoices\Data;
 use App\Domain\Invoices\Documents\DocumentTotals;
 use App\Domain\Invoices\Models\Quote;
 use App\Domain\Invoices\Models\QuoteLine;
-use App\Domain\Shared\Data\SignedMoneyData;
 use Spatie\LaravelData\Attributes\DataCollectionOf;
 use Spatie\LaravelData\Data;
 
@@ -37,11 +36,7 @@ class QuoteContentData extends Data
     {
         $lines = array_values($quote->lines->all());
         $totals = DocumentTotals::of(
-            array_map(static fn (QuoteLine $line): array => [
-                'quantityMilli' => $line->quantity_milli,
-                'unitPrice' => $line->unit_price_cents,
-                'vatRateBp' => $line->vat_rate_bp,
-            ], $lines),
+            array_map(static fn (QuoteLine $line): array => $line->toPaperLine(), $lines),
             $quote->currency,
         );
 
@@ -52,11 +47,7 @@ class QuoteContentData extends Data
             showEmail: $quote->show_email,
             customMentions: $quote->custom_mentions,
             lines: array_map(QuoteLineData::fromModel(...), $lines),
-            vatBreakdown: array_map(static fn (array $row): VatBreakdownRowData => new VatBreakdownRowData(
-                rateBp: $row['rateBp'],
-                base: SignedMoneyData::fromMoney($row['base']),
-                vat: SignedMoneyData::fromMoney($row['vat']),
-            ), $totals->vatBreakdown),
+            vatBreakdown: VatBreakdownRowData::listOf($totals),
             seller: $quote->seller_snapshot === null ? null : DocumentPartyData::from($quote->seller_snapshot),
             buyer: $quote->buyer_snapshot === null ? null : DocumentPartyData::from($quote->buyer_snapshot),
         );

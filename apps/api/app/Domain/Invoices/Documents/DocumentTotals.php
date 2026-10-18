@@ -71,6 +71,12 @@ final readonly class DocumentTotals
      * The rate that carries most of the base: what the invoice header records,
      * where only a caption reads it. No sum ever comes from it.
      */
+    /** A draft may hold a discount line, but never take the document below zero. */
+    public function isNegative(): bool
+    {
+        return $this->ht->isNegative() || $this->ttc->isNegative();
+    }
+
     public function dominantRateBp(int $default): int
     {
         $dominant = null;
