@@ -32,3 +32,4 @@ require __DIR__.'/api/tokens.php';
 require __DIR__.'/api/treasury.php';
 require __DIR__.'/api/two-factor.php';
 require __DIR__.'/api/relay.php';
+require __DIR__.'/api/reports.php';

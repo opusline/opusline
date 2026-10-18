@@ -7625,6 +7625,40 @@
                 "security": []
             }
         },
+        "/reports": {
+            "post": {
+                "operationId": "sendReport",
+                "summary": "Files the account's bug report or feature request on the project's tracker",
+                "tags": [
+                    "Report"
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/ReportData"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/RelayedIssueData"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    }
+                }
+            }
+        },
         "/revenue": {
             "get": {
                 "operationId": "showRevenue",
@@ -13957,12 +13991,14 @@
             },
             "FeatureFlag": {
                 "type": "integer",
-                "description": "A feature still being built, shipped to `main` switched off. Removing a case (and its checks, keeping the code it guarded) is how the feature is released.\n| |\n|---|\n| `0` <br/> Writing, issuing and rendering invoices in Opusline (#498). |",
+                "description": "A feature still being built, shipped to `main` switched off. Removing a case (and its checks, keeping the code it guarded) is how the feature is released.\n| |\n|---|\n| `0` <br/> Writing, issuing and rendering invoices in Opusline (#498). |\n| `1` <br/> Sending a bug report or a feature request from the app (#630). |",
                 "enum": [
-                    0
+                    0,
+                    1
                 ],
                 "x-enum-varnames": [
-                    "Invoicing"
+                    "Invoicing",
+                    "Reports"
                 ],
                 "title": "FeatureFlag"
             },
@@ -17411,6 +17447,55 @@
                     "name"
                 ],
                 "title": "RenamePasskeyData"
+            },
+            "ReportData": {
+                "type": "object",
+                "properties": {
+                    "kind": {
+                        "$ref": "#/components/schemas/ReportKind"
+                    },
+                    "title": {
+                        "type": "string",
+                        "minLength": 5,
+                        "maxLength": 120
+                    },
+                    "body": {
+                        "type": "string",
+                        "minLength": 10,
+                        "maxLength": 6000
+                    },
+                    "context": {
+                        "type": [
+                            "object",
+                            "null"
+                        ],
+                        "properties": {
+                            "route": {
+                                "type": "string",
+                                "maxLength": 255
+                            },
+                            "browser": {
+                                "type": "string",
+                                "maxLength": 255
+                            },
+                            "locale": {
+                                "type": "string",
+                                "maxLength": 16
+                            }
+                        },
+                        "required": [
+                            "route",
+                            "browser",
+                            "locale"
+                        ]
+                    }
+                },
+                "required": [
+                    "kind",
+                    "title",
+                    "body"
+                ],
+                "title": "ReportData"
             },
             "ReportKind": {
                 "type": "integer",

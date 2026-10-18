@@ -33,7 +33,7 @@ test('the current user endpoint returns the authenticated user', function (): vo
             'defaultPaymentTermsDays' => 45,
             'effectiveContributionRateBp' => 2580,
             // phpunit.xml releases invoicing to every account.
-            'features' => [FeatureFlag::Invoicing->value],
+            'features' => [FeatureFlag::Invoicing->value, FeatureFlag::Reports->value],
         ]);
 });
 

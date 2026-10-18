@@ -184,4 +184,7 @@ return [
     'instanceId' => 'instance',
     'challenge' => 'défi',
     'nonce' => 'preuve de travail',
+    'route' => 'page',
+    'browser' => 'navigateur',
+    'context' => 'contexte',
 ];

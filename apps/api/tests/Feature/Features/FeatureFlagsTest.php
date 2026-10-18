@@ -4,6 +4,12 @@ declare(strict_types=1);
 
 use App\Domain\Users\Models\User;
 
+// These walk the invoicing flag alone: the other flags, on in phpunit.xml,
+// would otherwise show in every list they assert.
+beforeEach(function (): void {
+    config(['features.reports' => 'off']);
+});
+
 test('keeps a beta feature off until the account opts in', function (): void {
     invoicingReleasedAs('beta');
     $user = User::factory()->create();

@@ -140,6 +140,8 @@ class AppServiceProvider extends ServiceProvider
             Limit::perHour(5)->by('relay-instance:'.$request->string('instanceId')),
             Limit::perDay(20)->by('relay-ip:'.$request->ip()),
         ]);
+        // Under the relay's allowance per instance, so one account cannot spend it all.
+        RateLimiter::for('reports', fn (Request $request): Limit => Limit::perHour(3)->by('reports:'.$caller($request)));
         RateLimiter::for('two-factor-setup', fn (Request $request): Limit => Limit::perMinute(6)->by('2fa-setup:'.$caller($request)));
 
         RateLimiter::for('passkey-login', fn (Request $request): Limit => Limit::perMinute(10)->by('passkey:'.($request->ip() ?? 'unknown')));

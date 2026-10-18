@@ -260,6 +260,8 @@
   "beta_empty": "This instance offers no early-access feature at the moment.",
   "beta_feature_invoicing_description": "Write, number and issue your invoices from Opusline, with a service catalogue, a live preview and the PDF.",
   "beta_feature_invoicing_title": "Invoicing in Opusline",
+  "beta_feature_reports_description": "Report a bug or suggest a feature from inside Opusline. You read the report and choose what technical details go with it before it is filed publicly on GitHub.",
+  "beta_feature_reports_title": "Reports from the app",
   "beta_load_failed": "The early-access features could not be loaded.",
   "beta_saved": "Early-access choice saved",
   "beta_title": "Early-access features",
