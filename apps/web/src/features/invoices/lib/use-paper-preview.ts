@@ -16,10 +16,13 @@ export function usePaperPreview<Body>(
 ) {
   const deferred = useDeferredValue(body);
   const settled = useSettled(JSON.stringify(deferred));
+  // The settled copy trails the live one: right after a body first appears it
+  // still holds the null before it, which must not reach the API as a request.
+  const settledBody = JSON.parse(settled) as Body | null;
   const preview = useQuery({
     queryKey: [...key, settled],
-    queryFn: () => fetchPaper(JSON.parse(settled) as Body),
-    enabled: deferred !== null,
+    queryFn: () => fetchPaper(settledBody as Body),
+    enabled: deferred !== null && settledBody !== null,
     placeholderData: keepPreviousData,
     retry: false,
   });
