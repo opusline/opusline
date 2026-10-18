@@ -1274,6 +1274,7 @@ export const zInvoiceData = z.object({
     amountHt: zMoneyData,
     amountVat: zMoneyData,
     amountTtc: zMoneyData,
+    amountNet: z.nullable(zMoneyData),
     ttcOverridden: z.boolean(),
     vatRateBp: z.int(),
     notes: z.nullable(z.string())
@@ -2393,6 +2394,27 @@ export const zTwoFactorStatusData = z.object({
     recoveryCodesRemaining: z.int(),
     passkeys: z.array(zPasskeyData),
     trustedDevices: z.array(zTrustedDeviceData)
+});
+
+/**
+ * UninvoicedPeriodData
+ */
+export const zUninvoicedPeriodData = z.object({
+    id: z.int(),
+    client: z.string(),
+    from: z.iso.date(),
+    to: z.iso.date(),
+    days: z.nullable(z.number()),
+    minutes: z.nullable(z.int()),
+    amountHt: zMoneyData,
+    amountNet: z.nullable(zMoneyData)
+});
+
+/**
+ * UninvoicedPeriodListData
+ */
+export const zUninvoicedPeriodListData = z.object({
+    periods: z.array(zUninvoicedPeriodData)
 });
 
 /**
@@ -3727,6 +3749,8 @@ export const zAnswerTwoFactorChallengeBody = zTwoFactorChallengeAnswerData;
 export const zAnswerTwoFactorChallengeResponse = zUserData;
 
 export const zTwoFactorPasskeyOptionsResponse = zPasskeyOptionsData;
+
+export const zListUninvoicedPeriodsResponse = zUninvoicedPeriodListData;
 
 export const zListUserDocumentsResponse = zDocumentListData;
 

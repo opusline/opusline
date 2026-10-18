@@ -30,6 +30,8 @@ use App\Domain\Invoices\Data\SummarizeInvoicesData;
 use App\Domain\Invoices\Data\UpdateInvoiceData;
 use App\Domain\Invoices\Data\UploadInvoiceDocumentData;
 use App\Domain\Invoices\Models\Invoice;
+use App\Domain\Invoices\Revenue\NetIncome;
+use App\Domain\Settings\Rates\ContributionRateHistory;
 use App\Domain\Users\Models\User;
 use App\Http\Controllers\Controller;
 use Illuminate\Container\Attributes\CurrentUser;
@@ -41,13 +43,19 @@ use Symfony\Component\HttpKernel\Exception\HttpException;
 
 class InvoiceController extends Controller
 {
+    public function __construct(private readonly ContributionRateHistory $contributionRateHistory) {}
+
     /** Also open to a personal access token carrying `invoices:read`. */
     public function index(ListInvoicesData $data, #[CurrentUser] User $user, ListInvoices $listInvoices): JsonResponse
     {
         ['invoices' => $invoices, 'nextCursor' => $nextCursor] = $listInvoices->handle($user, $data);
+        $netIncome = NetIncome::forAccount($user->settingsOrFail(), $this->contributionRateHistory);
 
         return response()->json(new InvoiceListData(
-            invoices: array_values(InvoiceListItemData::collect($invoices, 'array')),
+            invoices: array_map(
+                static fn (Invoice $invoice): InvoiceListItemData => InvoiceListItemData::fromModel($invoice, $netIncome),
+                $invoices,
+            ),
             // The account-wide grouped SUM rides on the Factures ledger's first
             // page only: deeper pages would recompute a figure the screen
             // already holds, and the fiche tabs slice by client or mission and
@@ -179,6 +187,11 @@ class InvoiceController extends Controller
      */
     private function detail(Invoice $invoice): InvoiceDetailData
     {
-        return InvoiceDetailData::fromModel($invoice->load(['client', 'mission', 'events']));
+        $invoice->load(['client', 'mission', 'events', 'user.settings']);
+
+        return InvoiceDetailData::fromModel(
+            $invoice,
+            NetIncome::forAccount($invoice->user->settingsOrFail(), $this->contributionRateHistory),
+        );
     }
 }

@@ -71,7 +71,7 @@ function requestDataFields(): array
         'InvoiceListItemData', 'InvoiceOverdueData', 'InvoiceSummaryData',
         'InvoiceTodoBudgetData', 'InvoiceTodoData', 'InvoiceTodoOverdueData',
         'InvoiceTodoWorkData',
-        'InvoiceTotalData', 'MissionData', 'MissionRevenueData', 'MoneyData',
+        'InvoiceTotalData', 'UninvoicedPeriodData', 'UninvoicedPeriodListData', 'MissionData', 'MissionRevenueData', 'MoneyData',
         'MonthWorkloadData',
         'NextInvoiceNumberData', 'RevenueClientData', 'RevenueComparisonData',
         'RevenueData', 'RevenueMonthData', 'RevenueNetData', 'RevenueVatData',

@@ -7,6 +7,7 @@ namespace App\Domain\Invoices\Data;
 use App\Domain\Clients\Data\ClientData;
 use App\Domain\Documents\Data\DocumentData;
 use App\Domain\Invoices\Models\Invoice;
+use App\Domain\Invoices\Revenue\NetIncome;
 use App\Domain\Missions\Data\MissionData;
 use Spatie\LaravelData\Attributes\DataCollectionOf;
 use Spatie\LaravelData\Data;
@@ -27,12 +28,12 @@ class InvoiceDetailData extends Data
         public ?DocumentData $document,
     ) {}
 
-    public static function fromModel(Invoice $invoice): self
+    public static function fromModel(Invoice $invoice, ?NetIncome $netIncome): self
     {
         $document = $invoice->attachedDocument();
 
         return new self(
-            invoice: InvoiceData::fromModel($invoice),
+            invoice: InvoiceData::fromModel($invoice, $netIncome),
             client: ClientData::from($invoice->client),
             mission: $invoice->mission === null ? null : MissionData::from($invoice->mission),
             history: array_values(InvoiceEventData::collect($invoice->events->all(), 'array')),
