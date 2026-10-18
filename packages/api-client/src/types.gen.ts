@@ -1457,8 +1457,9 @@ export type ExpensesVatSummaryData = {
  * | |
  * |---|
  * | `0` <br/> Writing, issuing and rendering invoices in Opusline (#498). |
+ * | `1` <br/> Sending a bug report or a feature request from the app (#630). |
  */
-export type FeatureFlag = 0;
+export type FeatureFlag = 0 | 1;
 
 /**
  * FiscalDeadlineData
@@ -2618,6 +2619,20 @@ export type ReminderFrequency = 0 | 1 | 2;
  */
 export type RenamePasskeyData = {
     name: string;
+};
+
+/**
+ * ReportData
+ */
+export type ReportData = {
+    kind: ReportKind;
+    title: string;
+    body: string;
+    context?: {
+        route: string;
+        browser: string;
+        locale: string;
+    } | null;
 };
 
 /**
@@ -10530,6 +10545,33 @@ export type FileRelayedReportResponses = {
 };
 
 export type FileRelayedReportResponse = FileRelayedReportResponses[keyof FileRelayedReportResponses];
+
+export type SendReportData = {
+    body: ReportData;
+    path?: never;
+    query?: never;
+    url: '/reports';
+};
+
+export type SendReportErrors = {
+    /**
+     * Unauthenticated
+     */
+    401: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+};
+
+export type SendReportError = SendReportErrors[keyof SendReportErrors];
+
+export type SendReportResponses = {
+    201: RelayedIssueData;
+};
+
+export type SendReportResponse = SendReportResponses[keyof SendReportResponses];
 
 export type ShowRevenueData = {
     body?: never;

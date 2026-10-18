@@ -914,8 +914,9 @@ export const zExpenseInputData = z.object({
  * | |
  * |---|
  * | `0` <br/> Writing, issuing and rendering invoices in Opusline (#498). |
+ * | `1` <br/> Sending a bug report or a feature request from the app (#630). |
  */
-export const zFeatureFlag = z.literal(0);
+export const zFeatureFlag = z.union([z.literal(0), z.literal(1)]);
 
 /**
  * BetaFeatureData
@@ -2380,6 +2381,20 @@ export const zRelayReportData = z.object({
     version: z.string().check(z.maxLength(32)),
     challenge: z.string().check(z.maxLength(128)),
     nonce: z.string().check(z.maxLength(32))
+});
+
+/**
+ * ReportData
+ */
+export const zReportData = z.object({
+    kind: zReportKind,
+    title: z.string().check(z.minLength(5), z.maxLength(120)),
+    body: z.string().check(z.minLength(10), z.maxLength(6000)),
+    context: z.nullish(z.object({
+        route: z.string().check(z.maxLength(255)),
+        browser: z.string().check(z.maxLength(255)),
+        locale: z.string().check(z.maxLength(16))
+    }))
 });
 
 /**
@@ -4991,6 +5006,10 @@ export const zIssueRelayChallengeResponse = zRelayChallengeData;
 export const zFileRelayedReportBody = zRelayReportData;
 
 export const zFileRelayedReportResponse = zRelayedIssueData;
+
+export const zSendReportBody = zReportData;
+
+export const zSendReportResponse = zRelayedIssueData;
 
 export const zShowRevenueQuery = z.object({
     period: z.nullish(z.string().check(z.regex(/^\d{4}(-(0[1-9]|1[0-2])|-Q[1-4])?$/))),

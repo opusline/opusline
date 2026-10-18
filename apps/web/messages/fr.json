@@ -260,6 +260,8 @@
   "beta_empty": "Cette instance ne propose aucune fonctionnalité en avant-première pour le moment.",
   "beta_feature_invoicing_description": "Rédigez, numérotez et émettez vos factures depuis Opusline, avec un catalogue de prestations, un aperçu en direct et le PDF.",
   "beta_feature_invoicing_title": "Facturation dans Opusline",
+  "beta_feature_reports_description": "Signalez un bug ou proposez une fonctionnalité depuis Opusline. Vous relisez le signalement et choisissez les détails techniques joints avant qu'il soit publié sur GitHub.",
+  "beta_feature_reports_title": "Signalements depuis l'application",
   "beta_load_failed": "Les fonctionnalités en avant-première n'ont pas pu être chargées.",
   "beta_saved": "Choix d'avant-première enregistré",
   "beta_title": "Fonctionnalités en avant-première",

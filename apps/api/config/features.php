@@ -9,4 +9,5 @@ declare(strict_types=1);
  */
 return [
     'invoicing' => env('FEATURE_INVOICING', 'beta'),
+    'reports' => env('FEATURE_REPORTS', 'beta'),
 ];
