@@ -25,7 +25,7 @@ class ComposeDocumentEmail
     /** As a new invoice, or as a payment reminder once past due. */
     public function forInvoice(User $user, Invoice $invoice, ?string $subject = null, ?string $body = null, bool $isTest = false, EmailTemplateKind $kind = EmailTemplateKind::NewInvoice): ClientEmailContent
     {
-        $invoice->loadMissing('client');
+        $invoice->loadMissing(['client', 'mission']);
 
         return ClientEmailComposer::compose(
             $user,
@@ -37,7 +37,7 @@ class ComposeDocumentEmail
 
     public function forQuote(User $user, Quote $quote, ?string $subject = null, ?string $body = null, bool $isTest = false): ClientEmailContent
     {
-        $quote->loadMissing('client');
+        $quote->loadMissing(['client', 'mission']);
 
         return ClientEmailComposer::compose(
             $user,

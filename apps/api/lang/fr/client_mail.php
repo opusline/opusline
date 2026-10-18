@@ -5,12 +5,12 @@ declare(strict_types=1);
 return [
     'templates' => [
         'new_invoice' => [
-            'subject' => 'Facture {numero} ({titre})',
-            'body' => "Bonjour {contact},\n\nVoici la facture {numero} pour {titre}, d'un montant de {montant} TTC, à régler avant le {echeance}.\n\nLe virement peut se faire sur le compte indiqué plus bas. Merci de reprendre {numero} dans le libellé, cela m'aide à le rapprocher.\n\nBonne journée,",
+            'subject' => 'Facture {numero}',
+            'body' => "Bonjour {contact},\n\nVoici la facture {numero}, d'un montant de {montant} TTC, à régler avant le {echeance}.\n\nLe virement peut se faire sur le compte indiqué plus bas. Merci de reprendre {numero} dans le libellé, cela m'aide à le rapprocher.\n\nBonne journée,",
         ],
         'new_quote' => [
-            'subject' => 'Devis {numero} ({titre})',
-            'body' => "Bonjour {contact},\n\nComme convenu, voici le devis {numero} pour {titre} : {montant} HT, valable jusqu'au {validite}.\n\nPour l'accepter, il suffit de me le renvoyer signé avec la mention « bon pour accord », ou de répondre à cet e-mail. Si un point doit changer, dites-le-moi et je l'ajuste.\n\nBonne journée,",
+            'subject' => 'Devis {numero}',
+            'body' => "Bonjour {contact},\n\nComme convenu, voici le devis {numero} : {montant} HT, valable jusqu'au {validite}.\n\nPour l'accepter, il suffit de me le renvoyer signé avec la mention « bon pour accord », ou de répondre à cet e-mail. Si un point doit changer, dites-le-moi et je l'ajuste.\n\nBonne journée,",
         ],
         'credit_note' => [
             'subject' => 'Avoir {numero} (facture {facture})',
