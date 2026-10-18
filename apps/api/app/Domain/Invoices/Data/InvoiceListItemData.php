@@ -6,6 +6,7 @@ namespace App\Domain\Invoices\Data;
 
 use App\Domain\Clients\Data\ClientData;
 use App\Domain\Invoices\Models\Invoice;
+use App\Domain\Invoices\Revenue\NetIncome;
 use App\Domain\Missions\Data\MissionData;
 use Spatie\LaravelData\Data;
 
@@ -22,10 +23,10 @@ class InvoiceListItemData extends Data
         public ?MissionData $mission,
     ) {}
 
-    public static function fromModel(Invoice $invoice): self
+    public static function fromModel(Invoice $invoice, ?NetIncome $netIncome): self
     {
         return new self(
-            invoice: InvoiceData::fromModel($invoice),
+            invoice: InvoiceData::fromModel($invoice, $netIncome),
             client: ClientData::from($invoice->client),
             mission: $invoice->mission === null ? null : MissionData::from($invoice->mission),
         );

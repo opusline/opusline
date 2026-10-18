@@ -359,6 +359,14 @@ class UserSettings extends Model
         return $this->business_country === self::FRENCH_FISCALITY_COUNTRY;
     }
 
+    /** Whether the account owes the income tax the treasury provisions: French, off the option, with a rate to price it at. */
+    public function owesIncomeTax(): bool
+    {
+        return $this->hasFrenchFiscality()
+            && ! $this->liberating_payment
+            && $this->income_tax_rate_bp !== null;
+    }
+
     /**
      * Whether the account files the monthly CA3 — the only return that
      * deducts TVA purchase by purchase. Abroad the régime is pinned to réel

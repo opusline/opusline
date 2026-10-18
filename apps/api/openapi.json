@@ -9357,6 +9357,39 @@
                 "security": []
             }
         },
+        "/uninvoiced-periods": {
+            "get": {
+                "operationId": "listUninvoicedPeriods",
+                "description": "Also open to a personal access token carrying `invoices:read`.",
+                "summary": "The worked periods no invoice covers yet, one per mission (since 0.33.7)",
+                "tags": [
+                    "UninvoicedPeriod"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/UninvoicedPeriodListData"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    }
+                },
+                "security": [
+                    {
+                        "session": []
+                    },
+                    {
+                        "bearer": []
+                    }
+                ]
+            }
+        },
         "/user/documents": {
             "get": {
                 "operationId": "listUserDocuments",
@@ -14599,6 +14632,16 @@
                     "amountDue": {
                         "$ref": "#/components/schemas/SignedMoneyData"
                     },
+                    "amountNet": {
+                        "anyOf": [
+                            {
+                                "$ref": "#/components/schemas/SignedMoneyData"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ]
+                    },
                     "ttcOverridden": {
                         "type": "boolean"
                     },
@@ -14643,6 +14686,7 @@
                     "amountPaid",
                     "amountCredited",
                     "amountDue",
+                    "amountNet",
                     "ttcOverridden",
                     "vatRateBp",
                     "notes",
@@ -19648,6 +19692,76 @@
                     "unitPrice"
                 ],
                 "title": "UnbilledTimeData"
+            },
+            "UninvoicedPeriodData": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "integer"
+                    },
+                    "client": {
+                        "type": "string"
+                    },
+                    "from": {
+                        "type": "string",
+                        "format": "date"
+                    },
+                    "to": {
+                        "type": "string",
+                        "format": "date"
+                    },
+                    "days": {
+                        "type": [
+                            "number",
+                            "null"
+                        ]
+                    },
+                    "minutes": {
+                        "type": [
+                            "integer",
+                            "null"
+                        ]
+                    },
+                    "amountHt": {
+                        "$ref": "#/components/schemas/MoneyData"
+                    },
+                    "amountNet": {
+                        "anyOf": [
+                            {
+                                "$ref": "#/components/schemas/MoneyData"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ]
+                    }
+                },
+                "required": [
+                    "id",
+                    "client",
+                    "from",
+                    "to",
+                    "days",
+                    "minutes",
+                    "amountHt",
+                    "amountNet"
+                ],
+                "title": "UninvoicedPeriodData"
+            },
+            "UninvoicedPeriodListData": {
+                "type": "object",
+                "properties": {
+                    "periods": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/UninvoicedPeriodData"
+                        }
+                    }
+                },
+                "required": [
+                    "periods"
+                ],
+                "title": "UninvoicedPeriodListData"
             },
             "UpcomingDebitData": {
                 "type": "object",

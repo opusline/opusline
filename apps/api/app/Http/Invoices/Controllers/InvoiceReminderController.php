@@ -11,6 +11,8 @@ use App\Domain\Invoices\Data\InvoiceDetailData;
 use App\Domain\Invoices\Data\PreviewEmailTemplateData;
 use App\Domain\Invoices\Data\UpdateInvoiceRemindersData;
 use App\Domain\Invoices\Models\Invoice;
+use App\Domain\Invoices\Revenue\NetIncome;
+use App\Domain\Settings\Rates\ContributionRateHistory;
 use App\Domain\Users\Models\User;
 use App\Http\Controllers\Controller;
 use Illuminate\Container\Attributes\CurrentUser;
@@ -20,12 +22,19 @@ use Symfony\Component\HttpKernel\Exception\HttpException;
 /** The automatic reminders of one unpaid invoice: their setting, and one sent right now. */
 class InvoiceReminderController extends Controller
 {
+    public function __construct(private readonly ContributionRateHistory $contributionRateHistory) {}
+
     /**
      * @throws HttpException<409>
      */
     public function update(UpdateInvoiceRemindersData $data, Invoice $invoice, UpdateInvoiceReminders $updateInvoiceReminders): InvoiceDetailData
     {
-        return InvoiceDetailData::fromModel($updateInvoiceReminders->handle($invoice, $data)->load(['client', 'mission', 'events', 'lines', 'quote', 'emails', 'payments', 'creditNotes', 'deductedCreditNotes']));
+        $invoice = $updateInvoiceReminders->handle($invoice, $data)->load(['client', 'mission', 'events', 'lines', 'quote', 'emails', 'payments', 'creditNotes', 'deductedCreditNotes', 'user.settings', ...NetIncome::INVOICE_RELATIONS]);
+
+        return InvoiceDetailData::fromModel(
+            $invoice,
+            NetIncome::forAccount($invoice->user->settingsOrFail(), $this->contributionRateHistory),
+        );
     }
 
     /**

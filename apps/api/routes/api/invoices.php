@@ -20,6 +20,7 @@ use App\Http\Invoices\Controllers\QuoteDraftController;
 use App\Http\Invoices\Controllers\QuoteEmailController;
 use App\Http\Invoices\Controllers\QuoteInvoiceController;
 use App\Http\Invoices\Controllers\QuotePaperController;
+use App\Http\Invoices\Controllers\UninvoicedPeriodController;
 use App\Http\Users\Support\EnsureMailIsEnabled;
 use App\Http\Users\Support\EnsureSessionIsUnlocked;
 use App\Http\Users\Support\RefuseAccessTokens;
@@ -27,7 +28,7 @@ use Illuminate\Support\Facades\Route;
 use Laravel\Sanctum\Http\Middleware\CheckAbilities;
 
 Route::middleware(['auth:sanctum', EnsureSessionIsUnlocked::class])->group(function (): void {
-    // The two reads a personal access token may make — the only routes in the
+    // The three reads a personal access token may make — the only routes in the
     // API that take one. A cookie session passes the ability check as well.
     Route::middleware(CheckAbilities::class.':'.TokenAbility::ReadInvoices->value)->group(function (): void {
         Route::get('/invoices', [InvoiceController::class, 'index'])
@@ -37,6 +38,8 @@ Route::middleware(['auth:sanctum', EnsureSessionIsUnlocked::class])->group(funct
         Route::get('/invoices/{invoice}', [InvoiceController::class, 'show'])
             ->whereNumber('invoice')
             ->name('showInvoice');
+        Route::get('/uninvoiced-periods', [UninvoicedPeriodController::class, 'index'])
+            ->name('listUninvoicedPeriods');
     });
 
     Route::middleware(RefuseAccessTokens::class)->group(function (): void {

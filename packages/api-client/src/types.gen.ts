@@ -1654,6 +1654,7 @@ export type InvoiceData = {
     amountPaid: MoneyData;
     amountCredited: MoneyData;
     amountDue: SignedMoneyData;
+    amountNet: SignedMoneyData | null;
     ttcOverridden: boolean;
     vatRateBp: number;
     notes: string | null;
@@ -3267,6 +3268,27 @@ export type UnbilledTimeData = {
     quantityMilli: number;
     unit: LineUnit;
     unitPrice: MoneyData | null;
+};
+
+/**
+ * UninvoicedPeriodData
+ */
+export type UninvoicedPeriodData = {
+    id: number;
+    client: string;
+    from: string;
+    to: string;
+    days: number | null;
+    minutes: number | null;
+    amountHt: MoneyData;
+    amountNet: MoneyData | null;
+};
+
+/**
+ * UninvoicedPeriodListData
+ */
+export type UninvoicedPeriodListData = {
+    periods: Array<UninvoicedPeriodData>;
 };
 
 /**
@@ -12163,6 +12185,33 @@ export type TwoFactorPasskeyOptionsResponses = {
 };
 
 export type TwoFactorPasskeyOptionsResponse = TwoFactorPasskeyOptionsResponses[keyof TwoFactorPasskeyOptionsResponses];
+
+export type ListUninvoicedPeriodsData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/uninvoiced-periods';
+};
+
+export type ListUninvoicedPeriodsErrors = {
+    /**
+     * Unauthenticated
+     */
+    401: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+};
+
+export type ListUninvoicedPeriodsError = ListUninvoicedPeriodsErrors[keyof ListUninvoicedPeriodsErrors];
+
+export type ListUninvoicedPeriodsResponses = {
+    200: UninvoicedPeriodListData;
+};
+
+export type ListUninvoicedPeriodsResponse = ListUninvoicedPeriodsResponses[keyof ListUninvoicedPeriodsResponses];
 
 export type ListUserDocumentsData = {
     body?: never;

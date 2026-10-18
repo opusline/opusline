@@ -21,6 +21,8 @@ use App\Domain\Invoices\Enums\CreditNoteSettlement;
 use App\Domain\Invoices\Enums\CreditNoteStatus;
 use App\Domain\Invoices\Models\CreditNote;
 use App\Domain\Invoices\Models\Invoice;
+use App\Domain\Invoices\Revenue\NetIncome;
+use App\Domain\Settings\Rates\ContributionRateHistory;
 use App\Domain\Users\Models\User;
 use App\Http\Controllers\Controller;
 use Carbon\CarbonImmutable;
@@ -35,6 +37,8 @@ use Symfony\Component\HttpKernel\Exception\HttpException;
 
 class CreditNoteController extends Controller
 {
+    public function __construct(private readonly ContributionRateHistory $contributionRateHistory) {}
+
     /**
      * The sheet the credit note editor previews, before anything is issued.
      *
@@ -127,8 +131,11 @@ class CreditNoteController extends Controller
     private function detail(CreditNote $creditNote): CreditNoteDetailData
     {
         $creditNote->load(['lines', 'invoice']);
-        $creditNote->invoice->loadMissing('user.settings');
+        $creditNote->invoice->loadMissing(['user.settings', ...NetIncome::INVOICE_RELATIONS]);
 
-        return CreditNoteDetailData::fromModel($creditNote);
+        return CreditNoteDetailData::fromModel(
+            $creditNote,
+            NetIncome::forAccount($creditNote->invoice->user->settingsOrFail(), $this->contributionRateHistory),
+        );
     }
 }

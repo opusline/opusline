@@ -12,6 +12,8 @@ use App\Domain\Invoices\Data\SaveInvoiceDraftData;
 use App\Domain\Invoices\Data\UnbilledTimeData;
 use App\Domain\Invoices\Data\UnbilledTimeQueryData;
 use App\Domain\Invoices\Models\Invoice;
+use App\Domain\Invoices\Revenue\NetIncome;
+use App\Domain\Settings\Rates\ContributionRateHistory;
 use App\Domain\Users\Models\User;
 use App\Http\Controllers\Controller;
 use Illuminate\Container\Attributes\CurrentUser;
@@ -20,6 +22,8 @@ use Illuminate\Http\JsonResponse;
 /** Invoices written in Opusline: drafted, then issued by validating them. */
 class InvoiceDraftController extends Controller
 {
+    public function __construct(private readonly ContributionRateHistory $contributionRateHistory) {}
+
     public function store(SaveInvoiceDraftData $data, #[CurrentUser] User $user, SaveInvoiceDraft $saveInvoiceDraft): JsonResponse
     {
         $invoice = $saveInvoiceDraft->handle($user, $data);
@@ -45,6 +49,11 @@ class InvoiceDraftController extends Controller
 
     private function detail(Invoice $invoice): InvoiceDetailData
     {
-        return InvoiceDetailData::fromModel($invoice->load(['client', 'mission', 'events', 'lines', 'quote', 'emails', 'payments', 'creditNotes', 'deductedCreditNotes']));
+        $invoice->load(['client', 'mission', 'events', 'lines', 'quote', 'emails', 'payments', 'creditNotes', 'deductedCreditNotes', 'user.settings', ...NetIncome::INVOICE_RELATIONS]);
+
+        return InvoiceDetailData::fromModel(
+            $invoice,
+            NetIncome::forAccount($invoice->user->settingsOrFail(), $this->contributionRateHistory),
+        );
     }
 }
