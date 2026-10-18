@@ -1,4 +1,6 @@
 import { Button as ButtonPrimitive } from "@base-ui/react/button";
+import { mergeProps } from "@base-ui/react/merge-props";
+import { useRender } from "@base-ui/react/use-render";
 import { cn } from "@opusline/ui/lib/utils";
 import { cva, type VariantProps } from "class-variance-authority";
 
@@ -90,15 +92,33 @@ function Button({
 /**
  * A button-shaped navigation target: `<ButtonLink render={<Link to="/week" />}>`.
  *
- * Base UI's `useButton` assumes a native `<button>` unless told otherwise — it
- * errors in development when the rendered element is an anchor, and stamps
- * `type="button"` onto it. The opt-out is fixed here rather than repeated at
- * every call site, because a link that forgets it still looks right.
+ * Not a Base UI button: its `useButton` either stamps `type="button"` onto the
+ * anchor (and warns), or, told the element is not a native button, gives it
+ * `role="button"`, so screen readers announce a link as a button. A link only
+ * needs the button's look, so this renders the element as is with its classes.
  */
-function ButtonLink(
-  props: Omit<React.ComponentProps<typeof Button>, "nativeButton">,
-) {
-  return <Button data-slot="button-link" {...props} nativeButton={false} />;
+function ButtonLink({
+  className,
+  variant = "default",
+  size = "default",
+  surface = "flat",
+  wrap = false,
+  render,
+  ...props
+}: useRender.ComponentProps<"a"> & VariantProps<typeof buttonVariants>) {
+  return useRender({
+    defaultTagName: "a",
+    render,
+    props: mergeProps<"a">(
+      {
+        className: cn(
+          buttonVariants({ variant, size, surface, wrap, className }),
+        ),
+      },
+      props,
+    ),
+    state: { slot: "button-link" },
+  });
 }
 
 export { Button, ButtonLink, buttonVariants };

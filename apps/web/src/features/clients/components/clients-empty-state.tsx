@@ -1,4 +1,4 @@
-import { Button } from "@opusline/ui/components/button";
+import { ButtonLink } from "@opusline/ui/components/button";
 import {
   Empty,
   EmptyContent,
@@ -33,13 +33,13 @@ export function ClientsEmptyState() {
         </EmptyDescription>
       </EmptyHeader>
       <EmptyContent>
-        <Button
+        <ButtonLink
           data-testid="clients-create-first"
           render={<Link to="/clients/new" />}
           size="2xl"
         >
           {m.clients_create_short()}
-        </Button>
+        </ButtonLink>
       </EmptyContent>
     </Empty>
   );

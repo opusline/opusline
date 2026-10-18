@@ -1,5 +1,5 @@
 import type { TreasuryData } from "@opusline/api-client";
-import { Button } from "@opusline/ui/components/button";
+import { ButtonLink } from "@opusline/ui/components/button";
 import {
   Empty,
   EmptyDescription,
@@ -60,9 +60,9 @@ export function TreasuryPage({
             <EmptyTitle>{m.treasury_empty_title()}</EmptyTitle>
             <EmptyDescription>{m.treasury_empty_body()}</EmptyDescription>
           </EmptyHeader>
-          <Button render={<Link to="/bank-account" />} size="xl">
+          <ButtonLink render={<Link to="/bank-account" />} size="xl">
             {m.treasury_empty_cta()}
-          </Button>
+          </ButtonLink>
         </Empty>
       ) : (
         <>
