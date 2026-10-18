@@ -8,6 +8,7 @@ use App\Domain\Invoices\Enums\InvoiceSource;
 use App\Domain\Invoices\Enums\InvoiceStatus;
 use App\Domain\Invoices\Enums\ReminderFrequency;
 use App\Domain\Invoices\Models\Invoice;
+use App\Domain\Invoices\Revenue\NetIncome;
 use App\Domain\Shared\Data\MoneyData;
 use App\Domain\Shared\Data\SignedMoneyData;
 use Carbon\CarbonImmutable;
@@ -45,6 +46,19 @@ class InvoiceData extends Data
         public MoneyData $amountCredited,
         /** What the client still owes, net of the credit notes; below zero, the client is owed money back. */
         public SignedMoneyData $amountDue,
+        /**
+         * What reaches the personal account from this invoice (since 0.33.7): `amountHt`
+         * less the URSSAF settlement (cotisations, CFP, and the versement libératoire when
+         * the option is on) at the rate of the declaration period it is collected in, and,
+         * without the versement libératoire, less the income tax at the withholding rate on
+         * `amountHt` minus the 34 % micro-BNC abatement. The TVA is not in `amountHt` to
+         * begin with; the CFE, subscriptions and matelas are not deducted. Cash basis: each
+         * payment (a refund or a credit-note deduction as a negative one) is priced on the
+         * day it landed, what is still due on today, so credit notes are taken off and a
+         * cancelled invoice nets to zero. Null for a draft, and for an account outside
+         * French fiscality.
+         */
+        public ?SignedMoneyData $amountNet,
         public bool $ttcOverridden,
         public int $vatRateBp,
         public ?string $notes,
@@ -54,8 +68,10 @@ class InvoiceData extends Data
         public array $reminderRecipients,
     ) {}
 
-    public static function fromModel(Invoice $invoice): self
+    public static function fromModel(Invoice $invoice, ?NetIncome $netIncome): self
     {
+        $amountNet = $netIncome?->ofInvoice($invoice);
+
         return new self(
             id: $invoice->id,
             clientId: $invoice->client_id,
@@ -75,6 +91,7 @@ class InvoiceData extends Data
             amountPaid: MoneyData::fromMoney($invoice->paidAmount()),
             amountCredited: MoneyData::fromMoney($invoice->creditedAmount()),
             amountDue: SignedMoneyData::fromMoney($invoice->balanceDue()),
+            amountNet: $amountNet === null ? null : SignedMoneyData::fromMoney($amountNet),
             ttcOverridden: $invoice->isTtcOverridden(),
             vatRateBp: $invoice->vat_rate_bp,
             notes: $invoice->notes,

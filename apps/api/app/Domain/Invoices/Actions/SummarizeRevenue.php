@@ -18,7 +18,9 @@ use App\Domain\Invoices\Models\CreditNote;
 use App\Domain\Invoices\Models\Invoice;
 use App\Domain\Invoices\Models\InvoicePayment;
 use App\Domain\Invoices\Revenue\CollectedInvoices;
+use App\Domain\Invoices\Revenue\NetIncome;
 use App\Domain\Settings\Models\UserSettings;
+use App\Domain\Settings\Rates\ContributionRateHistory;
 use App\Domain\Shared\Data\MoneyData;
 use App\Domain\Shared\Money\Rate;
 use App\Domain\Users\Models\User;
@@ -34,6 +36,8 @@ use Illuminate\Support\Collection;
 class SummarizeRevenue
 {
     private const int CHART_MONTHS = 8;
+
+    public function __construct(private readonly ContributionRateHistory $contributionRateHistory) {}
 
     public function handle(User $user, SummarizeRevenueData $data): RevenueData
     {
@@ -68,9 +72,22 @@ class SummarizeRevenue
             vat: $this->vat($settings, $invoices, $currency),
             net: $this->net($settings, $total),
             months: $this->months($user, $basis, $period, $currency),
-            invoices: array_values(InvoiceListItemData::collect($invoices, 'array')),
+            invoices: $this->listItems($settings, $invoices),
             clients: $this->clients($invoices, $total, $currency),
         );
+    }
+
+    /**
+     * @param  Collection<int, Invoice>  $invoices
+     * @return list<InvoiceListItemData>
+     */
+    private function listItems(UserSettings $settings, Collection $invoices): array
+    {
+        $netIncome = NetIncome::forAccount($settings, $this->contributionRateHistory);
+
+        return array_values($invoices
+            ->map(static fn (Invoice $invoice): InvoiceListItemData => InvoiceListItemData::fromModel($invoice, $netIncome))
+            ->all());
     }
 
     /**
@@ -153,7 +170,7 @@ class SummarizeRevenue
     private function invoicesIn(User $user, RevenueBasis $basis, array $period): Collection
     {
         return $this->invoicesBetween($user, $basis, $period['start'], $period['end'])
-            ->with(['client', 'mission'])
+            ->with(['client', 'mission', ...NetIncome::INVOICE_RELATIONS])
             ->orderByDesc($this->dateColumn($basis))
             ->orderByDesc('id')
             ->get();

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 use App\Domain\AccessTokens\Models\AccessToken;
 use App\Domain\Invoices\Enums\InvoiceStatus;
+use App\Domain\TimeEntries\Models\TimeEntry;
 use App\Domain\Users\Models\User;
 use App\Http\Users\Support\EnsureSessionIsUnlocked;
 
@@ -25,6 +26,17 @@ test('reads the invoices with a token', function (): void {
     $this->withToken($plainText)->getJson('/api/invoices/'.$invoice->id)
         ->assertOk()
         ->assertJsonPath('invoice.id', $invoice->id);
+});
+
+test('reads the uninvoiced periods with a token', function (): void {
+    $user = User::factory()->create();
+    $mission = missionOwnedBy($user, fn ($factory) => $factory->state(['rate_cents' => 55_000]));
+    TimeEntry::factory()->for($mission, 'mission')->create(['user_id' => $user->id]);
+
+    $this->withToken(tokenFor($user))->getJson('/api/uninvoiced-periods')
+        ->assertOk()
+        ->assertJsonCount(1, 'periods')
+        ->assertJsonPath('periods.0.id', $mission->id);
 });
 
 test('keeps a token to its own account\'s invoices', function (): void {
@@ -82,18 +94,22 @@ test('refuses a token that is not there', function (): void {
     $plainText = tokenFor($user);
 
     $this->withToken('1|'.str_repeat('x', 48))->getJson('/api/invoices')->assertUnauthorized();
+    $this->withToken('1|'.str_repeat('x', 48))->getJson('/api/uninvoiced-periods')->assertUnauthorized();
 
     AccessToken::query()->delete();
 
     $this->withToken($plainText)->getJson('/api/invoices')->assertUnauthorized();
 });
 
-test('a token holds only the abilities it was minted with', function (): void {
+test('a token holds only the abilities it was minted with', function (string $uri): void {
     $user = User::factory()->create();
     $plainText = tokenFor($user, ['something:else']);
 
-    $this->withToken($plainText)->getJson('/api/invoices')->assertForbidden();
-});
+    $this->withToken($plainText)->getJson($uri)->assertForbidden();
+})->with([
+    '/api/invoices',
+    '/api/uninvoiced-periods',
+]);
 
 test('is not held by a locked session riding along', function (): void {
     $user = User::factory()->create();

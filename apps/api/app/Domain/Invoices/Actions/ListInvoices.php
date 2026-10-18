@@ -10,6 +10,7 @@ use App\Domain\Invoices\Enums\InvoiceStatus;
 use App\Domain\Invoices\Models\CreditNote;
 use App\Domain\Invoices\Models\Invoice;
 use App\Domain\Invoices\Models\InvoicePayment;
+use App\Domain\Invoices\Revenue\NetIncome;
 use App\Domain\Invoices\Revenue\PaymentDelay;
 use App\Domain\Shared\Data\MoneyData;
 use App\Domain\Shared\Database\DatePageCursor;
@@ -33,7 +34,7 @@ class ListInvoices
      */
     public function handle(User $user, ListInvoicesData $data): array
     {
-        $query = $user->invoices()->withPaymentFigures()->with(['client', 'mission']);
+        $query = $user->invoices()->withPaymentFigures()->with(['client', 'mission', ...NetIncome::INVOICE_RELATIONS]);
 
         if ($data->status instanceof InvoiceStatus) {
             $query->where('status', $data->status);

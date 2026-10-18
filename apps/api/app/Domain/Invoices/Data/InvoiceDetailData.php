@@ -11,6 +11,7 @@ use App\Domain\Invoices\Enums\InvoiceStatus;
 use App\Domain\Invoices\Models\DocumentEmail;
 use App\Domain\Invoices\Models\Invoice;
 use App\Domain\Invoices\Reminders\ReminderSchedule;
+use App\Domain\Invoices\Revenue\NetIncome;
 use App\Domain\Missions\Data\MissionData;
 use Carbon\CarbonImmutable;
 use Spatie\LaravelData\Attributes\DataCollectionOf;
@@ -56,12 +57,12 @@ class InvoiceDetailData extends Data
         public array $nextStatuses,
     ) {}
 
-    public static function fromModel(Invoice $invoice): self
+    public static function fromModel(Invoice $invoice, ?NetIncome $netIncome): self
     {
         $document = $invoice->attachedDocument();
 
         return new self(
-            invoice: InvoiceData::fromModel($invoice),
+            invoice: InvoiceData::fromModel($invoice, $netIncome),
             client: ClientData::from($invoice->client),
             mission: $invoice->mission === null ? null : MissionData::from($invoice->mission),
             history: array_values(InvoiceEventData::collect($invoice->events->all(), 'array')),
