@@ -13,7 +13,22 @@ use App\Domain\Deadlines\Enums\FiscalDeadlineKind;
 use App\Domain\Deadlines\Models\FiscalDeadlineCompletion;
 use App\Domain\Expenses\Enums\ExpenseCategory;
 use App\Domain\Expenses\Enums\ExpenseVatTreatment;
+use App\Domain\Invoices\Documents\DocumentParties;
+use App\Domain\Invoices\Enums\CreditNoteKind;
+use App\Domain\Invoices\Enums\CreditNoteReason;
+use App\Domain\Invoices\Enums\CreditNoteSettlement;
+use App\Domain\Invoices\Enums\CreditNoteStatus;
+use App\Domain\Invoices\Enums\DocumentLanguage;
+use App\Domain\Invoices\Enums\EmailTemplateKind;
+use App\Domain\Invoices\Enums\InvoiceEventKind;
+use App\Domain\Invoices\Enums\InvoiceSource;
+use App\Domain\Invoices\Enums\InvoicingMode;
+use App\Domain\Invoices\Enums\LineUnit;
+use App\Domain\Invoices\Enums\QuoteStatus;
+use App\Domain\Invoices\Models\DocumentEmail;
+use App\Domain\Invoices\Models\Invoice;
 use App\Domain\Invoices\Models\InvoicePayment;
+use App\Domain\Invoices\Models\Quote;
 use App\Domain\Missions\Models\Mission;
 use App\Domain\Shared\Enums\Color;
 use App\Domain\TimeEntries\Models\TimeEntry;
@@ -63,8 +78,15 @@ final class VolumeSeeder extends DatabaseSeeder
         $vesterhus = Client::factory()->for($user)->archived()->create([
             'name' => 'Vesterhus',
             'color' => Color::Sage,
+            'billing_contact_name' => 'Ingrid Solberg',
+            'billing_email' => 'faktura@vesterhus.example',
+            'billing_address_line1' => '27 rue des Halles',
+            'billing_postal_code' => '35000',
+            'billing_city' => 'Rennes',
             'created_at' => $firstMonth->subMonth(),
         ]);
+        $settings = $user->settingsOrFail();
+        $settings->update(['invoicing_mode' => InvoicingMode::Opusline]);
 
         $platform = Mission::factory()->for($vesterhus, 'client')->done()->create([
             'user_id' => $user->id,
@@ -107,6 +129,170 @@ final class VolumeSeeder extends DatabaseSeeder
             );
 
             TimeEntry::query()->whereKey($entryIds)->update(['invoice_id' => $invoice->id]);
+            $this->writeInOpusline($user, $invoice, $month, count($entryIds));
+
+            // Every sixth month the client is granted a day off the bill before paying it.
+            if ($month->diffInMonths($firstMonth, absolute: true) % 6 === 5) {
+                $this->grantGesture($user, $invoice, $issuedOn->addDays(5));
+            }
+        }
+
+        $this->seedQuotes($user, $vesterhus, $platform, $firstMonth, $lastMonth);
+        $this->numberDocuments($user);
+    }
+
+    /**
+     * Turns a seeded invoice into one written in Opusline, as issuing it would
+     * have left it: its line, its frozen parties, and the e-mail that sent it.
+     */
+    private function writeInOpusline(User $user, Invoice $invoice, CarbonImmutable $period, int $days): void
+    {
+        $settings = $user->settingsOrFail();
+        $invoice->loadMissing('client');
+
+        $invoice->update([
+            'source' => InvoiceSource::Opusline,
+            'title' => 'Plateforme · '.$period->format('m/Y'),
+            'language' => DocumentLanguage::French,
+            'payment_terms_days' => 45,
+            'show_iban' => true,
+            'show_email' => true,
+            'operation_category' => $settings->operation_category,
+            'seller_snapshot' => DocumentParties::seller($settings, true, true),
+            'buyer_snapshot' => DocumentParties::buyer($invoice->client),
+        ]);
+        $invoice->lines()->create([
+            'position' => 0,
+            'label' => 'Développement de la plateforme',
+            'quantity_milli' => $days * 1_000,
+            'unit' => LineUnit::Day,
+            'currency' => 'EUR',
+            'unit_price_cents' => 50_000,
+            'vat_rate_bp' => 2_000,
+            'total_ht_cents' => $days * 50_000,
+        ]);
+        DocumentEmail::factory()->create([
+            'user_id' => $user->id,
+            'invoice_id' => $invoice->id,
+            'kind' => EmailTemplateKind::NewInvoice,
+            'recipients' => [$invoice->client->billing_email],
+            'subject' => 'Facture de la plateforme',
+            'body' => "Bonjour Ingrid,\n\nVoici la facture du mois.\n\nBonne journée,",
+            'sent_at' => $invoice->issued_on,
+        ]);
+        $invoice->events()->create(['kind' => InvoiceEventKind::Emailed, 'occurred_on' => $invoice->issued_on, 'note' => $invoice->client->billing_email]);
+    }
+
+    /**
+     * A day taken off before the client paid: the credit note reduces what is
+     * due, and the payment the bank statement shows is the remainder.
+     */
+    private function grantGesture(User $user, Invoice $invoice, CarbonImmutable $issuedOn): void
+    {
+        $settings = $user->settingsOrFail();
+        $user->creditNotes()->create([
+            'invoice_id' => $invoice->id,
+            'client_id' => $invoice->client_id,
+            // A placeholder numberDocuments() replaces once every note exists, in issue order.
+            'number' => 'A-seed-'.$invoice->id,
+            'status' => CreditNoteStatus::Settled,
+            'kind' => CreditNoteKind::Partial,
+            'reason' => CreditNoteReason::CommercialGesture,
+            'detail' => 'Une journée offerte sur le mois',
+            'settlement' => CreditNoteSettlement::ReducesBalance,
+            'language' => DocumentLanguage::French,
+            'issued_on' => $issuedOn,
+            'settled_on' => $issuedOn,
+            'seller_snapshot' => DocumentParties::seller($settings, true, true),
+            'buyer_snapshot' => DocumentParties::buyer($invoice->client),
+            'currency' => 'EUR',
+            'amount_ht_cents' => 50_000,
+            'amount_ttc_cents' => 60_000,
+            'vat_rate_bp' => 2_000,
+        ])->lines()->create([
+            'position' => 0,
+            'label' => 'Journée offerte',
+            'quantity_milli' => 1_000,
+            'unit' => LineUnit::Day,
+            'currency' => 'EUR',
+            'unit_price_cents' => 50_000,
+            'vat_rate_bp' => 2_000,
+            'total_ht_cents' => 50_000,
+        ]);
+        $invoice->events()->create(['kind' => InvoiceEventKind::CreditNoteIssued, 'occurred_on' => $issuedOn]);
+
+        $payment = $invoice->payments()->sole();
+        $payment->update(['amount_cents' => $payment->amount_cents->subtract(new Money(60_000, 'EUR'))]);
+    }
+
+    /** A quote each quarter for the platform's next features: most accepted, some refused, the last still open. */
+    private function seedQuotes(User $user, Client $client, Mission $mission, CarbonImmutable $firstMonth, CarbonImmutable $lastMonth): void
+    {
+        $settings = $user->settingsOrFail();
+        $quarter = 0;
+
+        for ($issuedOn = $firstMonth->addDays(9); $issuedOn->lessThanOrEqualTo($lastMonth->endOfMonth()); $issuedOn = $issuedOn->addMonths(3)) {
+            $days = 4 + $quarter % 5;
+            $isLast = $issuedOn->addMonths(3)->greaterThan($lastMonth->endOfMonth());
+            // The newest quote is still within its validity: the « awaiting answer » pile has one.
+            $issuedOn = $isLast ? CarbonImmutable::today()->subDays(10) : $issuedOn;
+            $status = match (true) {
+                $isLast => QuoteStatus::Sent,
+                $quarter % 4 === 3 => QuoteStatus::Refused,
+                default => QuoteStatus::Accepted,
+            };
+
+            $quote = Quote::factory()->for($client, 'client')->create([
+                'user_id' => $user->id,
+                'mission_id' => $mission->id,
+                'status' => $status,
+                'source' => InvoiceSource::Opusline,
+                'title' => 'Évolutions de la plateforme · lot '.($quarter + 1),
+                'language' => DocumentLanguage::French,
+                'issued_on' => $issuedOn,
+                'valid_until' => $issuedOn->addDays(30),
+                'accepted_on' => $status === QuoteStatus::Accepted ? $issuedOn->addDays(6) : null,
+                'refused_on' => $status === QuoteStatus::Refused ? $issuedOn->addDays(12) : null,
+                'show_email' => true,
+                'seller_snapshot' => DocumentParties::seller($settings, false, true),
+                'buyer_snapshot' => DocumentParties::buyer($client),
+                'amount_ht_cents' => $days * 50_000,
+                'amount_ttc_cents' => $days * 60_000,
+            ]);
+            $quote->lines()->create([
+                'position' => 0,
+                'label' => 'Développement des évolutions',
+                'quantity_milli' => $days * 1_000,
+                'unit' => LineUnit::Day,
+                'currency' => 'EUR',
+                'unit_price_cents' => 50_000,
+                'vat_rate_bp' => 2_000,
+                'total_ht_cents' => $days * 50_000,
+            ]);
+            DocumentEmail::factory()->create([
+                'user_id' => $user->id,
+                'quote_id' => $quote->id,
+                'kind' => EmailTemplateKind::NewQuote,
+                'recipients' => [$client->billing_email],
+                'subject' => 'Devis des évolutions',
+                'body' => "Bonjour Ingrid,\n\nVoici le devis du lot.\n\nBonne journée,",
+                'sent_at' => $issuedOn,
+            ]);
+            $quarter++;
+        }
+    }
+
+    /** Quotes and credit notes take one continuous series per year, in issue order, like the invoices. */
+    private function numberDocuments(User $user): void
+    {
+        foreach ([[$user->quotes(), 'D'], [$user->creditNotes(), 'A']] as [$documents, $prefix]) {
+            $countByYear = [];
+
+            foreach ($documents->orderBy('issued_on')->orderBy('id')->get() as $document) {
+                $year = $document->issued_on->year;
+                $countByYear[$year] = ($countByYear[$year] ?? 0) + 1;
+                $document->update(['number' => sprintf('%s-%d-%03d', $prefix, $year, $countByYear[$year])]);
+            }
         }
     }
 
