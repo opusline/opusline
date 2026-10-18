@@ -219,3 +219,24 @@ test('saves the quotes\' number format and keeps it when omitted', function (): 
         ->assertUnprocessable()
         ->assertJsonValidationErrorFor('quoteNumberFormat');
 });
+
+test('saves the credit notes\' number format and numbers the next one with it', function (): void {
+    $user = vatLiableUser();
+    $payload = collect($this->actingAs($user)->getJson('/api/invoicing/settings')->json())->except('creditNoteNumberFormat')->all();
+
+    $this->actingAs($user)
+        ->putJson('/api/invoicing/settings', [...$payload, 'creditNoteNumberFormat' => 'AV-AAAA-NNN'])
+        ->assertOk()
+        ->assertJsonPath('creditNoteNumberFormat', 'AV-AAAA-NNN')
+        ->assertJsonPath('nextCreditNoteNumber', 'AV-2026-001');
+});
+
+test('refuses a credit-note number format without a counter', function (): void {
+    $user = vatLiableUser();
+    $payload = $this->actingAs($user)->getJson('/api/invoicing/settings')->json();
+
+    $this->actingAs($user)
+        ->putJson('/api/invoicing/settings', [...$payload, 'creditNoteNumberFormat' => 'AV-AAAA'])
+        ->assertUnprocessable()
+        ->assertJsonValidationErrorFor('creditNoteNumberFormat');
+});

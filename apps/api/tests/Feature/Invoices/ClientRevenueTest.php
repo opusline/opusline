@@ -3,6 +3,11 @@
 declare(strict_types=1);
 
 use App\Domain\Clients\Models\Client;
+use App\Domain\Invoices\Enums\CreditNoteKind;
+use App\Domain\Invoices\Enums\CreditNoteReason;
+use App\Domain\Invoices\Enums\LineUnit;
+use App\Domain\Invoices\Models\Invoice;
+use App\Domain\Invoices\Models\InvoicePayment;
 use App\Domain\Missions\Models\Mission;
 use App\Domain\TimeEntries\Factories\TimeEntryFactory;
 use App\Domain\Users\Models\User;
@@ -484,4 +489,45 @@ test('leaves non-billable tracked time out of the month figures', function (): v
         ->assertOk()
         ->assertJsonPath('clients.0.missions.0.currentMonthDays', 0)
         ->assertJsonPath('clients.0.missions.0.currentMonth.amount', 0);
+});
+
+test('counts a partly paid invoice in pending for what is left, as the invoices dashboard does', function (): void {
+    $user = User::factory()->create();
+    vatLiable($user);
+    $client = Client::factory()->for($user)->create();
+    $invoice = invoiceOwnedBy($user, $client, fn ($factory) => $factory->sent()->state([
+        'issued_on' => today()->startOfMonth()->toDateString(),
+        'amount_ht_cents' => 100_000,
+        'amount_ttc_cents' => 120_000,
+    ]));
+    InvoicePayment::factory()->for($invoice)->create(['amount_cents' => 50_000]);
+
+    $this->actingAs($user)
+        ->getJson('/api/client-revenue')
+        ->assertOk()
+        ->assertJsonPath('clients.0.pending.amount', 70_000);
+});
+
+test('takes a credit note\'s HT off the year to date', function (): void {
+    $user = issuableAccount();
+    $client = billableClient($user);
+    $id = draftFor($user, $client, ['issuedOn' => null]);
+    $this->actingAs($user)->postJson("/api/invoicing/invoices/{$id}/issue")->assertOk();
+    $this->actingAs($user)->postJson("/api/invoicing/invoices/{$id}/credit-notes", [
+        'kind' => CreditNoteKind::Partial->value,
+        'reason' => CreditNoteReason::CommercialGesture->value,
+        'lines' => [[
+            'label' => 'Geste commercial',
+            'quantityMilli' => 1000,
+            'unit' => LineUnit::Flat->value,
+            'unitPrice' => ['amount' => 10_000, 'currency' => 'EUR'],
+            'vatRateBp' => 2000,
+        ]],
+    ])->assertCreated();
+    $invoicedHt = Invoice::query()->findOrFail($id)->amount_ht_cents->getAmount();
+
+    $this->actingAs($user)
+        ->getJson("/api/clients/{$client->slug}/revenue")
+        ->assertOk()
+        ->assertJsonPath('revenue.yearToDate.amount', (int) $invoicedHt - 10_000);
 });

@@ -5,6 +5,7 @@ declare(strict_types=1);
 use App\Domain\Clients\Models\Client;
 use App\Domain\Invoices\Actions\IssueInvoice;
 use App\Domain\Invoices\Enums\InvoiceStatus;
+use App\Domain\Invoices\Enums\LineUnit;
 use App\Domain\Invoices\Models\Invoice;
 use App\Domain\Settings\Enums\VatRegime;
 use App\Domain\Users\Models\User;
@@ -107,6 +108,10 @@ test('refuses to issue an invoice missing a mandatory mention', function (callab
     'no lines' => [function (User $user, Client $client, int $id): void {
         Invoice::query()->findOrFail($id)->lines()->delete();
     }, 'lines'],
+    'a total of zero' => [fn (User $user, Client $client, int $id) => test()->actingAs($user)->putJson("/api/invoicing/invoices/{$id}", draftPayloadFor($client, ['lines' => [
+        ['label' => 'Atelier', 'quantityMilli' => 1000, 'unit' => LineUnit::Flat->value, 'unitPrice' => ['amount' => 50_000, 'currency' => 'EUR'], 'vatRateBp' => 2000],
+        ['label' => 'Remise', 'quantityMilli' => 1000, 'unit' => LineUnit::Flat->value, 'unitPrice' => ['amount' => -50_000, 'currency' => 'EUR'], 'vatRateBp' => 2000],
+    ]]))->assertOk(), 'lines'],
 ]);
 
 test('freezes an issued invoice against every edit', function (string $method, string $path, array $body): void {
