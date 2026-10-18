@@ -1,0 +1,4 @@
+{
+  "kind": "fixed",
+  "text": "Invoices: the payment a credit-note deduction wrote on an invoice can no longer be removed on its own, which left the two invoices out of balance."
+}
