@@ -15,6 +15,6 @@ class ReceiptReadingController extends Controller
 {
     public function __invoke(ReadReceiptData $data, #[CurrentUser] User $user, ExtractReceiptFields $extractReceiptFields): JsonResponse
     {
-        return response()->json($extractReceiptFields->handle($user, $data->file));
+        return response()->json($extractReceiptFields->handle($user, $data->file, $data->reader));
     }
 }

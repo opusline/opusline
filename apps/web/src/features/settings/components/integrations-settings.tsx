@@ -6,6 +6,7 @@ import type {
 } from "@opusline/api-client";
 import {
   checkSuperPdpConnectionMutation,
+  currentUserQueryKey,
   deleteAnthropicApiKeyMutation,
   deleteEnableBankingCredentialsMutation,
   deleteSuperPdpCredentialsMutation,
@@ -152,7 +153,7 @@ export function IntegrationsSettings() {
     setAnthropicError(null);
 
     try {
-      applyIntegrations(await saveAnthropic.mutateAsync({ body }));
+      applyAnthropicIntegrations(await saveAnthropic.mutateAsync({ body }));
 
       return { status: "success" };
     } catch (saveError) {
@@ -173,13 +174,19 @@ export function IntegrationsSettings() {
     deleteAnthropic.mutate(
       {},
       {
-        onSuccess: applyIntegrations,
+        onSuccess: applyAnthropicIntegrations,
         onError: (removeError) =>
           setAnthropicError(
             serverErrorMessage(removeError, m.common_action_failed()),
           ),
       },
     );
+  };
+
+  // The expense form reads the key's presence off the current user.
+  const applyAnthropicIntegrations = (data: IntegrationsData) => {
+    applyIntegrations(data);
+    void queryClient.invalidateQueries({ queryKey: currentUserQueryKey() });
   };
 
   if (integrations.isPending) {

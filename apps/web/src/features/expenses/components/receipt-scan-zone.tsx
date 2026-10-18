@@ -2,6 +2,10 @@ import type { ClaudeReadingFailure, ReceiptReader } from "@opusline/api-client";
 import { Alert, AlertDescription } from "@opusline/ui/components/alert";
 import { Button } from "@opusline/ui/components/button";
 import { Dropzone } from "@opusline/ui/components/dropzone";
+import {
+  SegmentedControl,
+  SegmentedControlItem,
+} from "@opusline/ui/components/segmented-control";
 import { FileTextIcon, LoaderCircleIcon } from "lucide-react";
 
 import { m } from "@/paraglide/messages.js";
@@ -41,19 +45,68 @@ function readerNote({ reader, claudeFailure }: ReceiptReading): string | null {
   return reader === 1 ? m.expenses_scan_read_by_claude() : null;
 }
 
+/** Who reads the next receipt, offered only to an account with an Anthropic key. */
+export type ReceiptReaderChoice = {
+  reader: ReceiptReader;
+  onChange: (reader: ReceiptReader) => void;
+};
+
+const READERS: ReceiptReader[] = [1, 0];
+
+const READER_LABELS: Record<ReceiptReader, () => string> = {
+  0: m.expenses_scan_reader_server,
+  1: m.expenses_scan_reader_claude,
+};
+
 type ReceiptScanZoneProps = {
   state: ReceiptScanState;
   onFile: (file: File) => void;
   onReset: () => void;
+  readerChoice?: ReceiptReaderChoice | null;
 };
 
 export function ReceiptScanZone({
   state,
   onFile,
   onReset,
+  readerChoice = null,
 }: ReceiptScanZoneProps) {
+  const isReadByClaude = readerChoice?.reader === 1;
+
   return (
     <>
+      {state.status === "idle" && readerChoice !== null && (
+        <div className="mb-2.5 flex items-center gap-3">
+          <span className="text-muted-foreground-3 text-xs">
+            {m.expenses_scan_reader_label()}
+          </span>
+          <SegmentedControl
+            aria-label={m.expenses_scan_reader_label()}
+            data-testid="receipt-reader"
+            onValueChange={(value) => {
+              const next = value[0];
+
+              if (typeof next === "string") {
+                readerChoice.onChange(Number(next) as ReceiptReader);
+              }
+            }}
+            size="sm"
+            value={[String(readerChoice.reader)]}
+            variant="raised"
+          >
+            {READERS.map((reader) => (
+              <SegmentedControlItem
+                data-reader={reader}
+                data-testid="receipt-reader-item"
+                key={reader}
+                value={String(reader)}
+              >
+                {READER_LABELS[reader]()}
+              </SegmentedControlItem>
+            ))}
+          </SegmentedControl>
+        </div>
+      )}
       {state.status === "idle" && (
         <Dropzone
           accept={RECEIPT_ACCEPT}
@@ -74,7 +127,9 @@ export function ReceiptScanZone({
               {m.expenses_receipt_zone()}
             </span>
             <span className="mt-0.75 block text-muted-foreground-3 text-xs">
-              {m.expenses_scan_zone_sub()}
+              {isReadByClaude
+                ? m.expenses_scan_zone_sub_claude()
+                : m.expenses_scan_zone_sub()}
             </span>
           </span>
         </Dropzone>

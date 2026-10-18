@@ -13,4 +13,5 @@ return [
     'one_subscription_link' => 'Tie the expense to an existing subscription or make it recurring, not both.',
     'unknown_movement' => 'This debit does not exist on the business account.',
     'movement_taken' => 'This debit already pays an invoice or another expense.',
+    'receipt_reader_needs_key' => 'Add an Anthropic key under Settings › Integrations to have Claude read receipts.',
 ];

@@ -61,7 +61,11 @@ import { FieldSourceTag } from "./field-source-tag";
 import { ProShareField } from "./pro-share-field";
 import { QuickEntryInput } from "./quick-entry-input";
 import { ReceiptField } from "./receipt-field";
-import { type ReceiptScanState, ReceiptScanZone } from "./receipt-scan-zone";
+import {
+  type ReceiptReaderChoice,
+  type ReceiptScanState,
+  ReceiptScanZone,
+} from "./receipt-scan-zone";
 import { VatChoiceField } from "./vat-choice-field";
 
 type ExpenseFormProps = {
@@ -78,6 +82,8 @@ type ExpenseFormProps = {
   onCancel: () => void;
   /** Reads the receipt server-side; rejects with the API's error. */
   onReadReceipt: (file: File) => Promise<ReceiptSuggestionData>;
+  /** Null without an Anthropic key: the server reads every receipt. */
+  readerChoice?: ReceiptReaderChoice | null;
 };
 
 type EntryMode = "scan" | "type";
@@ -94,6 +100,7 @@ export function ExpenseForm({
   onSubmit,
   onCancel,
   onReadReceipt,
+  readerChoice = null,
 }: ExpenseFormProps) {
   const format = useMoneyFormat();
   const id = useId();
@@ -327,6 +334,7 @@ export function ExpenseForm({
               <ReceiptScanZone
                 onFile={readReceipt}
                 onReset={resetScan}
+                readerChoice={readerChoice}
                 state={scan}
               />
             ) : (

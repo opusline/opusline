@@ -36,6 +36,7 @@ test('the current user endpoint returns the authenticated user', function (): vo
             'features' => [FeatureFlag::Invoicing->value],
             // phpunit.xml names no relay.
             'canSendReports' => false,
+            'hasAnthropicApiKey' => false,
         ]);
 });
 

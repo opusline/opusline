@@ -2213,13 +2213,6 @@ export const zQuoteListData = z.object({
 });
 
 /**
- * ReadReceiptData
- */
-export const zReadReceiptData = z.object({
-    file: z.string()
-});
-
-/**
  * RecategorizeExpensesData
  */
 export const zRecategorizeExpensesData = z.object({
@@ -2265,6 +2258,14 @@ export const zReceiptDateFieldData = z.object({
  * | `1` <br/> A Claude model, on the account's own Anthropic key. |
  */
 export const zReceiptReader = z.union([z.literal(0), z.literal(1)]);
+
+/**
+ * ReadReceiptData
+ */
+export const zReadReceiptData = z.object({
+    file: z.string(),
+    reader: z.nullish(zReceiptReader)
+});
 
 /**
  * ReceiptTextFieldData
@@ -3728,7 +3729,8 @@ export const zUserData = z.object({
     defaultPaymentTermsDays: z.int(),
     effectiveContributionRateBp: z.int(),
     features: z.array(zFeatureFlag),
-    canSendReports: z.boolean()
+    canSendReports: z.boolean(),
+    hasAnthropicApiKey: z.boolean()
 });
 
 /**

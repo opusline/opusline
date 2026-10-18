@@ -13,21 +13,27 @@ use App\Domain\Expenses\Receipts\ReceiptHeuristics;
 use App\Domain\Expenses\Receipts\ReceiptText;
 use App\Domain\Users\Models\User;
 use Illuminate\Http\UploadedFile;
+use Illuminate\Validation\ValidationException;
 
 /**
  * Prefills the expense form from a receipt without keeping the file: the
  * user checks the suggestion, then attaches the receipt to the expense it
- * creates. Claude reads it when the account gave a key; the heuristics do
- * otherwise, or when Claude fails, and the answer says which. Dates are read
+ * creates. Claude reads it when the account gave a key, unless the account
+ * picked the heuristics for this receipt; the heuristics read it otherwise,
+ * or when Claude fails, and the answer says which. Dates are read
  * against the account's own today, amounts in its currency.
  */
 class ExtractReceiptFields
 {
-    public function handle(User $user, UploadedFile $file): ReceiptSuggestionData
+    public function handle(User $user, UploadedFile $file, ?ReceiptReader $requestedReader): ReceiptSuggestionData
     {
         $settings = $user->settingsOrFail();
 
-        if ($settings->anthropic_api_key === null) {
+        if ($requestedReader === ReceiptReader::Claude && $settings->anthropic_api_key === null) {
+            throw ValidationException::withMessages(['reader' => __('expenses.receipt_reader_needs_key')]);
+        }
+
+        if ($requestedReader === ReceiptReader::Heuristics || $settings->anthropic_api_key === null) {
             return $this->readWithHeuristics($user, $file, null);
         }
 
