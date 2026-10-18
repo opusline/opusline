@@ -27,7 +27,10 @@ it("never asks for a sheet before the body it would send has settled", async () 
   const { rerender } = renderHook(
     ({ body }: { body: { clientId: number } | null }) =>
       usePaperPreview(["test-preview"], body, fetchPaper),
-    { initialProps: { body: null }, wrapper },
+    {
+      initialProps: { body: null } as { body: { clientId: number } | null },
+      wrapper,
+    },
   );
 
   rerender({ body: { clientId: 7 } });
