@@ -56,7 +56,8 @@ const Devtools = showDevtools
         default: () => (
           <TanStackDevtools
             config={{
-              position: "bottom-right",
+              // The bottom corners are the toasts' and the report button's.
+              position: "middle-right",
             }}
             plugins={[
               {
