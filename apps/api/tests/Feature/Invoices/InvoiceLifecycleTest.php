@@ -85,16 +85,6 @@ test('refuses a send date in the future', function (): void {
         ->assertJsonValidationErrors('sentOn');
 });
 
-test('refuses to send an invoice that is already sent', function (): void {
-    $user = User::factory()->create();
-    $invoice = invoiceOwnedBy($user, configure: fn ($factory) => $factory->sent());
-
-    $this->actingAs($user)
-        ->postJson("/api/invoices/{$invoice->id}/send")
-        ->assertConflict()
-        ->assertJsonPath('message', __('invoices.cannot_send_unless_draft'));
-});
-
 test('marks a sent invoice as paid', function (): void {
     $user = User::factory()->create();
     $invoice = invoiceOwnedBy($user, configure: fn ($factory) => $factory->sent());
@@ -130,15 +120,20 @@ test('refuses a payment date in the future', function (): void {
         ->assertJsonValidationErrors('paidOn');
 });
 
-test('refuses to pay a draft', function (): void {
+test('refuses a move the invoice\'s status forbids', function (callable $configure, string $path, array $body, string $message): void {
     $user = User::factory()->create();
-    $invoice = invoiceOwnedBy($user);
+    $invoice = invoiceOwnedBy($user, configure: $configure);
 
     $this->actingAs($user)
-        ->postJson("/api/invoices/{$invoice->id}/pay", ['paidOn' => CarbonImmutable::today()->toDateString()])
+        ->postJson("/api/invoices/{$invoice->id}/{$path}", $body)
         ->assertConflict()
-        ->assertJsonPath('message', __('invoices.cannot_pay_unless_sent'));
-});
+        ->assertJsonPath('message', __($message));
+})->with([
+    'send an invoice already sent' => [fn ($factory) => $factory->sent(), 'send', [], 'invoices.cannot_send_unless_draft'],
+    'pay a draft' => [fn ($factory) => $factory, 'pay', ['paidOn' => '2026-08-10'], 'invoices.cannot_pay_unless_sent'],
+    'remind a draft' => [fn ($factory) => $factory, 'reminders', [], 'invoices.cannot_remind'],
+    'remind a paid invoice' => [fn ($factory) => $factory->paid(), 'reminders', [], 'invoices.cannot_remind'],
+]);
 
 test('notes a reminder on a sent invoice', function (): void {
     $user = User::factory()->create();
@@ -152,26 +147,6 @@ test('notes a reminder on a sent invoice', function (): void {
         ->assertCreated()
         ->assertJsonPath('history.0.kind', InvoiceEventKind::Reminded->value)
         ->assertJsonPath('history.0.note', 'Relance par email');
-});
-
-test('refuses a reminder on a draft', function (): void {
-    $user = User::factory()->create();
-    $invoice = invoiceOwnedBy($user);
-
-    $this->actingAs($user)
-        ->postJson("/api/invoices/{$invoice->id}/reminders")
-        ->assertConflict()
-        ->assertJsonPath('message', __('invoices.cannot_remind'));
-});
-
-test('refuses a reminder on a paid invoice', function (): void {
-    $user = User::factory()->create();
-    $invoice = invoiceOwnedBy($user, configure: fn ($factory) => $factory->paid());
-
-    $this->actingAs($user)
-        ->postJson("/api/invoices/{$invoice->id}/reminders")
-        ->assertConflict()
-        ->assertJsonPath('message', __('invoices.cannot_remind'));
 });
 
 test('records one event per transition', function (): void {
