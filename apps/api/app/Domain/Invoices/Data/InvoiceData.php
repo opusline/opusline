@@ -9,6 +9,7 @@ use App\Domain\Invoices\Models\Invoice;
 use App\Domain\Invoices\Revenue\NetIncome;
 use App\Domain\Shared\Data\MoneyData;
 use Carbon\CarbonImmutable;
+use Cknow\Money\Money;
 use Spatie\LaravelData\Attributes\WithTransformer;
 use Spatie\LaravelData\Data;
 use Spatie\LaravelData\Transformers\DateTimeInterfaceTransformer;
@@ -70,7 +71,7 @@ class InvoiceData extends Data
             amountHt: MoneyData::fromMoney($invoice->amount_ht_cents),
             amountVat: MoneyData::fromMoney($invoice->vatAmount()),
             amountTtc: MoneyData::fromMoney($invoice->amount_ttc_cents),
-            amountNet: $amountNet === null ? null : MoneyData::fromMoney($amountNet),
+            amountNet: $amountNet instanceof Money ? MoneyData::fromMoney($amountNet) : null,
             ttcOverridden: $invoice->isTtcOverridden(),
             vatRateBp: $invoice->vat_rate_bp,
             notes: $invoice->notes,
