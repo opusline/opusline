@@ -1,4 +1,0 @@
-{
-  "kind": "fixed",
-  "text": "Invoices: a deposit cancelled by a credit note is no longer deducted from the balance, reminders state what is left to pay (new {reste} placeholder), and accounts without invoicing no longer send reminders or sync their e-invoicing inbox."
-}

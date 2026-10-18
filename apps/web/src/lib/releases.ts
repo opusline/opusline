@@ -13,6 +13,164 @@ export type Release = {
 export const RELEASES: Release[] = [
   // release-notes:insert
   {
+    version: "0.34.0",
+    date: "2026-10-18",
+    items: [
+      {
+        kind: "new",
+        text: "API: each invoice now carries its net after URSSAF and income tax, and a new read lists the worked periods not invoiced yet.", // i18n-ignore
+      },
+      {
+        kind: "new",
+        text: "Personal access tokens: create one in Settings › Security to let another application read your invoices.", // i18n-ignore
+      },
+      {
+        kind: "new",
+        text: "In beta (Réglages → Avant-première): automatic payment reminders. An invoice sent from Opusline carries its own reminder setting — off, the day after the due date, days 3 and 10, or every week — seeded from your E-mails defaults and adjustable on its page. Each morning Opusline e-mails the « Relance de paiement » template, PDF attached, to the addresses the invoice went to, stops as soon as the invoice is paid or a bank payment is matched, and writes every reminder into the history. « Relancer maintenant » sends one on the spot.", // i18n-ignore
+      },
+      {
+        kind: "new",
+        text: "Claude can read your receipts in Expenses, scans and photos included: paste your own Anthropic API key under Settings › Integrations. Without a key, PDFs are still read on your server.", // i18n-ignore
+      },
+      {
+        kind: "new",
+        text: "In beta (Réglages → Avant-première): the e-mails Opusline will send your clients now have their templates — new invoice, new quote, credit note, payment reminder — with built-in wording in French or English after your documents' language, placeholders such as {numero}, {montant} or {echeance}, and a sample preview. Through the API for now: the page to edit them and the send button follow. They leave from the instance's address in your trade name, and replies come to your contact address.", // i18n-ignore
+      },
+      {
+        kind: "new",
+        text: "A credit note on a paid invoice is settled by marking the refund done, matched to its bank debit if you like, or by deducting it from the client's next invoice; URSSAF and VAT take it off the month the money moved.", // i18n-ignore
+      },
+      {
+        kind: "new",
+        text: "Credit notes: an issued invoice is corrected by a credit note numbered in its own series, which cancels the invoice, reduces what is due, or records what the client is owed back.", // i18n-ignore
+      },
+      {
+        kind: "new",
+        text: "Credit notes in the invoice page: correct, partly credit or cancel an issued invoice, preview the credit note before issuing it, mark its refund done, or deduct it from the client's next invoice.", // i18n-ignore
+      },
+      {
+        kind: "new",
+        text: "Identity settings now hold your company logo, your IBAN and BIC, and your RCS or RM registration.", // i18n-ignore
+      },
+      {
+        kind: "new",
+        text: "Réglages → Intégrations: connect your Super PDP account, the plateforme agréée Opusline uses for electronic invoices. Opusline checks the credentials, shows whether Super PDP verified your company and the address where other platforms route invoices to you, and keeps the secret encrypted. Receiving supplier invoices into Dépenses follows in a coming release.", // i18n-ignore
+      },
+      {
+        kind: "new",
+        text: "In beta (Réglages → Avant-première): the supplier invoices your plateforme agréée receives land in Dépenses on their own, every night or on demand from « Reçues par la plateforme »: one expense per invoice, filled from the invoice's own data, its PDF filed as the receipt, and its status followed as the platform reports it.", // i18n-ignore
+      },
+      {
+        kind: "new",
+        text: "Réglages has a new « Avant-première » tab, where you can try features before they are finished. Invoicing in Opusline is the first one: write, number and issue your invoices, with a catalogue and a live preview.", // i18n-ignore
+      },
+      {
+        kind: "new",
+        text: "In beta (Réglages → Avant-première): Facturation gains an « E-mails » page. The four messages that go with your documents — new invoice, new quote, credit note, payment reminder — are edited there, with the placeholders a click away, a live preview filled with sample figures, a way back to the built-in wording, and a test send to your own address.", // i18n-ignore
+      },
+      {
+        kind: "new",
+        text: "In beta (Réglages → Avant-première): a quote issued in another tool is recorded from Nouveau → « Devis émis ailleurs », with its own reference, its amount before tax, the day it went out and the client's answer, its PDF filed under the client. Opusline follows it like its own quotes — accepted, refused, expired — and invoices it as one line at its figure. When your settings say quotes are written elsewhere, the Devis page's button records one by default.", // i18n-ignore
+      },
+      {
+        kind: "new",
+        text: "In beta (Réglages → Avant-première): each invoice written in Opusline now has its own page: the document as the client receives it in French or English, a PDF download in either language, its history, a draft to resume, a payment to record, and a « Dupliquer » button to start the next one from it.", // i18n-ignore
+      },
+      {
+        kind: "new",
+        text: "In beta (Réglages → Avant-première): write invoices in Opusline: pick a client, import a mission's unbilled time, add services from your catalogue or free lines, and watch the invoice take shape in a live French or English preview before saving the draft or validating it with its legal number.", // i18n-ignore
+      },
+      {
+        kind: "new",
+        text: "In beta (Réglages → Avant-première): catalogue: keep your usual services with their unit, price and VAT rate, ready to add to an invoice or a quote.", // i18n-ignore
+      },
+      {
+        kind: "new",
+        text: "In beta (Réglages → Avant-première): invoicing now has its own section, with its navigation, what is left to collect at a glance, and a way back to the rest of Opusline.", // i18n-ignore
+      },
+      {
+        kind: "new",
+        text: "In beta (Réglages → Avant-première): invoicing settings: choose where you write your invoices, your default payment term (up to 45 days end of month), quote validity, late-payment penalties checked against the legal minimum, and the mentions printed on your documents.", // i18n-ignore
+      },
+      {
+        kind: "new",
+        text: "Fill an invoice or a quote from a text: give your AI the prompt the editor provides, paste its answer, and the client, the lines and the terms are filled in for you to check.", // i18n-ignore
+      },
+      {
+        kind: "new",
+        text: "In beta (Réglages → Avant-première): an accepted quote turns into invoices from its page: the deposit it asked for, then the balance with the deposit deducted, or the whole quote at once. Each invoice opens as a draft in the editor, names the quote on its sheet, and the quote lists what it has billed so far.", // i18n-ignore
+      },
+      {
+        kind: "new",
+        text: "In beta (Réglages → Avant-première): quotes. Write a quote in the same editor as your invoices, with its validity and the deposit due on acceptance; validating it numbers it in the quotes' own series and files the PDF with its « Bon pour accord » box. The Devis list follows each one — awaiting answer, accepted, refused, expired — and the quote's page records the client's answer or sends an expired one again.", // i18n-ignore
+      },
+      {
+        kind: "new",
+        text: "In beta (Réglages → Avant-première): invoices and quotes leave from Opusline. « Envoyer par e-mail » on a document opens its send page: the client's address ticked (add another, put yourself in copy), the message from your template and editable for this send, what the client will receive side by side with the document, a test to your own address, and for an invoice whether automatic reminders start once the due date passes. The PDF goes along, and the invoice's history keeps who got it and when.", // i18n-ignore
+      },
+      {
+        kind: "improved",
+        text: "In beta (Réglages → Avant-première): the invoices list follows where you write your invoices: « Créer une facture » opens the editor when you write them in Opusline, with « Ajouter une facture émise ailleurs » one click away in its menu, and invoices recorded from another tool are marked as such.", // i18n-ignore
+      },
+      {
+        kind: "improved",
+        text: "Invoices: the list loads with less work, each client's open and late totals take credit notes off, and paying or sending an invoice no longer reloads it twice.", // i18n-ignore
+      },
+      {
+        kind: "improved",
+        text: "Invoicing: the document preview shrinks to fit its column, so the whole page shows in the editors and on a phone instead of being cut on the right.", // i18n-ignore
+      },
+      {
+        kind: "improved",
+        text: "An invoice can be paid in several payments: record a deposit or a partial transfer, see what is still due, and let the bank matching settle the rest. URSSAF and VAT follow each payment on the day it landed.", // i18n-ignore
+      },
+      {
+        kind: "improved",
+        text: "With an Anthropic key saved, choose per receipt whether Claude or your server reads it, right above the drop zone in Expenses.", // i18n-ignore
+      },
+      {
+        kind: "fixed",
+        text: "Accessibility: the counts on filter chips are dark enough to read against the page.", // i18n-ignore
+      },
+      {
+        kind: "fixed",
+        text: "Clients: the pending amount counts only what is left after payments and credit notes, and the year to date takes credit notes off, matching the invoices and revenue pages.", // i18n-ignore
+      },
+      {
+        kind: "fixed",
+        text: "Invoices: the payment a credit-note deduction wrote on an invoice can no longer be removed on its own, which left the two invoices out of balance.", // i18n-ignore
+      },
+      {
+        kind: "fixed",
+        text: "Invoices: the history shows a partial payment's amount as money instead of a raw number of cents.", // i18n-ignore
+      },
+      {
+        kind: "fixed",
+        text: "Invoices: a deposit cancelled by a credit note is no longer deducted from the balance, reminders state what is left to pay (new {reste} placeholder), and accounts without invoicing no longer send reminders or sync their e-invoicing inbox.", // i18n-ignore
+      },
+      {
+        kind: "fixed",
+        text: "Invoices: the amounts to collect, overdue and expected now count only what is still owed after partial payments and credit notes, and a quote's linked invoices show their real status.", // i18n-ignore
+      },
+      {
+        kind: "fixed",
+        text: "Accessibility: buttons that navigate, such as « New client », are announced as links again instead of buttons.", // i18n-ignore
+      },
+      {
+        kind: "fixed",
+        text: "Invoicing: opening an editor no longer flashes a failed preview before the document can be priced.", // i18n-ignore
+      },
+      {
+        kind: "fixed",
+        text: "Invoices, quotes and credit notes: downloading an issued document in the other language now gives that translation instead of the original file; its own language still downloads the copy filed when it was issued.", // i18n-ignore
+      },
+      {
+        kind: "fixed",
+        text: "E-mails: an invoice or quote without a title is named after its mission, or left without an object, instead of repeating its number; the default subjects drop the title in brackets.", // i18n-ignore
+      },
+    ],
+  },
+  {
     version: "0.33.5",
     date: "2026-10-16",
     items: [

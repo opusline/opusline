@@ -1,4 +1,0 @@
-{
-  "kind": "fixed",
-  "text": "Invoices, quotes and credit notes: downloading an issued document in the other language now gives that translation instead of the original file; its own language still downloads the copy filed when it was issued."
-}
