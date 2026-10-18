@@ -1,4 +1,4 @@
-import { Button } from "@opusline/ui/components/button";
+import { ButtonLink } from "@opusline/ui/components/button";
 import type { QueryClient } from "@tanstack/react-query";
 import {
   createRootRouteWithContext,
@@ -26,7 +26,9 @@ function NotFoundPage() {
   return (
     <main className="flex min-h-screen items-center justify-center px-4">
       <FallbackCard hint={m.not_found_hint()} title={m.not_found_title()}>
-        <Button render={<Link to="/week" />}>{m.not_found_home()}</Button>
+        <ButtonLink render={<Link to="/week" />}>
+          {m.not_found_home()}
+        </ButtonLink>
       </FallbackCard>
     </main>
   );

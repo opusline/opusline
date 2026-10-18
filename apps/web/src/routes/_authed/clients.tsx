@@ -3,7 +3,7 @@ import {
   listClientsOptions,
 } from "@opusline/api-client/react-query";
 import { Alert, AlertDescription } from "@opusline/ui/components/alert";
-import { Button } from "@opusline/ui/components/button";
+import { ButtonLink } from "@opusline/ui/components/button";
 import { Skeleton } from "@opusline/ui/components/skeleton";
 import { useQuery } from "@tanstack/react-query";
 import { createFileRoute, Link } from "@tanstack/react-router";
@@ -31,10 +31,10 @@ function ClientsPage() {
         >
           {m.nav_clients()}
         </h1>
-        <Button render={<Link to="/clients/new" />} size="xl">
+        <ButtonLink render={<Link to="/clients/new" />} size="xl">
           <PlusIcon aria-hidden data-icon="inline-start" />
           {m.clients_new_title()}
-        </Button>
+        </ButtonLink>
       </div>
       {isPending && (
         <div className="flex flex-col gap-2">

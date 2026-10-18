@@ -1,4 +1,4 @@
-import { Button } from "@opusline/ui/components/button";
+import { Button, ButtonLink } from "@opusline/ui/components/button";
 import {
   type ErrorComponentProps,
   Link,
@@ -27,9 +27,9 @@ export function ErrorPage({ reset }: ErrorComponentProps) {
         >
           {m.error_retry()}
         </Button>
-        <Button render={<Link to="/week" />} variant="outline">
+        <ButtonLink render={<Link to="/week" />} variant="outline">
           {m.error_home()}
-        </Button>
+        </ButtonLink>
       </FallbackCard>
     </div>
   );
