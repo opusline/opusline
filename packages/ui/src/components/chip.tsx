@@ -98,12 +98,13 @@ function ChipOption({
   );
 }
 
+/** The count sits on the page background: tier 4 is the lightest muted step that keeps AA contrast there. */
 function ChipCount({ className, ...props }: React.ComponentProps<"span">) {
   return (
     <span
       data-slot="chip-count"
       className={cn(
-        "ml-2 font-mono text-muted-foreground-5 text-xs tabular-nums group-data-pressed/chip:text-primary-note",
+        "ml-2 font-mono text-muted-foreground-4 text-xs tabular-nums group-data-pressed/chip:text-primary-note",
         className,
       )}
       {...props}
