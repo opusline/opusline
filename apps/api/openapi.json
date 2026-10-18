@@ -13991,14 +13991,12 @@
             },
             "FeatureFlag": {
                 "type": "integer",
-                "description": "A feature still being built, shipped to `main` switched off. Removing a case (and its checks, keeping the code it guarded) is how the feature is released.\n| |\n|---|\n| `0` <br/> Writing, issuing and rendering invoices in Opusline (#498). |\n| `1` <br/> Sending a bug report or a feature request from the app (#630). |",
+                "description": "A feature still being built, shipped to `main` switched off. Removing a case (and its checks, keeping the code it guarded) is how the feature is released.\n| |\n|---|\n| `0` <br/> Writing, issuing and rendering invoices in Opusline (#498). |",
                 "enum": [
-                    0,
-                    1
+                    0
                 ],
                 "x-enum-varnames": [
-                    "Invoicing",
-                    "Reports"
+                    "Invoicing"
                 ],
                 "title": "FeatureFlag"
             },
@@ -20917,6 +20915,9 @@
                         "items": {
                             "$ref": "#/components/schemas/FeatureFlag"
                         }
+                    },
+                    "canSendReports": {
+                        "type": "boolean"
                     }
                 },
                 "required": [
@@ -20936,7 +20937,8 @@
                     "workdayMinutes",
                     "defaultPaymentTermsDays",
                     "effectiveContributionRateBp",
-                    "features"
+                    "features",
+                    "canSendReports"
                 ],
                 "title": "UserData"
             },

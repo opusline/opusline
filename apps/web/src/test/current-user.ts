@@ -23,6 +23,7 @@ export const CURRENT_USER_FIXTURE: UserData = {
   defaultPaymentTermsDays: 45,
   // No flagged feature: the app as it is outside any beta.
   features: [],
+  canSendReports: false,
 };
 
 /** Seeds the authed layout's current-user cache; override only what the test is about. */

@@ -20,6 +20,12 @@ use Illuminate\Support\Str;
  */
 class RelayClient
 {
+    /** Kept on by the instance, with a relay to send to. */
+    public static function isConfigured(): bool
+    {
+        return config()->boolean('reports.enabled') && filled(config('reports.relay_url'));
+    }
+
     /** @throws ReportNotDelivered */
     public function send(ReportKind $kind, string $title, string $body): RelayedIssueData
     {

@@ -6,6 +6,7 @@ namespace App\Domain\Users\Data;
 
 use App\Domain\Features\Enums\FeatureFlag;
 use App\Domain\Features\FeatureFlags;
+use App\Domain\Feedback\Reporting\RelayClient;
 use App\Domain\Settings\Enums\DateFormat;
 use App\Domain\Settings\Enums\Locale;
 use App\Domain\Shared\Enums\Currency;
@@ -44,6 +45,8 @@ class UserData extends Data
         public int $effectiveContributionRateBp,
         /** The flagged features this account sees, so the SPA knows them on boot. */
         public array $features,
+        /** Whether the in-app reporter can reach a relay, so the SPA shows it only then. */
+        public bool $canSendReports,
     ) {}
 
     public static function fromModel(User $user): self
@@ -68,6 +71,7 @@ class UserData extends Data
             defaultPaymentTermsDays: $settings->default_payment_terms_days,
             effectiveContributionRateBp: $settings->effectiveContributionRateBp(),
             features: app(FeatureFlags::class)->activeFor($user),
+            canSendReports: RelayClient::isConfigured(),
         );
     }
 }
