@@ -1,4 +1,0 @@
-{
-  "kind": "new",
-  "text": "API: each invoice now carries its net after URSSAF and income tax, and a new read lists the worked periods not invoiced yet."
-}
