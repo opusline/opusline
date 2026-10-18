@@ -1,0 +1,4 @@
+{
+  "kind": "fixed",
+  "text": "Invoices: the history shows a partial payment's amount as money instead of a raw number of cents."
+}

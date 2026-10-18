@@ -1,9 +1,20 @@
 import type { InvoiceEventData } from "@opusline/api-client";
 import { cn } from "@opusline/ui/lib/utils";
 
-import { useDateFormat } from "@/components/money-format-provider";
+import {
+  useDateFormat,
+  useMoneyFormat,
+} from "@/components/money-format-provider";
+import { formatAmountWithCents, type MoneyFormat } from "@/lib/billing";
 import { calendarDateNumericLabel } from "@/lib/dates";
 import { INVOICE_EVENT_TOKENS, invoiceEventLabel } from "@/lib/invoice-status";
+
+/** A recorded payment's note is its amount in cents (PayInvoice writes it); any other note is text. */
+function eventNote(format: MoneyFormat, event: InvoiceEventData): string {
+  return event.kind === 6 && event.note !== null && /^-?\d+$/.test(event.note)
+    ? formatAmountWithCents(format, Number(event.note))
+    : (event.note ?? "");
+}
 
 export function InvoiceHistory({
   history,
@@ -13,6 +24,7 @@ export function InvoiceHistory({
   className?: string;
 }) {
   const dateFormat = useDateFormat();
+  const format = useMoneyFormat();
 
   return (
     <ol className={cn("flex flex-col gap-3.5", className)}>
@@ -36,8 +48,11 @@ export function InvoiceHistory({
               {calendarDateNumericLabel(dateFormat, event.occurredOn)}
             </p>
             {event.note !== null && (
-              <p className="mt-1 text-muted-foreground-3 text-xs">
-                {event.note}
+              <p
+                className="mt-1 text-muted-foreground-3 text-xs"
+                data-testid="invoice-history-note"
+              >
+                {eventNote(format, event)}
               </p>
             )}
           </div>
