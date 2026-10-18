@@ -269,3 +269,17 @@ test('records nothing when a file cannot be fetched, and says so on the connecti
         ->and($connection->refresh()->last_error)->toBe(EInvoicingError::Unavailable)
         ->and($connection->last_synced_at)->toBeNull();
 });
+
+test('the nightly run leaves the inbox of an account without invoicing', function (string $release): void {
+    fakeInbox([superPdpInvoice(7)]);
+    $user = User::factory()->create();
+    withSuperPdpConnection($user);
+    invoicingReleasedAs($release);
+
+    test()->artisan('einvoicing:sync')->assertSuccessful();
+
+    expect($user->expenses()->count())->toBe(0);
+})->with([
+    'switched off on the instance' => ['off'],
+    'in beta, the account not in it' => ['beta'],
+]);

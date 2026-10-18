@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Domain\Invoices\Data;
 
+use App\Domain\Invoices\Enums\InvoiceStatus;
 use App\Domain\Invoices\Enums\QuoteBilling;
 use App\Domain\Invoices\Enums\QuoteStatus;
 use App\Domain\Invoices\Models\Invoice;
@@ -35,7 +36,8 @@ class QuoteBillingData extends Data
 
     public static function fromQuote(Quote $quote): self
     {
-        $invoices = $quote->invoices;
+        // A credit note that cancelled an invoice undid it: the quote bills as if it never went out.
+        $invoices = $quote->invoices->reject(static fn (Invoice $invoice): bool => $invoice->status === InvoiceStatus::Cancelled);
         $issued = $invoices->filter(static fn (Invoice $invoice): bool => $invoice->status->isIssued());
         $accepted = $quote->status === QuoteStatus::Accepted;
         $hasDeposit = $invoices->contains(static fn (Invoice $invoice): bool => $invoice->quote_billing === QuoteBilling::Deposit);
@@ -43,9 +45,9 @@ class QuoteBillingData extends Data
         $hasSettlement = $invoices->contains(static fn (Invoice $invoice): bool => $invoice->quote_billing !== QuoteBilling::Deposit);
 
         return new self(
-            invoices: array_values($invoices->map(QuoteInvoiceLinkData::fromInvoice(...))->all()),
+            invoices: array_values($quote->invoices->map(QuoteInvoiceLinkData::fromInvoice(...))->all()),
             invoicedTtc: MoneyData::fromMoney($issued->reduce(
-                static fn (Money $sum, Invoice $invoice): Money => $sum->add($invoice->amount_ttc_cents),
+                static fn (Money $sum, Invoice $invoice): Money => $sum->add($invoice->creditableAmount()),
                 new Money(0, $quote->currency),
             )),
             canInvoiceDeposit: $accepted && $quote->deposit_rate_bp !== null && ! $hasDeposit && ! $hasSettlement,

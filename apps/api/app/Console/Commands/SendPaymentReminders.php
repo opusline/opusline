@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\Console\Commands;
 
+use App\Domain\Features\Enums\FeatureFlag;
+use App\Domain\Features\FeatureFlags;
 use App\Domain\Invoices\Actions\SendDueReminders;
 use App\Domain\Invoices\Enums\InvoiceStatus;
 use App\Domain\Users\Models\User;
@@ -17,7 +19,7 @@ use Throwable;
 #[Signature('invoices:send-reminders')]
 class SendPaymentReminders extends Command
 {
-    public function handle(SendDueReminders $sendDueReminders): int
+    public function handle(SendDueReminders $sendDueReminders, FeatureFlags $featureFlags): int
     {
         if (! config()->boolean('mail.enabled')) {
             $this->components->info('This instance has no mailer: no reminder to send.');
@@ -31,8 +33,13 @@ class SendPaymentReminders extends Command
         User::query()
             ->whereHas('invoices', fn ($invoices) => $invoices->where('reminders_enabled', true)->where('status', InvoiceStatus::Sent))
             ->with('settings')
-            ->chunkById(50, function (Collection $batch) use ($sendDueReminders, &$sent, &$crashed): void {
+            ->chunkById(50, function (Collection $batch) use ($sendDueReminders, $featureFlags, &$sent, &$crashed): void {
                 foreach ($batch as $user) {
+                    // An account without invoicing no longer sees its reminders: none should leave.
+                    if (! $featureFlags->isActive($user, FeatureFlag::Invoicing)) {
+                        continue;
+                    }
+
                     try {
                         $sent += $sendDueReminders->handle($user);
                     } catch (Throwable $exception) {
