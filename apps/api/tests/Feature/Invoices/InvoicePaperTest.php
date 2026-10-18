@@ -201,27 +201,42 @@ test('downloads the copy filed at issue, whatever the settings became since', fu
         ->and($response->headers->get('Content-Disposition'))->toContain('Facture-2026-001.pdf');
 });
 
-test('keeps another account\'s sheet, PDF and clients out of reach', function (): void {
+test('keeps another account\'s sheet and PDF out of reach', function (string $route): void {
+    $owner = issuableAccount();
+    $id = draftFor($owner, billableClient($owner));
+
+    $this->actingAs(issuableAccount())->get(str_replace('{invoice}', (string) $id, $route))->assertNotFound();
+})->with([
+    'sheet' => ['/api/invoices/{invoice}/paper'],
+    'PDF' => ['/api/invoices/{invoice}/pdf'],
+]);
+
+test('previews no draft for another account\'s client', function (): void {
     $owner = issuableAccount();
     $ownerClient = billableClient($owner);
-    $id = draftFor($owner, $ownerClient);
-    $user = issuableAccount();
 
-    $this->actingAs($user)->getJson("/api/invoices/{$id}/paper")->assertNotFound();
-    $this->actingAs($user)->get("/api/invoices/{$id}/pdf")->assertNotFound();
-    $this->actingAs($user)
+    $this->actingAs(issuableAccount())
         ->postJson('/api/invoicing/invoices/paper', paperDraftPayload($ownerClient))
         ->assertNotFound();
 });
 
-test('refuses a language it does not print in, and a preview it cannot price', function (): void {
+test('refuses a language it does not print in', function (string $route): void {
     $user = issuableAccount();
-    $client = billableClient($user);
-    $id = draftFor($user, $client);
+    $id = draftFor($user, billableClient($user));
 
-    $this->actingAs($user)->getJson("/api/invoices/{$id}/paper?language=9")->assertJsonValidationErrorFor('language');
-    $this->actingAs($user)->get("/api/invoices/{$id}/pdf?language=9")->assertUnprocessable();
     $this->actingAs($user)
-        ->postJson('/api/invoicing/invoices/paper', paperDraftPayload($client, ['lines' => [['label' => 'Atelier']]]))
+        ->getJson(str_replace('{invoice}', (string) $id, $route).'?language=9')
+        ->assertUnprocessable()
+        ->assertJsonValidationErrorFor('language');
+})->with([
+    'sheet' => ['/api/invoices/{invoice}/paper'],
+    'PDF' => ['/api/invoices/{invoice}/pdf'],
+]);
+
+test('refuses a preview it cannot price', function (): void {
+    $user = issuableAccount();
+
+    $this->actingAs($user)
+        ->postJson('/api/invoicing/invoices/paper', paperDraftPayload(billableClient($user), ['lines' => [['label' => 'Atelier']]]))
         ->assertJsonValidationErrorFor('lines.0.quantityMilli');
 });
