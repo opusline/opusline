@@ -24,7 +24,7 @@ so a self-hosted instance never depends on an account Opusline would hold.
 | Need | Why |
 |---|---|
 | Public, documented API with a sandbox | Opusline is code, not a person clicking in a web app; the adapter has to be testable without a real company. |
-| Credentials a user can create alone | Each account connects its own platform account from « Réglages → Intégrations », as with Enable Banking and the Anthropic key. No partnership contract, no shared secret in the image. |
+| Credentials a user can create alone | Each account connects its own platform account from « Réglages → Intégrations », as with Enable Banking. No partnership contract, no shared secret in the image. |
 | Receiving + the mandatory statuses | #521: supplier invoices land in Dépenses; the account must be able to approve, refuse and mark them paid. |
 | Sending + lifecycle reading | #523 and #524: issued invoices leave through the platform; « encaissée » is reported from Opusline, where the payment is recorded. |
 | Annuaire lookup | Knowing before sending whether a client can receive electronic invoices at all. |

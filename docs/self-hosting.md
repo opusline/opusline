@@ -441,10 +441,8 @@ holds nothing for it, and the credentials are encrypted with `APP_KEY`. The
 and records the supplier invoices it finds in Dépenses. Everything that writes
 *to* the platform is part of the invoicing beta (`FEATURE_INVOICING`).
 
-**Receipt reading.** Dépenses reads a dropped PDF receipt with heuristics, or,
-when the account pasted an Anthropic API key under Réglages → Intégrations,
-with a Claude model. Per account, encrypted with `APP_KEY`, and nothing leaves
-the instance without that key.
+**Receipt reading.** Dépenses reads a dropped PDF receipt on the instance,
+with heuristics over its text. Nothing leaves the server.
 
 **Email.** Opusline sends none until you name a mailer. Set `MAIL_MAILER=smtp`
 with the `MAIL_HOST`, `MAIL_PORT`, `MAIL_USERNAME` and `MAIL_PASSWORD` of any

@@ -75,9 +75,8 @@ libératoire and the TVA franchise are checked against it.
 
 Every business purchase with its receipt, the TVA it carries and where that TVA
 stands with the CA3. Drop a PDF receipt and Opusline reads the supplier, the
-amounts and the date off it — with your own Anthropic key if you want it done by
-a model, by heuristics otherwise. Subscriptions are expected month after month
-and paired with the debits that pay them.
+amounts and the date off it, on your server. Subscriptions are expected month
+after month and paired with the debits that pay them.
 
 ![Expenses](docs/images/expenses-light.png)
 
