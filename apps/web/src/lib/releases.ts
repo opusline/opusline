@@ -13,6 +13,16 @@ export type Release = {
 export const RELEASES: Release[] = [
   // release-notes:insert
   {
+    version: "0.33.7",
+    date: "2026-10-18",
+    items: [
+      {
+        kind: "new",
+        text: "API: each invoice now carries its net after URSSAF and income tax, and a new read lists the worked periods not invoiced yet.", // i18n-ignore
+      },
+    ],
+  },
+  {
     version: "0.33.6",
     date: "2026-10-17",
     items: [

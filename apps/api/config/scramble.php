@@ -7,7 +7,7 @@ use App\OpenApi\SpatieDataToSchema;
 
 return [
     'info' => [
-        'version' => '0.33.6', // x-release-please-version
+        'version' => '0.33.7', // x-release-please-version
     ],
 
     'extensions' => [

@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.33.7](https://github.com/opusline/opusline/compare/v0.33.6...v0.33.7) (2026-10-18)
+
+
+### Features
+
+* **api:** add the net amount to every invoice ([32f70e3](https://github.com/opusline/opusline/commit/32f70e3840489868ba561948b9984a20f0c82c62))
+* **api:** list the worked periods not invoiced yet ([32f70e3](https://github.com/opusline/opusline/commit/32f70e3840489868ba561948b9984a20f0c82c62))
+
 ## [0.33.6](https://github.com/opusline/opusline/compare/v0.33.5...v0.33.6) (2026-10-17)
 
 

@@ -1,2 +1,2 @@
 // Stamped by release-please on every release PR — never edit by hand.
-export const APP_VERSION = "0.33.6"; // x-release-please-version
+export const APP_VERSION = "0.33.7"; // x-release-please-version
