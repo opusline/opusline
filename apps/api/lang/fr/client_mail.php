@@ -18,7 +18,7 @@ return [
         ],
         'payment_reminder' => [
             'subject' => 'Relance : facture {numero} en attente de paiement',
-            'body' => "Bonjour {contact},\n\nJe n'ai pas encore reçu le règlement de la facture {numero} ({montant} TTC), arrivée à échéance le {echeance}.\n\nPouvez-vous regarder de votre côté ? Si le virement est déjà parti, ne tenez pas compte de ce message.\n\nPour mémoire, les conditions de la facture prévoient en cas de retard des pénalités au taux annuel de {penalites} % et une indemnité forfaitaire de 40 € pour frais de recouvrement.\n\nMerci,",
+            'body' => "Bonjour {contact},\n\nJe n'ai pas encore reçu le règlement de la facture {numero}, arrivée à échéance le {echeance} : il reste {reste} TTC à régler.\n\nPouvez-vous regarder de votre côté ? Si le virement est déjà parti, ne tenez pas compte de ce message.\n\nPour mémoire, les conditions de la facture prévoient en cas de retard des pénalités au taux annuel de {penalites} % et une indemnité forfaitaire de 40 € pour frais de recouvrement.\n\nMerci,",
         ],
     ],
     'treatment' => [

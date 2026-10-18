@@ -87,12 +87,13 @@ it("offers the placeholders this kind knows, and drops one into the text", async
     "numero",
     "titre",
     "montant",
+    "reste",
     "echeance",
     "contact",
     "client",
   ]);
 
-  fireEvent.click(variables[5] as HTMLElement);
+  fireEvent.click(variables[6] as HTMLElement);
 
   expect(onDraftChange).toHaveBeenCalledWith(
     expect.objectContaining({

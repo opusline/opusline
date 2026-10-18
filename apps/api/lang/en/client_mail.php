@@ -18,7 +18,7 @@ return [
         ],
         'payment_reminder' => [
             'subject' => 'Reminder: invoice {numero} awaiting payment',
-            'body' => "Hello {contact},\n\nI have not yet received the payment of invoice {numero} ({montant} incl. VAT), which fell due on {echeance}.\n\nCould you check on your side? If the transfer has already left, please ignore this message.\n\nAs a reminder, the invoice terms provide for late-payment penalties at an annual rate of {penalites} % and a fixed €40 recovery fee.\n\nThank you,",
+            'body' => "Hello {contact},\n\nI have not yet received the payment of invoice {numero}, which fell due on {echeance}: {reste} incl. VAT is still due.\n\nCould you check on your side? If the transfer has already left, please ignore this message.\n\nAs a reminder, the invoice terms provide for late-payment penalties at an annual rate of {penalites} % and a fixed €40 recovery fee.\n\nThank you,",
         ],
     ],
     'treatment' => [

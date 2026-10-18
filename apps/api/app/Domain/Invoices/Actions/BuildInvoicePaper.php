@@ -14,6 +14,7 @@ use App\Domain\Invoices\Documents\PaperDocument;
 use App\Domain\Invoices\Documents\PaymentTerm;
 use App\Domain\Invoices\Enums\DocumentKind;
 use App\Domain\Invoices\Enums\DocumentLanguage;
+use App\Domain\Invoices\Enums\InvoiceStatus;
 use App\Domain\Invoices\Enums\OperationCategory;
 use App\Domain\Invoices\Enums\QuoteBilling;
 use App\Domain\Invoices\Models\CreditNote;
@@ -117,11 +118,11 @@ class BuildInvoicePaper
 
         if ($invoice->quote_billing === QuoteBilling::Balance) {
             $deducted = $quote->invoices
-                ->filter(static fn (Invoice $other): bool => $other->quote_billing === QuoteBilling::Deposit && $other->status->isIssued())
+                ->filter(static fn (Invoice $other): bool => $other->quote_billing === QuoteBilling::Deposit && $other->status->isIssued() && $other->status !== InvoiceStatus::Cancelled)
                 ->map(fn (Invoice $other): string => $this->text($format, 'legal.deducted_deposit', [
                     'number' => (string) $other->number,
                     'date' => $format->date($other->issued_on),
-                    'amount' => $format->money($other->amount_ttc_cents),
+                    'amount' => $format->money($other->creditableAmount()),
                 ]));
 
             if ($deducted->isNotEmpty()) {
