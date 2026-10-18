@@ -14,10 +14,6 @@ import {
   DropdownMenuTrigger,
 } from "@opusline/ui/components/dropdown-menu";
 import { Panel, PanelTitle } from "@opusline/ui/components/panel";
-import {
-  SegmentedControl,
-  SegmentedControlItem,
-} from "@opusline/ui/components/segmented-control";
 import { Skeleton } from "@opusline/ui/components/skeleton";
 import { Link } from "@tanstack/react-router";
 import {
@@ -39,6 +35,7 @@ import { invoiceStatusBadge, invoiceStatusToken } from "@/lib/invoice-status";
 import { m } from "@/paraglide/messages.js";
 
 import { CreditNotesPanel } from "./credit-notes-panel";
+import { DocumentLanguageToggle } from "./document-language-toggle";
 import { InvoiceHistory } from "./invoice-history";
 import { InvoiceLifecycleActions } from "./invoice-lifecycle-actions";
 import { InvoicePaper } from "./invoice-paper";
@@ -222,31 +219,10 @@ export function InvoiceDocumentPage({
             <span className="text-muted-foreground-3 text-xs">
               {m.document_preview()}
             </span>
-            <SegmentedControl
-              aria-label={m.invoicing_document_language()}
-              onValueChange={(value) => {
-                const next = value[0];
-
-                if (next === "0" || next === "1") {
-                  onLanguageChange(Number(next) as DocumentLanguage);
-                }
-              }}
-              size="sm"
-              value={[String(language)]}
-            >
-              <SegmentedControlItem
-                data-testid="document-language-fr"
-                value="0"
-              >
-                {m.invoicing_language_french()}
-              </SegmentedControlItem>
-              <SegmentedControlItem
-                data-testid="document-language-en"
-                value="1"
-              >
-                {m.invoicing_language_english()}
-              </SegmentedControlItem>
-            </SegmentedControl>
+            <DocumentLanguageToggle
+              onChange={onLanguageChange}
+              value={language}
+            />
           </div>
           {paper === null && onRetryPaper !== undefined ? (
             <Alert data-testid="document-paper-failed" variant="warn">
@@ -266,12 +242,7 @@ export function InvoiceDocumentPage({
           ) : paper === null ? (
             <Skeleton className="h-200 w-full" />
           ) : (
-            // The sheet keeps its print proportions: a phone scrolls across it.
-            <div className="overflow-x-auto">
-              <div className="min-w-150">
-                <InvoicePaper logoSrc={logoSrc} paper={paper} />
-              </div>
-            </div>
+            <InvoicePaper logoSrc={logoSrc} paper={paper} />
           )}
         </div>
 

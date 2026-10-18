@@ -281,11 +281,7 @@ export function CreditNoteEditorPage({
               {m.credit_note_preview_empty()}
             </Panel>
           ) : (
-            <div className="overflow-x-auto">
-              <div className="min-w-150">
-                <InvoicePaper logoSrc={logoSrc} paper={paper} />
-              </div>
-            </div>
+            <InvoicePaper logoSrc={logoSrc} paper={paper} />
           )}
         </div>
       </div>

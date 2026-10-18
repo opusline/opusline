@@ -15,10 +15,6 @@ import {
 } from "@opusline/ui/components/dropdown-menu";
 import { Meter } from "@opusline/ui/components/meter";
 import { Panel, PanelTitle } from "@opusline/ui/components/panel";
-import {
-  SegmentedControl,
-  SegmentedControlItem,
-} from "@opusline/ui/components/segmented-control";
 import { Skeleton } from "@opusline/ui/components/skeleton";
 import { Link } from "@tanstack/react-router";
 import {
@@ -44,6 +40,7 @@ import { quotePdfHref } from "@/lib/documents";
 import { invoiceStatusBadge, invoiceStatusToken } from "@/lib/invoice-status";
 import { m } from "@/paraglide/messages.js";
 import { quoteStatusBadge, quoteStatusToken } from "../lib/quote-status";
+import { DocumentLanguageToggle } from "./document-language-toggle";
 import { FiledDocumentPanel } from "./filed-document-panel";
 import { InvoicePaper } from "./invoice-paper";
 
@@ -255,31 +252,10 @@ export function QuoteDocumentPage({
                 <span className="text-muted-foreground-3 text-xs">
                   {m.document_preview()}
                 </span>
-                <SegmentedControl
-                  aria-label={m.invoicing_document_language()}
-                  onValueChange={(value) => {
-                    const next = value[0];
-
-                    if (next === "0" || next === "1") {
-                      onLanguageChange(Number(next) as DocumentLanguage);
-                    }
-                  }}
-                  size="sm"
-                  value={[String(language)]}
-                >
-                  <SegmentedControlItem
-                    data-testid="document-language-fr"
-                    value="0"
-                  >
-                    {m.invoicing_language_french()}
-                  </SegmentedControlItem>
-                  <SegmentedControlItem
-                    data-testid="document-language-en"
-                    value="1"
-                  >
-                    {m.invoicing_language_english()}
-                  </SegmentedControlItem>
-                </SegmentedControl>
+                <DocumentLanguageToggle
+                  onChange={onLanguageChange}
+                  value={language}
+                />
               </div>
               {paper === null && onRetryPaper !== undefined ? (
                 <Alert data-testid="document-paper-failed" variant="warn">
@@ -299,11 +275,7 @@ export function QuoteDocumentPage({
               ) : paper === null ? (
                 <Skeleton className="h-200 w-full" />
               ) : (
-                <div className="overflow-x-auto">
-                  <div className="min-w-150">
-                    <InvoicePaper logoSrc={logoSrc} paper={paper} />
-                  </div>
-                </div>
+                <InvoicePaper logoSrc={logoSrc} paper={paper} />
               )}
             </>
           )}

@@ -382,11 +382,7 @@ export function SendDocumentPage({
             </SegmentedControl>
           </div>
           {tab === "document" && paper !== null ? (
-            <div className="overflow-x-auto">
-              <div className="min-w-150">
-                <InvoicePaper logoSrc={logoSrc} paper={paper} />
-              </div>
-            </div>
+            <InvoicePaper logoSrc={logoSrc} paper={paper} />
           ) : isPreviewFailed ? (
             <Alert data-testid="send-preview-failed" variant="warn">
               <CircleAlert />

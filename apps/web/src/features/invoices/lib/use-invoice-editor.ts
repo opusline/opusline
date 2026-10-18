@@ -17,13 +17,9 @@ import {
   showUnbilledTimeOptions,
 } from "@opusline/api-client/react-query";
 import { useToast } from "@opusline/ui/components/toast";
-import {
-  keepPreviousData,
-  useQuery,
-  useQueryClient,
-} from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "@tanstack/react-router";
-import { useDeferredValue, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 
 import { useMoneyFormat } from "@/components/money-format-provider";
 import { accountTodayCalendarDate } from "@/lib/dates";
@@ -32,7 +28,6 @@ import {
   invalidateInvoiceWrites,
   operationFilter,
 } from "@/lib/query-invalidation";
-import { useSettled } from "@/lib/use-settled";
 import { serverErrorMessage } from "@/lib/validation";
 import { m } from "@/paraglide/messages.js";
 import type { InvoiceEditorPageProps } from "../components/invoice-editor-page";
@@ -43,6 +38,7 @@ import {
   type InvoiceDraft,
   newInvoiceDraft,
 } from "./invoice-draft";
+import { usePaperPreview } from "./use-paper-preview";
 
 type InvoiceEditor =
   | { status: "pending" }
@@ -100,24 +96,15 @@ export function useInvoiceEditor(
       : null;
   }, [format, invoiceId, sourceId, settings.data, saved.data]);
   const draft = edited ?? seed;
-  const payload = useDeferredValue(
+  const preview = usePaperPreview(
+    ["invoice-editor-preview"],
     draft === null ? null : draftPayload(format, draft),
-  );
-  const previewBody = useSettled(JSON.stringify(payload));
-
-  const preview = useQuery({
-    queryKey: ["invoice-editor-preview", previewBody],
-    queryFn: async () => {
-      const { data } = await previewInvoicePaper({
-        body: JSON.parse(previewBody) as SaveInvoiceDraftData,
-        throwOnError: true,
-      });
+    async (body: SaveInvoiceDraftData) => {
+      const { data } = await previewInvoicePaper({ body, throwOnError: true });
 
       return data;
     },
-    enabled: payload !== null,
-    placeholderData: keepPreviousData,
-  });
+  );
 
   const clientId = draft?.clientId ?? null;
   const deductible = useQuery({
@@ -222,7 +209,7 @@ export function useInvoiceEditor(
       defaultVatRateBp: settings.data.vatLiable ? user.effectiveVatRateBp : 0,
       today: accountTodayCalendarDate(user.timezone),
       logoSrc: identity.data.hasLogo ? companyLogoHref() : undefined,
-      paper: payload === null ? null : (preview.data ?? null),
+      paper: preview.paper,
       unbilledTime: missionId === null ? null : (unbilled.data ?? null),
       deductibleCreditNotes: deductible.data?.creditNotes ?? [],
       isSaving,

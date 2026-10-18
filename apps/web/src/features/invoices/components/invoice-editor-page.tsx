@@ -2,7 +2,6 @@ import type {
   CatalogItemData,
   ClientWithMissionsData,
   DeductibleCreditNoteData,
-  DocumentLanguage,
   InvoicePaperData,
   InvoicingSettingsData,
   LineUnit,
@@ -29,10 +28,6 @@ import {
 } from "@opusline/ui/components/input-group";
 import { NativeSelect } from "@opusline/ui/components/native-select";
 import { Panel, PanelTitle } from "@opusline/ui/components/panel";
-import {
-  SegmentedControl,
-  SegmentedControlItem,
-} from "@opusline/ui/components/segmented-control";
 import { linkVariants } from "@opusline/ui/components/text-link";
 import { Textarea } from "@opusline/ui/components/textarea";
 import { Link } from "@tanstack/react-router";
@@ -97,6 +92,7 @@ import {
   pasteFillPrompt,
   pasteFillSample,
 } from "../lib/paste-fill";
+import { DocumentLanguageToggle } from "./document-language-toggle";
 import { InvoicePaper } from "./invoice-paper";
 import { PasteFillPanel } from "./paste-fill-panel";
 import { SwitchRow } from "./switch-row";
@@ -382,25 +378,10 @@ export function InvoiceEditorPage({
             <span className="text-muted-foreground-3 text-xs">
               {m.editor_preview()}
             </span>
-            <SegmentedControl
-              aria-label={m.invoicing_document_language()}
-              onValueChange={(value) => {
-                const next = value[0];
-
-                if (next === "0" || next === "1") {
-                  update({ language: Number(next) as DocumentLanguage });
-                }
-              }}
-              size="sm"
-              value={[String(draft.language)]}
-            >
-              <SegmentedControlItem data-testid="editor-language-fr" value="0">
-                FR
-              </SegmentedControlItem>
-              <SegmentedControlItem data-testid="editor-language-en" value="1">
-                EN
-              </SegmentedControlItem>
-            </SegmentedControl>
+            <DocumentLanguageToggle
+              onChange={(language) => update({ language })}
+              value={draft.language}
+            />
           </div>
           {paper === null ? (
             <Panel
@@ -412,12 +393,7 @@ export function InvoiceEditorPage({
                 : m.editor_preview_pick_client()}
             </Panel>
           ) : (
-            // The sheet keeps its print proportions: a phone scrolls across it.
-            <div className="overflow-x-auto">
-              <div className="min-w-150">
-                <InvoicePaper logoSrc={logoSrc} paper={paper} />
-              </div>
-            </div>
+            <InvoicePaper logoSrc={logoSrc} paper={paper} />
           )}
         </div>
       </div>

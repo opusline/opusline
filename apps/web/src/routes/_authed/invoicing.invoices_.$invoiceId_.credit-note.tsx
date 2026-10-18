@@ -11,15 +11,10 @@ import {
 import { Alert, AlertDescription } from "@opusline/ui/components/alert";
 import { Skeleton } from "@opusline/ui/components/skeleton";
 import { useToast } from "@opusline/ui/components/toast";
-import {
-  keepPreviousData,
-  useMutation,
-  useQuery,
-  useQueryClient,
-} from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { CircleAlert } from "lucide-react";
-import { useDeferredValue, useState } from "react";
+import { useState } from "react";
 
 import { useMoneyFormat } from "@/components/money-format-provider";
 import { CreditNoteEditorPage } from "@/features/invoices/components/credit-note-editor-page";
@@ -29,10 +24,10 @@ import {
   hasReceivedMoney,
   newCreditNoteDraft,
 } from "@/features/invoices/lib/credit-note-draft";
+import { usePaperPreview } from "@/features/invoices/lib/use-paper-preview";
 import { requireInvoicing } from "@/lib/features";
 import { companyLogoHref } from "@/lib/logos";
 import { invalidateInvoiceWrites } from "@/lib/query-invalidation";
-import { useSettled } from "@/lib/use-settled";
 import { serverErrorMessage } from "@/lib/validation";
 import { m } from "@/paraglide/messages.js";
 
@@ -77,27 +72,23 @@ function CreditNoteRoute() {
     newCreditNoteDraft(kind ?? 1, reissue === true),
   );
   const [error, setError] = useState<string | null>(null);
-  const payload = useDeferredValue(
+  const payload =
     detail.data === undefined
       ? null
-      : creditNotePayload(format, draft, hasReceivedMoney(detail.data)),
-  );
-  const previewBody = useSettled(JSON.stringify(payload));
-  const preview = useQuery({
-    queryKey: ["credit-note-preview", invoiceId, previewBody],
-    queryFn: async () => {
+      : creditNotePayload(format, draft, hasReceivedMoney(detail.data));
+  const preview = usePaperPreview(
+    ["credit-note-preview", invoiceId],
+    payload,
+    async (body: IssueCreditNoteData) => {
       const { data } = await previewCreditNotePaper({
         path: { invoice: invoiceId },
-        body: JSON.parse(previewBody) as IssueCreditNoteData,
+        body,
         throwOnError: true,
       });
 
       return data;
     },
-    enabled: payload !== null,
-    placeholderData: keepPreviousData,
-    retry: false,
-  });
+  );
   const issue = useMutation({
     ...issueCreditNoteMutation(),
     onMutate: () => setError(null),
@@ -145,9 +136,9 @@ function CreditNoteRoute() {
       draft={draft}
       error={
         error ??
-        (preview.isError
-          ? serverErrorMessage(preview.error, m.credit_note_preview_failed())
-          : null)
+        (preview.error === null
+          ? null
+          : serverErrorMessage(preview.error, m.credit_note_preview_failed()))
       }
       isPending={issue.isPending}
       logoSrc={identity.data?.hasLogo ? companyLogoHref() : undefined}
@@ -158,7 +149,7 @@ function CreditNoteRoute() {
           issue.mutate({ path: { invoice: invoiceId }, body: payload });
         }
       }}
-      paper={payload === null ? null : (preview.data ?? null)}
+      paper={preview.paper}
       vatLiable={settings.data.vatLiable}
     />
   );
