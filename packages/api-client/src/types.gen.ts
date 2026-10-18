@@ -2622,6 +2622,20 @@ export type RenamePasskeyData = {
 };
 
 /**
+ * ReportData
+ */
+export type ReportData = {
+    kind: ReportKind;
+    title: string;
+    body: string;
+    context?: {
+        route: string;
+        browser: string;
+        locale: string;
+    } | null;
+};
+
+/**
  * ReportKind
  */
 export type ReportKind = 0 | 1;
@@ -3661,6 +3675,7 @@ export type UserData = {
     defaultPaymentTermsDays: number;
     effectiveContributionRateBp: number;
     features: Array<FeatureFlag>;
+    canSendReports: boolean;
 };
 
 /**
@@ -10552,6 +10567,33 @@ export type FileRelayedReportResponses = {
 };
 
 export type FileRelayedReportResponse = FileRelayedReportResponses[keyof FileRelayedReportResponses];
+
+export type SendReportData = {
+    body: ReportData;
+    path?: never;
+    query?: never;
+    url: '/reports';
+};
+
+export type SendReportErrors = {
+    /**
+     * Unauthenticated
+     */
+    401: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+};
+
+export type SendReportError = SendReportErrors[keyof SendReportErrors];
+
+export type SendReportResponses = {
+    201: RelayedIssueData;
+};
+
+export type SendReportResponse = SendReportResponses[keyof SendReportResponses];
 
 export type ShowRevenueData = {
     body?: never;

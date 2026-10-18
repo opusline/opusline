@@ -2383,6 +2383,20 @@ export const zRelayReportData = z.object({
 });
 
 /**
+ * ReportData
+ */
+export const zReportData = z.object({
+    kind: zReportKind,
+    title: z.string().check(z.minLength(5), z.maxLength(120)),
+    body: z.string().check(z.minLength(10), z.maxLength(6000)),
+    context: z.nullish(z.object({
+        route: z.string().check(z.maxLength(255)),
+        browser: z.string().check(z.maxLength(255)),
+        locale: z.string().check(z.maxLength(16))
+    }))
+});
+
+/**
  * RequestPasswordResetData
  */
 export const zRequestPasswordResetData = z.object({
@@ -3668,7 +3682,8 @@ export const zUserData = z.object({
     workdayMinutes: z.int(),
     defaultPaymentTermsDays: z.int(),
     effectiveContributionRateBp: z.int(),
-    features: z.array(zFeatureFlag)
+    features: z.array(zFeatureFlag),
+    canSendReports: z.boolean()
 });
 
 /**
@@ -5013,6 +5028,10 @@ export const zIssueRelayChallengeResponse = zRelayChallengeData;
 export const zFileRelayedReportBody = zRelayReportData;
 
 export const zFileRelayedReportResponse = zRelayedIssueData;
+
+export const zSendReportBody = zReportData;
+
+export const zSendReportResponse = zRelayedIssueData;
 
 export const zShowRevenueQuery = z.object({
     period: z.nullish(z.string().check(z.regex(/^\d{4}(-(0[1-9]|1[0-2])|-Q[1-4])?$/))),

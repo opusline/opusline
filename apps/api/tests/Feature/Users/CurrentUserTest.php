@@ -34,6 +34,8 @@ test('the current user endpoint returns the authenticated user', function (): vo
             'effectiveContributionRateBp' => 2580,
             // phpunit.xml releases invoicing to every account.
             'features' => [FeatureFlag::Invoicing->value],
+            // phpunit.xml names no relay.
+            'canSendReports' => false,
         ]);
 });
 

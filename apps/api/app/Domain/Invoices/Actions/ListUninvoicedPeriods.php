@@ -10,6 +10,7 @@ use App\Domain\Invoices\Revenue\NetIncome;
 use App\Domain\Settings\Rates\ContributionRateHistory;
 use App\Domain\Shared\Data\MoneyData;
 use App\Domain\Users\Models\User;
+use Cknow\Money\Money;
 
 /**
  * @phpstan-import-type UnbilledWork from FindUnbilledWork
@@ -41,7 +42,7 @@ class ListUninvoicedPeriods
                     days: $work['days'],
                     minutes: $work['minutes'],
                     amountHt: MoneyData::fromMoney($work['amount']),
-                    amountNet: $amountNet === null ? null : MoneyData::fromMoney($amountNet),
+                    amountNet: $amountNet instanceof Money ? MoneyData::fromMoney($amountNet) : null,
                 );
             },
             // The month only shapes the dashboard's month card, which this list has no use for.

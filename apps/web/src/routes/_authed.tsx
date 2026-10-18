@@ -19,6 +19,7 @@ import { AppSidebar } from "@/components/app-sidebar";
 import { InvoicingSidebar } from "@/components/invoicing-sidebar";
 import { MoneyFormatProvider } from "@/components/money-format-provider";
 import { SessionLockProvider } from "@/features/auth/components/session-lock-provider";
+import { ReportLauncher } from "@/features/feedback/components/report-launcher";
 import { InvoiceDrawerProvider } from "@/features/invoices/components/invoice-drawer-provider";
 import { ModeToggle } from "@/features/theme/components/mode-toggle";
 import {
@@ -169,6 +170,15 @@ function AuthedLayout() {
                   </SidebarInset>
                 </SidebarProvider>
                 <Toaster closeLabel={m.common_close()} />
+                {user.canSendReports ? (
+                  <ReportLauncher
+                    context={{
+                      route: pathname,
+                      browser: navigator.userAgent.slice(0, 255),
+                      locale: user.locale,
+                    }}
+                  />
+                ) : null}
               </InvoiceDrawerProvider>
             </ToastProvider>
           </SessionLockProvider>
