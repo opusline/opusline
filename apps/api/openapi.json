@@ -17134,6 +17134,16 @@
                         "format": "binary",
                         "contentMediaType": "application/octet-stream",
                         "description": "Maximum file size: 20480 kilobytes."
+                    },
+                    "reader": {
+                        "anyOf": [
+                            {
+                                "$ref": "#/components/schemas/ReceiptReader"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ]
                     }
                 },
                 "required": [
@@ -21163,6 +21173,9 @@
                     },
                     "canSendReports": {
                         "type": "boolean"
+                    },
+                    "hasAnthropicApiKey": {
+                        "type": "boolean"
                     }
                 },
                 "required": [
@@ -21183,7 +21196,8 @@
                     "defaultPaymentTermsDays",
                     "effectiveContributionRateBp",
                     "features",
-                    "canSendReports"
+                    "canSendReports",
+                    "hasAnthropicApiKey"
                 ],
                 "title": "UserData"
             },

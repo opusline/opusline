@@ -13,4 +13,5 @@ return [
     'one_subscription_link' => 'Rattachez la dépense à un abonnement existant ou rendez-la récurrente, pas les deux.',
     'unknown_movement' => 'Ce prélèvement n\'existe pas sur le compte pro.',
     'movement_taken' => 'Ce prélèvement règle déjà une facture ou une autre dépense.',
+    'receipt_reader_needs_key' => 'Ajoutez une clé Anthropic dans Réglages › Intégrations pour que Claude lise les reçus.',
 ];

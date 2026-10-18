@@ -24,6 +24,7 @@ export const CURRENT_USER_FIXTURE: UserData = {
   // No flagged feature: the app as it is outside any beta.
   features: [],
   canSendReports: false,
+  hasAnthropicApiKey: false,
 };
 
 /** Seeds the authed layout's current-user cache; override only what the test is about. */

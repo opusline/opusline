@@ -47,10 +47,10 @@ function fakeClaudeAnswer(mixed $reading, string $stopReason = 'end_turn'): void
     ])]);
 }
 
-function readWithClaude(UploadedFile $file, ?User $user = null): TestResponse
+function readWithClaude(UploadedFile $file, ?User $user = null, array $fields = []): TestResponse
 {
     return test()->actingAs($user ?? withAnthropicApiKey(User::factory()->create()))
-        ->post('/api/expenses/receipt-reading', ['file' => $file], ['Accept' => 'application/json']);
+        ->post('/api/expenses/receipt-reading', ['file' => $file, ...$fields], ['Accept' => 'application/json']);
 }
 
 function scannedReceipt(): UploadedFile
@@ -164,3 +164,48 @@ test('keeps reading with the heuristics alone for an account without a key', fun
 
     Http::assertNothingSent();
 });
+
+test('keeps the receipt on the server when the account picks the heuristics', function (): void {
+    Http::fake();
+
+    readWithClaude(scannedReceipt(), fields: ['reader' => ReceiptReader::Heuristics->value])
+        ->assertOk()
+        ->assertJsonPath('reader', ReceiptReader::Heuristics->value)
+        ->assertJsonPath('claudeFailure', null);
+
+    Http::assertNothingSent();
+});
+
+test('reads with claude when the account picks it', function (): void {
+    fakeClaudeAnswer(claudeReading());
+
+    readWithClaude(scannedReceipt(), fields: ['reader' => ReceiptReader::Claude->value])
+        ->assertOk()
+        ->assertJsonPath('reader', ReceiptReader::Claude->value);
+});
+
+test('refuses claude for an account without a key', function (): void {
+    Http::fake();
+
+    readWithClaude(scannedReceipt(), User::factory()->create(), ['reader' => ReceiptReader::Claude->value])
+        ->assertUnprocessable()
+        ->assertJsonPath('errors.reader.0', __('expenses.receipt_reader_needs_key'));
+
+    Http::assertNothingSent();
+});
+
+test('refuses a reader that does not exist', function (): void {
+    readWithClaude(scannedReceipt(), fields: ['reader' => 7])
+        ->assertUnprocessable()
+        ->assertJsonValidationErrors('reader');
+});
+
+test('tells the app whether claude can read the account receipts', function (bool $hasKey): void {
+    $user = User::factory()->create();
+
+    if ($hasKey) {
+        withAnthropicApiKey($user);
+    }
+
+    $this->actingAs($user)->getJson('/api/user')->assertJsonPath('hasAnthropicApiKey', $hasKey);
+})->with([true, false]);

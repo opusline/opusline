@@ -1,3 +1,4 @@
+import type { ReceiptReader } from "@opusline/api-client";
 import {
   type ExpenseData,
   type ExpensesMonthData,
@@ -6,6 +7,7 @@ import {
 import {
   attachExpenseReceiptMutation,
   createExpenseMutation,
+  currentUserOptions,
   deferExpensesVatMutation,
   deleteExpenseMutation,
   detachExpenseReceiptMutation,
@@ -169,6 +171,13 @@ function ExpensesRoute() {
   );
   const [actionError, setActionError] = useState<string | null>(null);
   const [sheet, setSheet] = useState<ExpenseSheetState | null>(null);
+  // Live, not the route context: a key saved in Réglages since this page
+  // loaded has to show the choice.
+  const { data: currentUser = user } = useQuery(currentUserOptions());
+  const [receiptReader, setReceiptReader] = useState<ReceiptReader>(1);
+  const readerChoice = currentUser.hasAnthropicApiKey
+    ? { reader: receiptReader, onChange: setReceiptReader }
+    : null;
   const [sheetError, setSheetError] = useState<unknown>(null);
   // The compte pro debit a « Créer la dépense » card came from: linked to
   // the row once it exists.
@@ -725,10 +734,12 @@ function ExpensesRoute() {
       <ExpenseSheet
         error={writeErrorBanner(sheetError, m.expenses_save_failed())}
         onReadReceipt={(file) =>
-          readExpenseReceipt({ body: { file }, throwOnError: true }).then(
-            (result) => result.data,
-          )
+          readExpenseReceipt({
+            body: { file, reader: readerChoice?.reader },
+            throwOnError: true,
+          }).then((result) => result.data)
         }
+        readerChoice={readerChoice}
         fieldErrors={serverFieldErrors(sheetError)}
         isSaving={createExpense.isPending || updateExpense.isPending}
         isVatLiable={isVatLiable}

@@ -23,6 +23,11 @@ type Story = StoryObj<typeof ReceiptScanZone>;
 
 export const Idle: Story = {};
 
+/** An account with an Anthropic key picks who reads each receipt. */
+export const WithReaderChoice: Story = {
+  args: { readerChoice: { reader: 1, onChange: () => {} } },
+};
+
 export const Reading: Story = {
   args: { state: { status: "busy", fileName: "lunaprint-facture-9921.pdf" } },
 };

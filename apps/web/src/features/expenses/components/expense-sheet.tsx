@@ -13,6 +13,7 @@ import { m } from "@/paraglide/messages.js";
 
 import { type ExpenseDraft, expenseToDraft } from "../lib/expense-draft";
 import { ExpenseForm } from "./expense-form";
+import type { ReceiptReaderChoice } from "./receipt-scan-zone";
 
 export type ExpenseSheetState =
   | { mode: "create"; initial: ExpenseDraft }
@@ -29,6 +30,7 @@ type ExpenseSheetProps = {
   onOpenChange: (open: boolean) => void;
   onSubmit: (draft: ExpenseDraft) => void;
   onReadReceipt: (file: File) => Promise<ReceiptSuggestionData>;
+  readerChoice?: ReceiptReaderChoice | null;
 };
 
 export function ExpenseSheet({
@@ -41,6 +43,7 @@ export function ExpenseSheet({
   onOpenChange,
   onSubmit,
   onReadReceipt,
+  readerChoice = null,
 }: ExpenseSheetProps) {
   const format = useMoneyFormat();
 
@@ -74,6 +77,7 @@ export function ExpenseSheet({
               mode={state.mode}
               onCancel={() => onOpenChange(false)}
               onReadReceipt={onReadReceipt}
+              readerChoice={readerChoice}
               onSubmit={onSubmit}
               storedReceiptName={
                 state.mode === "edit"

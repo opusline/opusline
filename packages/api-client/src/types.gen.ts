@@ -2473,6 +2473,7 @@ export type ReadReceiptData = {
      * Maximum file size: 20480 kilobytes.
      */
     file: Blob | File;
+    reader?: ReceiptReader | null;
 };
 
 /**
@@ -3717,6 +3718,7 @@ export type UserData = {
     effectiveContributionRateBp: number;
     features: Array<FeatureFlag>;
     canSendReports: boolean;
+    hasAnthropicApiKey: boolean;
 };
 
 /**

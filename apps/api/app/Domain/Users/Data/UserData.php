@@ -47,6 +47,8 @@ class UserData extends Data
         public array $features,
         /** Whether the in-app reporter can reach a relay, so the SPA shows it only then. */
         public bool $canSendReports,
+        /** Whether Claude can read this account's receipts, so the form offers the choice. */
+        public bool $hasAnthropicApiKey,
     ) {}
 
     public static function fromModel(User $user): self
@@ -72,6 +74,7 @@ class UserData extends Data
             effectiveContributionRateBp: $settings->effectiveContributionRateBp(),
             features: app(FeatureFlags::class)->activeFor($user),
             canSendReports: RelayClient::isConfigured(),
+            hasAnthropicApiKey: $settings->anthropic_api_key !== null,
         );
     }
 }
