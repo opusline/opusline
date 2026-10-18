@@ -1021,3 +1021,12 @@ function invoicingReleasedAs(string $release): void
 {
     config(['features.invoicing' => $release]);
 }
+
+const ANTHROPIC_TEST_KEY = 'sk-ant-api03-test-key';
+
+function withAnthropicApiKey(User $user): User
+{
+    $user->settings()->sole()->forceFill(['anthropic_api_key' => ANTHROPIC_TEST_KEY])->save();
+
+    return $user;
+}

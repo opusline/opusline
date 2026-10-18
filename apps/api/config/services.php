@@ -84,4 +84,11 @@ return [
         'web_traces_sample_rate' => (float) env('SENTRY_WEB_TRACES_SAMPLE_RATE', 1.0),
     ],
 
+    // Claude reads what an account hands it, on that account's own key
+    // (Réglages › Intégrations). The model is the instance's choice.
+    'anthropic' => [
+        'model' => env('ANTHROPIC_MODEL', 'claude-opus-5-5'),
+        'timeout_seconds' => 60,
+    ],
+
 ];

@@ -164,7 +164,12 @@ export function ExpenseForm({
       );
 
       if (!suggestion.textFound || readFieldCount(read) === 0) {
-        setScan({ status: "unreadable", fileName: file.name });
+        setScan({
+          status: "unreadable",
+          fileName: file.name,
+          reader: suggestion.reader,
+          claudeFailure: suggestion.claudeFailure,
+        });
         return;
       }
 
@@ -175,6 +180,8 @@ export function ExpenseForm({
         fileName: file.name,
         readCount: readFieldCount(read),
         hasCategory: read.category !== undefined,
+        reader: suggestion.reader,
+        claudeFailure: suggestion.claudeFailure,
       });
     } catch (failure) {
       if (token !== readToken.current) {

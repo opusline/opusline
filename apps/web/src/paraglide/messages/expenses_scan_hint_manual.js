@@ -6,17 +6,17 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 /** @typedef {{}} Expenses_Scan_Hint_ManualInputs */
 
 const en_expenses_scan_hint_manual = /** @type {(inputs: Expenses_Scan_Hint_ManualInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`The receipt stays attached; fill the fields by hand. Photos are not read yet.`)
+	return /** @type {LocalizedString} */ (`The receipt stays attached; fill the fields by hand. Photos are read only with an Anthropic key, in Settings › Integrations.`)
 };
 
 const fr_expenses_scan_hint_manual = /** @type {(inputs: Expenses_Scan_Hint_ManualInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`La facture reste jointe ; saisissez les champs à la main. Les photos ne sont pas encore lues.`)
+	return /** @type {LocalizedString} */ (`La facture reste jointe ; saisissez les champs à la main. Les photos ne sont lues qu'avec une clé Anthropic, dans Réglages › Intégrations.`)
 };
 
 /**
 * | output |
 * | --- |
-* | "The receipt stays attached; fill the fields by hand. Photos are not read yet." |
+* | "The receipt stays attached; fill the fields by hand. Photos are read only with an Anthropic key, in Settings › Integrations." |
 *
 * @param {Expenses_Scan_Hint_ManualInputs} inputs
 * @param {{ locale?: "en" | "fr" }} options

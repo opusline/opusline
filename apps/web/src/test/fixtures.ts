@@ -1,4 +1,5 @@
 import type {
+  AnthropicSettingsData,
   ClientData,
   ClientRevenueData,
   ClientRevenueDetailData,
@@ -15,6 +16,7 @@ import type {
   MissionRevenueData,
   MoneyData,
   PersonalTransferData,
+  ReceiptSuggestionData,
   TreasuryData,
 } from "@opusline/api-client";
 
@@ -408,4 +410,16 @@ export const eInvoicingConnected: EInvoicingSettingsData = {
   checkedAt: "2026-10-16T09:12:00+02:00",
   lastSyncedAt: null,
   lastError: null,
+};
+
+/** A receipt the heuristics found nothing in: a scan, without an Anthropic key. */
+export const nothingReadFromReceipt: ReceiptSuggestionData = {
+  textFound: false,
+  reader: 0,
+  claudeFailure: null,
+};
+
+export const anthropicWithoutKey: AnthropicSettingsData = {
+  hasApiKey: false,
+  model: "claude-opus-5-5",
 };

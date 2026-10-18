@@ -10,9 +10,11 @@ use App\Domain\Expenses\Data\ReceiptDateFieldData;
 use App\Domain\Expenses\Data\ReceiptSuggestionData;
 use App\Domain\Expenses\Data\ReceiptTextFieldData;
 use App\Domain\Expenses\Data\ReceiptVatFieldData;
+use App\Domain\Expenses\Enums\ClaudeReadingFailure;
 use App\Domain\Expenses\Enums\ExpenseCategory;
 use App\Domain\Expenses\Enums\ExpenseVatTreatment;
 use App\Domain\Expenses\Enums\ReceiptFieldConfidence;
+use App\Domain\Expenses\Enums\ReceiptReader;
 use App\Domain\Shared\Data\MoneyData;
 use App\Domain\Shared\Enums\Currency;
 use Carbon\CarbonImmutable;
@@ -122,12 +124,14 @@ final readonly class ReceiptHeuristics
         $this->foldedText = implode("\n", $this->folded);
     }
 
-    public static function suggest(string $text, CarbonImmutable $today, Currency $currency): ReceiptSuggestionData
+    public static function suggest(string $text, CarbonImmutable $today, Currency $currency, ?ClaudeReadingFailure $claudeFailure = null): ReceiptSuggestionData
     {
         $reading = new self($text, $today, $currency);
 
         return new ReceiptSuggestionData(
             textFound: $reading->lines !== [],
+            reader: ReceiptReader::Heuristics,
+            claudeFailure: $claudeFailure,
             supplier: $reading->supplier(),
             spentOn: $reading->spentOn(),
             amountTtc: $reading->amountTtc(),

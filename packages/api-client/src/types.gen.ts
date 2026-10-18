@@ -31,6 +31,14 @@ export type AnnualDeclarationsData = {
 };
 
 /**
+ * AnthropicSettingsData
+ */
+export type AnthropicSettingsData = {
+    hasApiKey: boolean;
+    model: string;
+};
+
+/**
  * BackupRecordData
  */
 export type BackupRecordData = {
@@ -420,6 +428,18 @@ export type ChooseBankAccountData = {
 export type ChooseBetaFeatureData = {
     active: boolean;
 };
+
+/**
+ * ClaudeReadingFailure
+ *
+ * Why Claude did not read a receipt the account asked it to, so the heuristics did.
+ * | |
+ * |---|
+ * | `0` <br/> Anthropic refused the key: the account has to replace it. |
+ * | `1` <br/> Anthropic was unreachable, busy or rate-limiting: trying again later may work. |
+ * | `2` <br/> Claude answered without a usable reading: a file it cannot open, or it declined. |
+ */
+export type ClaudeReadingFailure = 0 | 1 | 2;
 
 /**
  * ClientData
@@ -1586,6 +1606,7 @@ export type InstanceData = {
 export type IntegrationsData = {
     enableBanking: EnableBankingSettingsData;
     eInvoicing: EInvoicingSettingsData;
+    anthropic: AnthropicSettingsData;
 };
 
 /**
@@ -2487,10 +2508,23 @@ export type ReceiptDateFieldData = {
 export type ReceiptFieldConfidence = 0 | 1 | 2;
 
 /**
+ * ReceiptReader
+ *
+ * Who read the receipt, so the form can say how far to trust it.
+ * | |
+ * |---|
+ * | `0` <br/> Patterns over the PDF's text layer, on the instance. |
+ * | `1` <br/> A Claude model, on the account's own Anthropic key. |
+ */
+export type ReceiptReader = 0 | 1;
+
+/**
  * ReceiptSuggestionData
  */
 export type ReceiptSuggestionData = {
     textFound: boolean;
+    reader: ReceiptReader;
+    claudeFailure: ClaudeReadingFailure | null;
     supplier?: ReceiptTextFieldData | null;
     spentOn?: ReceiptDateFieldData | null;
     amountTtc?: ReceiptAmountFieldData | null;
@@ -2742,6 +2776,13 @@ export type RevenueNetData = {
 export type RevenueVatData = {
     amount: MoneyData;
     rateBp: number | null;
+};
+
+/**
+ * SaveAnthropicApiKeyData
+ */
+export type SaveAnthropicApiKeyData = {
+    apiKey: string;
 };
 
 /**
@@ -7672,6 +7713,60 @@ export type SaveEnableBankingCredentialsResponses = {
 };
 
 export type SaveEnableBankingCredentialsResponse = SaveEnableBankingCredentialsResponses[keyof SaveEnableBankingCredentialsResponses];
+
+export type DeleteAnthropicApiKeyData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/settings/integrations/anthropic';
+};
+
+export type DeleteAnthropicApiKeyErrors = {
+    /**
+     * Unauthenticated
+     */
+    401: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+};
+
+export type DeleteAnthropicApiKeyError = DeleteAnthropicApiKeyErrors[keyof DeleteAnthropicApiKeyErrors];
+
+export type DeleteAnthropicApiKeyResponses = {
+    200: IntegrationsData;
+};
+
+export type DeleteAnthropicApiKeyResponse = DeleteAnthropicApiKeyResponses[keyof DeleteAnthropicApiKeyResponses];
+
+export type SaveAnthropicApiKeyData2 = {
+    body: SaveAnthropicApiKeyData;
+    path?: never;
+    query?: never;
+    url: '/settings/integrations/anthropic';
+};
+
+export type SaveAnthropicApiKeyErrors = {
+    /**
+     * Unauthenticated
+     */
+    401: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+};
+
+export type SaveAnthropicApiKeyError = SaveAnthropicApiKeyErrors[keyof SaveAnthropicApiKeyErrors];
+
+export type SaveAnthropicApiKeyResponses = {
+    200: IntegrationsData;
+};
+
+export type SaveAnthropicApiKeyResponse = SaveAnthropicApiKeyResponses[keyof SaveAnthropicApiKeyResponses];
 
 export type DeleteSuperPdpCredentialsData = {
     body?: never;

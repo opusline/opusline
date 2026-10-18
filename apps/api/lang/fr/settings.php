@@ -11,4 +11,7 @@ return [
     'enable_banking_credentials_rejected' => 'Enable Banking a refusé cette clé. Vérifiez qu\'elle correspond à cet identifiant d\'application.',
     'enable_banking_redirect_missing' => 'Ajoutez :url aux URL de redirection de cette application dans le panneau de contrôle d\'Enable Banking.',
     'enable_banking_inactive' => 'Cette application n\'est pas encore active : liez-y votre compte bancaire dans le panneau de contrôle d\'Enable Banking.',
+    'anthropic_key_rejected' => 'Anthropic a refusé cette clé. Vérifiez qu\'il s\'agit d\'une clé d\'API active de console.anthropic.com.',
+    'anthropic_model_unavailable' => 'Cette clé ne peut pas utiliser :model. Vérifiez que le modèle est activé pour son espace de travail.',
+    'anthropic_unreachable' => 'Anthropic n\'a pas pu être joint pour vérifier la clé. Réessayez dans quelques minutes.',
 ];

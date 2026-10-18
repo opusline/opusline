@@ -1,3 +1,4 @@
+import type { ClaudeReadingFailure, ReceiptReader } from "@opusline/api-client";
 import { Alert, AlertDescription } from "@opusline/ui/components/alert";
 import { Button } from "@opusline/ui/components/button";
 import { Dropzone } from "@opusline/ui/components/dropzone";
@@ -7,18 +8,38 @@ import { m } from "@/paraglide/messages.js";
 
 import { RECEIPT_ACCEPT } from "../lib/receipts";
 
+/** Who read the receipt, and why not Claude when the account's key was tried. */
+export type ReceiptReading = {
+  reader: ReceiptReader;
+  claudeFailure: ClaudeReadingFailure | null;
+};
+
 export type ReceiptScanState =
   | { status: "idle" }
   | { status: "busy"; fileName: string }
-  | {
+  | ({
       status: "done";
       fileName: string;
       readCount: number;
       hasCategory: boolean;
-    }
+    } & ReceiptReading)
   /** The API answered but read nothing: a photo, a scan, an empty PDF. */
-  | { status: "unreadable"; fileName: string }
+  | ({ status: "unreadable"; fileName: string } & ReceiptReading)
   | { status: "failed"; fileName: string; message: string };
+
+const CLAUDE_FAILURE_NOTES: Record<ClaudeReadingFailure, () => string> = {
+  0: m.expenses_scan_claude_key_rejected,
+  1: m.expenses_scan_claude_unavailable,
+  2: m.expenses_scan_claude_unreadable,
+};
+
+function readerNote({ reader, claudeFailure }: ReceiptReading): string | null {
+  if (claudeFailure !== null) {
+    return CLAUDE_FAILURE_NOTES[claudeFailure]();
+  }
+
+  return reader === 1 ? m.expenses_scan_read_by_claude() : null;
+}
 
 type ReceiptScanZoneProps = {
   state: ReceiptScanState;
@@ -107,6 +128,9 @@ export function ReceiptScanZone({
                       : m.expenses_scan_hint()
                     : m.expenses_scan_hint_manual()}
                 </span>
+                {state.status === "failed" ? null : (
+                  <ReaderNote reading={state} />
+                )}
               </span>
               <Button onClick={onReset} size="sm" variant="ghost">
                 {m.expenses_scan_another()}
@@ -116,5 +140,24 @@ export function ReceiptScanZone({
         )}
       </div>
     </>
+  );
+}
+
+function ReaderNote({ reading }: { reading: ReceiptReading }) {
+  const note = readerNote(reading);
+
+  if (note === null) {
+    return null;
+  }
+
+  return (
+    <span
+      className="mt-1 block text-muted-foreground-3 text-xs leading-relaxed"
+      data-claude-failure={reading.claudeFailure ?? undefined}
+      data-reader={reading.reader}
+      data-testid="receipt-scan-reader"
+    >
+      {note}
+    </span>
   );
 }

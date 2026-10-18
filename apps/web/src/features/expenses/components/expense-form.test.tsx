@@ -4,7 +4,7 @@ import { expect, it, vi } from "vitest";
 
 import { DEFAULT_MONEY_FORMAT } from "@/lib/billing";
 import { pickDate } from "@/test/date-picker";
-
+import { nothingReadFromReceipt } from "@/test/fixtures";
 import { emptyExpenseDraft, expenseToDraft } from "../lib/expense-draft";
 import { expense } from "../lib/fixtures";
 import { ExpenseForm } from "./expense-form";
@@ -22,7 +22,7 @@ function renderForm(
     fieldErrors: null,
     onSubmit: vi.fn(),
     onCancel: vi.fn(),
-    onReadReceipt: vi.fn(async () => ({ textFound: false })),
+    onReadReceipt: vi.fn(async () => nothingReadFromReceipt),
     ...overrides,
   };
 
@@ -387,6 +387,8 @@ function readingReceipt(suggestion: ReceiptSuggestionData) {
 
 const readLunaprint: ReceiptSuggestionData = {
   textFound: true,
+  reader: 0,
+  claudeFailure: null,
   supplier: { value: "Lunaprint", confidence: 2 },
   amountTtc: { value: { amount: 42_900, currency: "EUR" }, confidence: 2 },
   category: 0,
@@ -532,12 +534,21 @@ it("opens the zone over the stored receipt from « Remplacer »", () => {
 
 it.each([
   [
-    { textFound: false } as ReceiptSuggestionData,
+    {
+      textFound: false,
+      reader: 0,
+      claudeFailure: null,
+    } as ReceiptSuggestionData,
     "photo.png",
     "Aucun texte lisible dans photo.png",
   ],
   [
-    { textFound: true, category: 3 } as ReceiptSuggestionData,
+    {
+      textFound: true,
+      reader: 0,
+      claudeFailure: null,
+      category: 3,
+    } as ReceiptSuggestionData,
     "scan.pdf",
     "Aucun texte lisible dans scan.pdf",
   ],

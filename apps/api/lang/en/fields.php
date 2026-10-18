@@ -115,6 +115,7 @@ return [
     'periodKey' => 'period',
     'periodStart' => 'period start',
     'privateKey' => 'private key',
+    'apiKey' => 'API key',
     'proShareBp' => 'business share',
     'provisionMonthly' => 'monthly provision',
     'psuType' => 'account type',

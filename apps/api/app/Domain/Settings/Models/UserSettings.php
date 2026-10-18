@@ -85,6 +85,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property ?Money $cfe_expected_cents
  * @property ?string $enable_banking_application_id
  * @property ?string $enable_banking_private_key
+ * @property ?string $anthropic_api_key
  * @property ?string $calendar_token
  * @property ?CarbonImmutable $deadline_reminders_read_at
  * @property bool $calendar_feed_invoices
@@ -177,7 +178,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
     'workday_minutes',
     'dormant_after_months',
 ])]
-#[Hidden(['calendar_token', 'enable_banking_application_id', 'enable_banking_private_key'])]
+#[Hidden(['calendar_token', 'enable_banking_application_id', 'enable_banking_private_key', 'anthropic_api_key'])]
 #[Table('user_settings')]
 class UserSettings extends Model
 {
@@ -246,6 +247,7 @@ class UserSettings extends Model
             'bank_balance_recorded_on' => 'date',
             'cfe_expected_cents' => MoneyIntegerCast::class.':currency',
             'enable_banking_private_key' => 'encrypted',
+            'anthropic_api_key' => 'encrypted',
             'deadline_reminders_read_at' => 'datetime',
             'calendar_feed_invoices' => 'boolean',
             'calendar_feed_reminders' => 'boolean',
