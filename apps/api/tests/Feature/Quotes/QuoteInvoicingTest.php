@@ -2,6 +2,8 @@
 
 declare(strict_types=1);
 
+use App\Domain\Invoices\Enums\CreditNoteKind;
+use App\Domain\Invoices\Enums\CreditNoteReason;
 use App\Domain\Invoices\Enums\InvoiceStatus;
 use App\Domain\Invoices\Enums\LineUnit;
 use App\Domain\Invoices\Enums\QuoteBilling;
@@ -103,6 +105,78 @@ test('builds the balance from the quote minus every deposit issued, per rate', f
     test()->actingAs($user)->getJson("/api/invoicing/quotes/{$quoteId}")
         ->assertJsonCount(2, 'billing.invoices')
         ->assertJsonPath('billing.canInvoiceBalance', false);
+});
+
+test('bills a quote afresh once a credit note cancelled its deposit', function (): void {
+    $user = issuableAccount();
+    $quoteId = acceptedQuote($user);
+    $deposit = invoiceQuote($user, $quoteId, QuoteBilling::Deposit)->json('invoice.id');
+    test()->actingAs($user)->postJson("/api/invoicing/invoices/{$deposit}/issue")->assertOk();
+    test()->actingAs($user)->postJson("/api/invoicing/invoices/{$deposit}/credit-notes", [
+        'kind' => CreditNoteKind::Full->value,
+        'reason' => CreditNoteReason::ServiceCancelled->value,
+        'lines' => [],
+    ])->assertCreated();
+
+    test()->actingAs($user)->getJson("/api/invoicing/quotes/{$quoteId}")
+        ->assertJsonPath('billing.invoicedTtc.amount', 0)
+        ->assertJsonPath('billing.canInvoiceDeposit', true)
+        ->assertJsonPath('billing.canInvoiceBalance', false)
+        ->assertJsonPath('billing.canInvoiceFull', true);
+
+    invoiceQuote($user, $quoteId, QuoteBilling::Full)
+        ->assertCreated()
+        ->assertJsonCount(2, 'content.lines')
+        ->assertJsonPath('invoice.amountTtc.amount', 199_000);
+});
+
+test('deducts from the balance only what a credit note left of the deposit', function (): void {
+    $user = issuableAccount();
+    $quoteId = acceptedQuote($user);
+    $deposit = invoiceQuote($user, $quoteId, QuoteBilling::Deposit)->json('invoice.id');
+    test()->actingAs($user)->postJson("/api/invoicing/invoices/{$deposit}/issue")->assertOk();
+    test()->actingAs($user)->postJson("/api/invoicing/invoices/{$deposit}/credit-notes", [
+        'kind' => CreditNoteKind::Partial->value,
+        'reason' => CreditNoteReason::CommercialGesture->value,
+        'lines' => [[
+            'label' => 'Geste commercial',
+            'quantityMilli' => 1000,
+            'unit' => LineUnit::Flat->value,
+            'unitPrice' => ['amount' => 10_000, 'currency' => 'EUR'],
+            'vatRateBp' => 2000,
+        ]],
+    ])->assertCreated();
+
+    invoiceQuote($user, $quoteId, QuoteBilling::Balance)
+        ->assertCreated()
+        ->assertJsonCount(4, 'content.lines')
+        ->assertJsonPath('content.lines.2.unitPrice.amount', -26_000)
+        ->assertJsonPath('content.lines.2.vatRateBp', 2000)
+        ->assertJsonPath('content.lines.3.unitPrice.amount', -15_000)
+        ->assertJsonPath('content.lines.3.vatRateBp', 1000);
+});
+
+test('names on the balance only the deposit left after its credit note', function (): void {
+    $user = issuableAccount();
+    $quoteId = acceptedQuote($user);
+    $deposit = invoiceQuote($user, $quoteId, QuoteBilling::Deposit)->json('invoice.id');
+    test()->actingAs($user)->postJson("/api/invoicing/invoices/{$deposit}/issue")->assertOk();
+    test()->actingAs($user)->postJson("/api/invoicing/invoices/{$deposit}/credit-notes", [
+        'kind' => CreditNoteKind::Partial->value,
+        'reason' => CreditNoteReason::CommercialGesture->value,
+        'lines' => [[
+            'label' => 'Geste commercial',
+            'quantityMilli' => 1000,
+            'unit' => LineUnit::Flat->value,
+            'unitPrice' => ['amount' => 10_000, 'currency' => 'EUR'],
+            'vatRateBp' => 2000,
+        ]],
+    ])->assertCreated();
+    $balance = invoiceQuote($user, $quoteId, QuoteBilling::Balance)->json('invoice.id');
+
+    // 597,00 € less the 120,00 € the credit note took back.
+    test()->actingAs($user)->getJson("/api/invoices/{$balance}/paper")
+        ->assertJsonPath('legal', fn (string $legal): bool => str_contains($legal, "(477,00\u{00A0}€ TTC)"));
 });
 
 test('bills the whole quote at once while nothing was invoiced, and only then', function (): void {
