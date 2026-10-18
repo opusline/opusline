@@ -33,7 +33,7 @@ class RemoveInvoicePayment
             abort_unless($payment->invoice_id === $locked->id, 404);
             // A deduction moved money between two invoices at once: one side alone cannot go.
             abort_if(
-                $payment->credit_note_id !== null && CreditNote::query()->whereKey($payment->credit_note_id)->value('settlement') === CreditNoteSettlement::DeductFromNextInvoice->value,
+                $payment->credit_note_id !== null && CreditNote::query()->whereKey($payment->credit_note_id)->value('settlement') === CreditNoteSettlement::DeductFromNextInvoice,
                 409,
                 __('credit_notes.deduction_payment_fixed'),
             );
