@@ -2588,7 +2588,7 @@
         "/invoicing/credit-notes/{creditNote}/pdf": {
             "get": {
                 "operationId": "downloadCreditNotePdf",
-                "summary": "The legal copy filed when it was issued; rendered again only when that file is gone",
+                "summary": "The legal copy filed when it was issued, in its own language; a translation, or a lost file, is rendered again",
                 "tags": [
                     "CreditNote"
                 ],

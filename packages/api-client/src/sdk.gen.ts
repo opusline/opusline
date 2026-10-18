@@ -835,7 +835,7 @@ export const showCreditNotePaper = <ThrowOnError extends boolean = false>(option
 });
 
 /**
- * The legal copy filed when it was issued; rendered again only when that file is gone
+ * The legal copy filed when it was issued, in its own language; a translation, or a lost file, is rendered again
  */
 export const downloadCreditNotePdf = <ThrowOnError extends boolean = false>(options: Options<DownloadCreditNotePdfData, ThrowOnError>): RequestResult<DownloadCreditNotePdfResponses, DownloadCreditNotePdfErrors, ThrowOnError> => (options.client ?? client).get<DownloadCreditNotePdfResponses, DownloadCreditNotePdfErrors, ThrowOnError>({
     security: [{

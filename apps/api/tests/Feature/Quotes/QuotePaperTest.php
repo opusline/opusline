@@ -106,3 +106,14 @@ test('ends an invoice with no signature box', function (): void {
 
     $this->actingAs($user)->getJson("/api/invoices/{$id}/paper")->assertJsonPath('signature', null);
 });
+
+test('prints a validated quote in the other language when asked', function (): void {
+    $user = issuableAccount();
+    $id = quoteDraftFor($user, billableClient($user));
+    $this->actingAs($user)->postJson("/api/invoicing/quotes/{$id}/issue")->assertOk();
+
+    $this->actingAs($user)
+        ->get("/api/invoicing/quotes/{$id}/pdf?language=".DocumentLanguage::English->value)
+        ->assertOk()
+        ->assertHeader('Content-Disposition', 'attachment; filename="Quote-D-2026-001.pdf"');
+});

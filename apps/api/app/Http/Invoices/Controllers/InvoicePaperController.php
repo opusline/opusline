@@ -36,17 +36,18 @@ class InvoicePaperController extends Controller
 
     public function pdf(Invoice $invoice, InvoicePaperQueryData $query, RenderInvoicePdf $renderInvoicePdf): Response|StreamedResponse
     {
-        $archived = $this->written($invoice)->status->isIssued() ? $invoice->attachedDocument() : null;
+        $language = $this->language($this->written($invoice), $query);
+        // Issuing filed the legal copy in the invoice's language; a later change
+        // of logo or settings must not alter what the same number downloads as.
+        // A translation is printed from the frozen invoice when asked for.
+        $isOriginal = $language === ($invoice->language ?? DocumentLanguage::French);
+        $archived = $isOriginal && $invoice->status->isIssued() ? $invoice->attachedDocument() : null;
 
-        // Issuing filed the legal copy; a later change of logo or settings must
-        // not alter what the same number downloads as.
         if ($archived instanceof Media && Storage::disk($archived->disk)->exists($archived->getPathRelativeToRoot())) {
             return Storage::disk($archived->disk)->download($archived->getPathRelativeToRoot(), $archived->file_name, [
                 'Cache-Control' => 'no-store',
             ]);
         }
-
-        $language = $this->language($invoice, $query);
 
         return response($renderInvoicePdf->handle($invoice, $language), 200, [
             'Content-Type' => 'application/pdf',
