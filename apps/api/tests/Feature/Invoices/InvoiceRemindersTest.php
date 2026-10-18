@@ -101,7 +101,7 @@ test('reminds a partly paid invoice of what is left, not of its total', function
 
     $this->actingAs($user)->postJson("/api/invoicing/invoices/{$invoice->id}/reminders/send")->assertCreated();
 
-    $due = (new DocumentFormatter(DocumentLanguage::French, $user->settingsOrFail()->date_format))->money($left);
+    $due = new DocumentFormatter(DocumentLanguage::French, $user->settingsOrFail()->date_format)->money($left);
     Mail::assertQueued(ClientDocumentMail::class, fn (ClientDocumentMail $mail): bool => $mail->content->amount === $due
         && str_contains(implode(' ', $mail->content->paragraphs), "il reste {$due} TTC"));
 });
@@ -203,3 +203,18 @@ test('sends nothing on an instance that sends no mail', function (): void {
     expect(remindersSent($invoice))->toBe(0);
     expect(DocumentEmail::query()->where('kind', EmailTemplateKind::PaymentReminder)->count())->toBe(0);
 });
+
+test('the schedule reminds no client of an account without invoicing', function (string $release): void {
+    $user = issuableAccount();
+    $invoice = remindableInvoice($user);
+    invoicingReleasedAs($release);
+
+    $this->travelTo('2026-09-01 12:00:00');
+    $this->artisan('invoices:send-reminders')->assertSuccessful();
+
+    expect(remindersSent($invoice))->toBe(0);
+    Mail::assertNothingQueued();
+})->with([
+    'switched off on the instance' => ['off'],
+    'in beta, the account not in it' => ['beta'],
+]);
