@@ -17,10 +17,13 @@ use App\Domain\Deadlines\Models\FiscalDeadlineCompletion;
 use App\Domain\Expenses\Enums\ExpenseCategory;
 use App\Domain\Expenses\Enums\ExpenseVatTreatment;
 use App\Domain\Expenses\Models\Expense;
+use App\Domain\Features\Enums\FeatureFlag;
 use App\Domain\Invoices\Actions\ComputeInvoiceAmounts;
 use App\Domain\Invoices\Actions\ValueTrackedTime;
 use App\Domain\Invoices\Enums\InvoiceEventKind;
 use App\Domain\Invoices\Enums\InvoiceStatus;
+use App\Domain\Invoices\Enums\LineUnit;
+use App\Domain\Invoices\Models\CatalogItem;
 use App\Domain\Invoices\Models\Invoice;
 use App\Domain\Missions\Models\Mission;
 use App\Domain\Settings\Enums\VatRegime;
@@ -31,6 +34,7 @@ use App\Domain\Users\Models\User;
 use Carbon\CarbonImmutable;
 use Cknow\Money\Money;
 use Illuminate\Database\Seeder;
+use Laravel\Pennant\Feature;
 
 class DatabaseSeeder extends Seeder
 {
@@ -47,7 +51,18 @@ class DatabaseSeeder extends Seeder
         $user->settings()->sole()->update([
             'vat_regime' => VatRegime::ReelNormal,
             'treasury_buffer_cents' => 150_000,
+            // The identity every issued document prints: without it nothing validates.
+            'trade_name' => 'Camille Aubrac',
+            'siret' => '12345678200002',
+            'vat_number' => 'FR11123456782',
+            'company_address_line1' => '12 rue de Strasbourg',
+            'company_postal_code' => '44000',
+            'company_city' => 'Nantes',
+            'contact_email' => 'camille@aubrac.test',
+            'iban' => 'FR7630006000011234567890189',
+            'bic' => 'AGRIFRPP',
         ]);
+        Feature::for($user)->activate(FeatureFlag::Invoicing->key());
 
         $nordlys = Client::factory()->for($user)->intermediary()->create([
             'name' => 'Nordlys',
@@ -55,6 +70,9 @@ class DatabaseSeeder extends Seeder
             'siret' => '123 456 782 00002',
             'billing_contact_name' => 'Camille Dupont',
             'billing_email' => 'factures@nordlys.example',
+            'billing_address_line1' => '18 quai de la Fosse',
+            'billing_postal_code' => '44000',
+            'billing_city' => 'Nantes',
             'created_at' => now()->subMonths(17),
         ]);
 
@@ -78,6 +96,10 @@ class DatabaseSeeder extends Seeder
         $lunaprint = Client::factory()->for($user)->create([
             'name' => 'Lunaprint',
             'color' => Color::Slate,
+            'billing_email' => 'compta@lunaprint.example',
+            'billing_address_line1' => '8 quai des Tanneurs',
+            'billing_postal_code' => '67000',
+            'billing_city' => 'Strasbourg',
             'created_at' => now()->subMonths(11),
         ]);
 
@@ -95,6 +117,10 @@ class DatabaseSeeder extends Seeder
         Client::factory()->for($user)->create([
             'name' => 'Ateliers Ruche',
             'color' => Color::Sage,
+            'billing_email' => 'compta@ateliers-ruche.example',
+            'billing_address_line1' => '4 passage des Tisserands',
+            'billing_postal_code' => '69001',
+            'billing_city' => 'Lyon',
             'created_at' => now()->subDays(2),
         ]);
 
@@ -123,6 +149,7 @@ class DatabaseSeeder extends Seeder
         $this->seedProAccount($user);
         $this->seedFilings($user);
         $this->seedExpenses($user);
+        $this->seedCatalog($user);
 
         RunningTimer::factory()
             ->for($lunaprintMaintenance, 'mission')
@@ -485,6 +512,24 @@ class DatabaseSeeder extends Seeder
      * given. References are left blank here and assigned in issue order at the
      * end, whatever order the rows were written in.
      */
+    /** The services an invoice or a quote picks lines from. */
+    private function seedCatalog(User $user): void
+    {
+        foreach ([
+            ['Journée de développement', 'React, TypeScript · au forfait jour', LineUnit::Day, 55_000],
+            ['Heure de maintenance', 'Correctifs et petites évolutions', LineUnit::Hour, 7_500],
+            ['Atelier de cadrage', 'Une demi-journée avec l\'équipe', LineUnit::Flat, 60_000],
+        ] as [$label, $detail, $unit, $priceCents]) {
+            CatalogItem::factory()->create([
+                'user_id' => $user->id,
+                'label' => $label,
+                'detail' => $detail,
+                'unit' => $unit,
+                'unit_price_cents' => $priceCents,
+            ]);
+        }
+    }
+
     protected function issuedInvoice(
         User $user,
         Client $client,

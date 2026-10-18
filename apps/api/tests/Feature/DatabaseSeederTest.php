@@ -5,7 +5,10 @@ declare(strict_types=1);
 use App\Domain\Cra\Actions\DescribeCra;
 use App\Domain\Cra\Calendar\FrenchHolidays;
 use App\Domain\Cra\Enums\CraStatus;
+use App\Domain\Invoices\Enums\InvoiceSource;
 use App\Domain\Invoices\Enums\InvoiceStatus;
+use App\Domain\Invoices\Enums\QuoteStatus;
+use App\Domain\Invoices\Models\DocumentEmail;
 use App\Domain\Users\Models\User;
 use Carbon\CarbonImmutable;
 use Database\Seeders\VolumeSeeder;
@@ -226,3 +229,38 @@ test('the volume seeder leaves the screens it exists for answering', function (s
 
     $this->actingAs($user)->getJson($endpoint)->assertOk();
 })->with(['/api/bank', '/api/treasury', '/api/declarations', '/api/deadlines']);
+
+test('the demo account can validate an invoice to a client of its own', function (): void {
+    $this->seed();
+    $user = User::query()->where('email', 'test@example.com')->firstOrFail();
+    $nordlys = $user->clients()->where('name', 'Nordlys')->sole();
+
+    $id = $this->actingAs($user)->postJson('/api/invoicing/invoices', draftPayloadFor($nordlys))->assertCreated()->json('invoice.id');
+
+    $this->actingAs($user)->postJson("/api/invoicing/invoices/{$id}/issue")->assertOk();
+});
+
+test('the volume seeder writes quotes, invoices, credit notes and e-mails in Opusline', function (): void {
+    $this->seed(VolumeSeeder::class);
+    $user = User::query()->where('email', 'test@example.com')->firstOrFail();
+
+    $written = $user->invoices()->where('source', InvoiceSource::Opusline)->with('lines')->get();
+    $quotes = $user->quotes()->get();
+
+    expect($written->count())->toBeGreaterThanOrEqual(24)
+        ->and($written->every(fn ($invoice): bool => $invoice->lines->isNotEmpty() && $invoice->seller_snapshot !== null))->toBeTrue()
+        ->and($user->creditNotes()->count())->toBeGreaterThanOrEqual(4)
+        ->and($user->creditNotes()->pluck('number')->every(fn (string $number): bool => str_starts_with($number, 'A-20')))->toBeTrue()
+        ->and($quotes->map(fn ($quote): int => $quote->status->value)->unique()->sort()->values()->all())->toBe([QuoteStatus::Sent->value, QuoteStatus::Accepted->value, QuoteStatus::Refused->value])
+        ->and(DocumentEmail::query()->where('user_id', $user->id)->count())->toBeGreaterThanOrEqual($written->count() + $quotes->count());
+});
+
+test('the volume seeder pays a credited invoice only what is left due', function (): void {
+    $this->seed(VolumeSeeder::class);
+    $user = User::query()->where('email', 'test@example.com')->firstOrFail();
+
+    $credited = $user->invoices()->whereHas('creditNotes')->withPaymentFigures()->get();
+
+    expect($credited)->not->toBeEmpty()
+        ->and($credited->every(fn ($invoice): bool => $invoice->balanceDue()->isZero()))->toBeTrue();
+});
