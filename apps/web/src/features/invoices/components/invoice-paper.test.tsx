@@ -2,7 +2,7 @@ import { render, screen } from "@testing-library/react";
 import { expect, it } from "vitest";
 
 import { invoicePaperFixture } from "../lib/invoice-paper-fixture";
-import { InvoicePaper } from "./invoice-paper";
+import { fitScale, InvoicePaper } from "./invoice-paper";
 
 it("prints the sheet the API resolved, word for word", () => {
   render(<InvoicePaper paper={invoicePaperFixture} />);
@@ -62,4 +62,14 @@ it("ends a quote with its signature box, and an invoice without", () => {
   rerender(<InvoicePaper paper={invoicePaperFixture} />);
 
   expect(screen.queryByTestId("invoice-paper-signature")).toBeNull();
+});
+
+it("shrinks the sheet to a column narrower than its print width, never beyond it", () => {
+  expect(fitScale(450)).toBe(0.75);
+  expect(fitScale(600)).toBe(1);
+  expect(fitScale(900)).toBe(1);
+});
+
+it("keeps the sheet whole before its column has been measured", () => {
+  expect(fitScale(0)).toBe(1);
 });
