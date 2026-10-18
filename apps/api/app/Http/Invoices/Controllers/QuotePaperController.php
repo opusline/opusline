@@ -36,10 +36,12 @@ class QuotePaperController extends Controller
 
     public function pdf(Quote $quote, InvoicePaperQueryData $query, RenderQuotePdf $renderQuotePdf): Response|StreamedResponse
     {
-        $archived = $quote->status->isIssued() ? $quote->attachedDocument() : null;
+        // Validating filed the copy the client got, in the quote's language; a
+        // later change of logo or settings must not alter what the same number
+        // downloads as. A quote recorded elsewhere only ever has its own file.
+        $isTranslation = $quote->isWrittenInOpusline() && $this->language($quote, $query) !== ($quote->language ?? DocumentLanguage::French);
+        $archived = ! $isTranslation && $quote->status->isIssued() ? $quote->attachedDocument() : null;
 
-        // Validating filed the copy the client got; a later change of logo or
-        // settings must not alter what the same number downloads as.
         if ($archived instanceof Media && Storage::disk($archived->disk)->exists($archived->getPathRelativeToRoot())) {
             return Storage::disk($archived->disk)->download($archived->getPathRelativeToRoot(), $archived->file_name, [
                 'Cache-Control' => 'no-store',

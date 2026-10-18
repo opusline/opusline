@@ -1110,7 +1110,7 @@ export const showCreditNotePaperOptions = (options: Options<ShowCreditNotePaperD
 export const downloadCreditNotePdfQueryKey = (options: Options<DownloadCreditNotePdfData>) => createQueryKey('downloadCreditNotePdf', options);
 
 /**
- * The legal copy filed when it was issued; rendered again only when that file is gone
+ * The legal copy filed when it was issued, in its own language; a translation, or a lost file, is rendered again
  */
 export const downloadCreditNotePdfOptions = (options: Options<DownloadCreditNotePdfData>) => queryOptions<DownloadCreditNotePdfResponse, DownloadCreditNotePdfError, DownloadCreditNotePdfResponse, ReturnType<typeof downloadCreditNotePdfQueryKey>>({
     queryFn: async ({ queryKey, signal }) => {

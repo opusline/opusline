@@ -240,3 +240,28 @@ test('refuses a preview it cannot price', function (): void {
         ->postJson('/api/invoicing/invoices/paper', paperDraftPayload(billableClient($user), ['lines' => [['label' => 'Atelier']]]))
         ->assertJsonValidationErrorFor('lines.0.quantityMilli');
 });
+
+test('downloads the filed copy when asked for the invoice\'s own language', function (): void {
+    $user = issuableAccount();
+    $id = draftFor($user, billableClient($user));
+    $this->actingAs($user)->postJson("/api/invoicing/invoices/{$id}/issue")->assertOk();
+    $document = Invoice::query()->findOrFail($id)->attachedDocument();
+
+    $response = $this->actingAs($user)->get("/api/invoices/{$id}/pdf?language=".DocumentLanguage::French->value)->assertOk();
+
+    expect($response->streamedContent())->toBe(Storage::disk($document?->disk ?? 'local')->get((string) $document?->getPathRelativeToRoot()));
+});
+
+test('prints an issued invoice in the other language when asked, the filed copy kept', function (): void {
+    $user = issuableAccount();
+    $id = draftFor($user, billableClient($user));
+    $this->actingAs($user)->postJson("/api/invoicing/invoices/{$id}/issue")->assertOk();
+
+    $this->actingAs($user)
+        ->get("/api/invoices/{$id}/pdf?language=".DocumentLanguage::English->value)
+        ->assertOk()
+        ->assertHeader('Content-Type', 'application/pdf')
+        ->assertHeader('Content-Disposition', 'attachment; filename="Invoice-2026-001.pdf"');
+
+    expect(Invoice::query()->findOrFail($id)->attachedDocument()?->file_name)->toContain('Facture');
+});

@@ -19,7 +19,6 @@ use App\Domain\Invoices\Data\ListDeductibleCreditNotesData;
 use App\Domain\Invoices\Data\RefundCreditNoteData;
 use App\Domain\Invoices\Enums\CreditNoteSettlement;
 use App\Domain\Invoices\Enums\CreditNoteStatus;
-use App\Domain\Invoices\Enums\DocumentLanguage;
 use App\Domain\Invoices\Models\CreditNote;
 use App\Domain\Invoices\Models\Invoice;
 use App\Domain\Users\Models\User;
@@ -103,20 +102,20 @@ class CreditNoteController extends Controller
         return $buildCreditNotePaper->forCreditNote($creditNote, $query->language ?? $creditNote->language);
     }
 
-    /** The legal copy filed when it was issued; rendered again only when that file is gone. */
+    /** The legal copy filed when it was issued, in its own language; a translation, or a lost file, is rendered again. */
     public function pdf(CreditNote $creditNote, InvoicePaperQueryData $query, RenderCreditNotePdf $renderCreditNotePdf): Response|StreamedResponse
     {
         $archived = $creditNote->client->media()
             ->where('custom_properties->'.CreditNote::DOCUMENT_CREDIT_NOTE_PROPERTY, $creditNote->id)
             ->first();
 
-        if (! $query->language instanceof DocumentLanguage && $archived instanceof Media && Storage::disk($archived->disk)->exists($archived->getPathRelativeToRoot())) {
+        $language = $query->language ?? $creditNote->language;
+
+        if ($language === $creditNote->language && $archived instanceof Media && Storage::disk($archived->disk)->exists($archived->getPathRelativeToRoot())) {
             return Storage::disk($archived->disk)->download($archived->getPathRelativeToRoot(), $archived->file_name, [
                 'Cache-Control' => 'no-store',
             ]);
         }
-
-        $language = $query->language ?? $creditNote->language;
 
         return response($renderCreditNotePdf->handle($creditNote, $language), 200, [
             'Content-Type' => 'application/pdf',
