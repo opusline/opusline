@@ -5,6 +5,7 @@ import {
   showTreasuryOptions,
 } from "@opusline/api-client/react-query";
 import { Avatar, AvatarFallback } from "@opusline/ui/components/avatar";
+import { Badge } from "@opusline/ui/components/badge";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -58,6 +59,7 @@ import { useMoneyFormat } from "@/components/money-format-provider";
 import { formatWholeAmount } from "@/lib/billing";
 import { deadlinesQueryOptions, unreadReminderCount } from "@/lib/deadlines";
 import { expensesBadgeQueryOptions } from "@/lib/expenses";
+import { hasFeature, INVOICING } from "@/lib/features";
 import { initials } from "@/lib/initials";
 import { unreadReleaseCount } from "@/lib/releases";
 import { APP_VERSION } from "@/lib/version";
@@ -242,6 +244,13 @@ export function AppSidebar({ toolbar }: { toolbar?: ReactNode }) {
                     <ReceiptText />
                     <span>{m.nav_invoices()}</span>
                   </SidebarMenuButton>
+                  {hasFeature(user, INVOICING) ? (
+                    <SidebarMenuBadge>
+                      <Badge data-testid="nav-invoices-beta" variant="brand">
+                        {m.beta_badge()}
+                      </Badge>
+                    </SidebarMenuBadge>
+                  ) : null}
                 </SidebarMenuItem>
                 {/*
                 The revenue/expenses/treasury/deadlines/declarations screens compute
