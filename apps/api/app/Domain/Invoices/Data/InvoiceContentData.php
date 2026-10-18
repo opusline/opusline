@@ -8,7 +8,6 @@ use App\Domain\Invoices\Documents\DocumentTotals;
 use App\Domain\Invoices\Enums\DocumentLanguage;
 use App\Domain\Invoices\Models\Invoice;
 use App\Domain\Invoices\Models\InvoiceLine;
-use App\Domain\Shared\Data\SignedMoneyData;
 use App\Domain\TimeEntries\Models\TimeEntry;
 use Spatie\LaravelData\Attributes\DataCollectionOf;
 use Spatie\LaravelData\Data;
@@ -45,11 +44,7 @@ class InvoiceContentData extends Data
     {
         $lines = array_values($invoice->lines->all());
         $totals = DocumentTotals::of(
-            array_map(static fn (InvoiceLine $line): array => [
-                'quantityMilli' => $line->quantity_milli,
-                'unitPrice' => $line->unit_price_cents,
-                'vatRateBp' => $line->vat_rate_bp,
-            ], $lines),
+            array_map(static fn (InvoiceLine $line): array => $line->toPaperLine(), $lines),
             $invoice->currency,
         );
 
@@ -64,11 +59,7 @@ class InvoiceContentData extends Data
             showEmail: $invoice->show_email,
             customMentions: $invoice->custom_mentions,
             lines: array_map(InvoiceLineData::fromModel(...), $lines),
-            vatBreakdown: array_map(static fn (array $row): VatBreakdownRowData => new VatBreakdownRowData(
-                rateBp: $row['rateBp'],
-                base: SignedMoneyData::fromMoney($row['base']),
-                vat: SignedMoneyData::fromMoney($row['vat']),
-            ), $totals->vatBreakdown),
+            vatBreakdown: VatBreakdownRowData::listOf($totals),
             seller: $invoice->seller_snapshot === null ? null : DocumentPartyData::from($invoice->seller_snapshot),
             buyer: $invoice->buyer_snapshot === null ? null : DocumentPartyData::from($invoice->buyer_snapshot),
             timeEntryIds: array_values($invoice->timeEntries()->get(['id'])->map(static fn (TimeEntry $entry): int => $entry->id)->all()),
