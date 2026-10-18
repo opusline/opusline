@@ -68,3 +68,8 @@ export const WithUnreadReleaseNotes: Story = {
 export const TreasuryTileLoading: Story = {
   render: () => <Example hasTreasury={false} />,
 };
+
+/** An account in the invoicing beta sees it marked as such in the nav. */
+export const InInvoicingBeta: Story = {
+  render: () => <Example user={{ features: [0] }} />,
+};
