@@ -111,11 +111,18 @@ test('answers 404 while no relay is configured', function (): void {
     $this->postJson('/api/reports', reportPayload())->assertNotFound();
 });
 
-test('answers 404 while the reports feature is off', function (): void {
-    config()->set('features.reports', 'off');
-
-    $this->postJson('/api/reports', reportPayload())->assertNotFound();
+test('tells the app it can send reports when a relay is configured', function (): void {
+    $this->getJson('/api/user')->assertJsonPath('canSendReports', true);
 });
+
+test('tells the app it cannot send reports without a relay', function (string $setting, mixed $value): void {
+    config()->set($setting, $value);
+
+    $this->getJson('/api/user')->assertJsonPath('canSendReports', false);
+})->with([
+    'switched off' => ['reports.enabled', false],
+    'no relay' => ['reports.relay_url', null],
+]);
 
 test('refuses a puzzle harder than the instance spends', function (): void {
     fakeRelay(difficulty: 25);

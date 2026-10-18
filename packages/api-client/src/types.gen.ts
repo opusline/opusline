@@ -1457,9 +1457,8 @@ export type ExpensesVatSummaryData = {
  * | |
  * |---|
  * | `0` <br/> Writing, issuing and rendering invoices in Opusline (#498). |
- * | `1` <br/> Sending a bug report or a feature request from the app (#630). |
  */
-export type FeatureFlag = 0 | 1;
+export type FeatureFlag = 0;
 
 /**
  * FiscalDeadlineData
@@ -3654,6 +3653,7 @@ export type UserData = {
     defaultPaymentTermsDays: number;
     effectiveContributionRateBp: number;
     features: Array<FeatureFlag>;
+    canSendReports: boolean;
 };
 
 /**

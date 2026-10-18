@@ -914,9 +914,8 @@ export const zExpenseInputData = z.object({
  * | |
  * |---|
  * | `0` <br/> Writing, issuing and rendering invoices in Opusline (#498). |
- * | `1` <br/> Sending a bug report or a feature request from the app (#630). |
  */
-export const zFeatureFlag = z.union([z.literal(0), z.literal(1)]);
+export const zFeatureFlag = z.literal(0);
 
 /**
  * BetaFeatureData
@@ -3661,7 +3660,8 @@ export const zUserData = z.object({
     workdayMinutes: z.int(),
     defaultPaymentTermsDays: z.int(),
     effectiveContributionRateBp: z.int(),
-    features: z.array(zFeatureFlag)
+    features: z.array(zFeatureFlag),
+    canSendReports: z.boolean()
 });
 
 /**
