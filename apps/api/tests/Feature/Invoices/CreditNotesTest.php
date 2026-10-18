@@ -182,15 +182,20 @@ test('refuses a full credit note after a partial one', function (): void {
         ->assertJsonValidationErrorFor('kind');
 });
 
-test('a cancelled invoice takes no further credit note, nor a draft one', function (): void {
+test('a cancelled invoice takes no further credit note', function (): void {
     $user = issuableAccount();
     $invoice = issuedInvoiceOf($user);
     $this->actingAs($user)->postJson("/api/invoicing/invoices/{$invoice->id}/credit-notes", creditNotePayload())->assertCreated();
-    $draft = draftFor($user, $invoice->client);
 
     $this->actingAs($user)
         ->postJson("/api/invoicing/invoices/{$invoice->id}/credit-notes", creditNotePayload(['kind' => CreditNoteKind::Partial->value, 'lines' => [creditLine()]]))
         ->assertStatus(409);
+});
+
+test('a draft takes no credit note: it is still the account\'s to change', function (): void {
+    $user = issuableAccount();
+    $draft = draftFor($user, billableClient($user));
+
     $this->actingAs($user)
         ->postJson("/api/invoicing/invoices/{$draft}/credit-notes", creditNotePayload())
         ->assertStatus(409);
@@ -222,7 +227,7 @@ test('the preview prints the credit note without issuing it', function (): void 
     expect($invoice->creditNotes()->count())->toBe(0);
 });
 
-test('an issued credit note is shown, printed and downloaded by its owner only', function (): void {
+test('an issued credit note is shown, printed, downloaded and listed on its invoice', function (): void {
     $user = issuableAccount();
     $invoice = issuedInvoiceOf($user);
     $id = $this->actingAs($user)
@@ -233,12 +238,22 @@ test('an issued credit note is shown, printed and downloaded by its owner only',
     $this->actingAs($user)->getJson("/api/invoicing/credit-notes/{$id}/paper")->assertOk()->assertJsonPath('title', 'Avoir n° A-2026-001');
     $this->actingAs($user)->get("/api/invoicing/credit-notes/{$id}/pdf")->assertOk();
     $this->actingAs($user)->getJson("/api/invoices/{$invoice->id}")->assertJsonPath('creditNotes.0.id', $id);
-
-    $stranger = issuableAccount();
-    $this->actingAs($stranger)->getJson("/api/invoicing/credit-notes/{$id}")->assertNotFound();
-    $this->actingAs($stranger)->getJson("/api/invoicing/credit-notes/{$id}/paper")->assertNotFound();
-    $this->actingAs($stranger)->postJson("/api/invoicing/invoices/{$invoice->id}/credit-notes", creditNotePayload())->assertNotFound();
 });
+
+test('keeps a credit note and its invoice from a stranger', function (string $method, string $route): void {
+    $user = issuableAccount();
+    $invoice = issuedInvoiceOf($user);
+    $id = $this->actingAs($user)
+        ->postJson("/api/invoicing/invoices/{$invoice->id}/credit-notes", creditNotePayload())
+        ->json('creditNote.id');
+    $path = str_replace(['{creditNote}', '{invoice}'], [$id, $invoice->id], $route);
+
+    $this->actingAs(issuableAccount())->json($method, $path, $method === 'POST' ? creditNotePayload() : [])->assertNotFound();
+})->with([
+    'show' => ['GET', '/api/invoicing/credit-notes/{creditNote}'],
+    'paper' => ['GET', '/api/invoicing/credit-notes/{creditNote}/paper'],
+    'issue on its invoice' => ['POST', '/api/invoicing/invoices/{invoice}/credit-notes'],
+]);
 
 test('the credit notes keep their own continuous series', function (): void {
     $user = issuableAccount();
@@ -256,23 +271,21 @@ test('the credit notes keep their own continuous series', function (): void {
         ->assertJsonPath('creditNote.number', 'A-2026-002');
 });
 
-test('refuses a partial credit note without lines, or with a line of another invoice', function (): void {
+test('refuses a partial credit note it cannot tie to the invoice', function (callable $lines, string $field): void {
     $user = issuableAccount();
     $invoice = issuedInvoiceOf($user);
-    $other = issuedInvoiceOf($user);
 
-    $this->actingAs($user)
-        ->postJson("/api/invoicing/invoices/{$invoice->id}/credit-notes", creditNotePayload(['kind' => CreditNoteKind::Partial->value]))
-        ->assertUnprocessable()
-        ->assertJsonValidationErrorFor('lines');
     $this->actingAs($user)
         ->postJson("/api/invoicing/invoices/{$invoice->id}/credit-notes", creditNotePayload([
             'kind' => CreditNoteKind::Partial->value,
-            'lines' => [creditLine(['invoiceLineId' => $other->lines()->sole()->id])],
+            'lines' => $lines($user),
         ]))
         ->assertUnprocessable()
-        ->assertJsonValidationErrorFor('lines.0.invoiceLineId');
-});
+        ->assertJsonValidationErrorFor($field);
+})->with([
+    'without lines' => [fn (User $user): array => [], 'lines'],
+    'with a line of another invoice' => [fn (User $user): array => [creditLine(['invoiceLineId' => issuedInvoiceOf($user)->lines()->sole()->id])], 'lines.0.invoiceLineId'],
+]);
 
 test('an invoice recorded from another tool cannot be created cancelled', function (): void {
     $user = issuableAccount();

@@ -193,20 +193,35 @@ test('bills the whole quote at once while nothing was invoiced, and only then', 
     invoiceQuote($user, $quoteId, QuoteBilling::Deposit)->assertConflict();
 });
 
-test('refuses a second deposit, a balance before an issued deposit, and a quote not accepted', function (): void {
+test('refuses to bill what the quote does not allow yet', function (callable $arrange, QuoteBilling $billing, string $message): void {
     $user = issuableAccount();
-    $quoteId = acceptedQuote($user);
+    $quoteId = $arrange($user);
 
-    invoiceQuote($user, $quoteId, QuoteBilling::Balance)->assertConflict()->assertJsonPath('message', __('quotes.balance_needs_deposit'));
-    invoiceQuote($user, $quoteId, QuoteBilling::Deposit)->assertCreated();
-    invoiceQuote($user, $quoteId, QuoteBilling::Deposit)->assertConflict()->assertJsonPath('message', __('quotes.deposit_already_invoiced'));
+    invoiceQuote($user, $quoteId, $billing)
+        ->assertConflict()
+        ->assertJsonPath('message', __($message));
+})->with([
+    'a balance before any deposit' => [fn (User $user): int => acceptedQuote($user), QuoteBilling::Balance, 'quotes.balance_needs_deposit'],
+    'a second deposit' => [function (User $user): int {
+        $quoteId = acceptedQuote($user);
+        invoiceQuote($user, $quoteId, QuoteBilling::Deposit)->assertCreated();
+
+        return $quoteId;
+    }, QuoteBilling::Deposit, 'quotes.deposit_already_invoiced'],
     // A deposit still in draft bills nothing yet: the balance waits for it to go out.
-    invoiceQuote($user, $quoteId, QuoteBilling::Balance)->assertConflict();
+    'a balance behind a draft deposit' => [function (User $user): int {
+        $quoteId = acceptedQuote($user);
+        invoiceQuote($user, $quoteId, QuoteBilling::Deposit)->assertCreated();
 
-    $open = quoteDraftFor($user, billableClient($user, ['name' => 'Callisto']));
-    test()->actingAs($user)->postJson("/api/invoicing/quotes/{$open}/issue")->assertOk();
-    invoiceQuote($user, $open, QuoteBilling::Full)->assertConflict()->assertJsonPath('message', __('quotes.cannot_invoice_unless_accepted'));
-});
+        return $quoteId;
+    }, QuoteBilling::Balance, 'quotes.balance_needs_deposit'],
+    'a quote not accepted' => [function (User $user): int {
+        $quoteId = quoteDraftFor($user, billableClient($user));
+        test()->actingAs($user)->postJson("/api/invoicing/quotes/{$quoteId}/issue")->assertOk();
+
+        return $quoteId;
+    }, QuoteBilling::Full, 'quotes.cannot_invoice_unless_accepted'],
+]);
 
 test('offers no deposit when the quote asked none', function (): void {
     $user = issuableAccount();
