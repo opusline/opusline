@@ -1,4 +1,0 @@
-{
-  "kind": "new",
-  "text": "In beta (Réglages → Avant-première): the e-mails Opusline will send your clients now have their templates — new invoice, new quote, credit note, payment reminder — with built-in wording in French or English after your documents' language, placeholders such as {numero}, {montant} or {echeance}, and a sample preview. Through the API for now: the page to edit them and the send button follow. They leave from the instance's address in your trade name, and replies come to your contact address."
-}

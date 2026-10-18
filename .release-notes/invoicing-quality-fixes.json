@@ -1,4 +1,0 @@
-{
-  "kind": "fixed",
-  "text": "Invoices: the amounts to collect, overdue and expected now count only what is still owed after partial payments and credit notes, and a quote's linked invoices show their real status."
-}
