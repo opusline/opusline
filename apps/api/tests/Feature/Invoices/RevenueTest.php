@@ -380,16 +380,12 @@ test('never counts another user invoices', function (): void {
         ->assertJsonPath('clients', []);
 });
 
-test('rejects a malformed period', function (): void {
+test('rejects a malformed query', function (string $query, string $field): void {
     $this->actingAs(User::factory()->create())
-        ->getJson('/api/revenue?period=T3-2026')
+        ->getJson("/api/revenue?{$query}")
         ->assertUnprocessable()
-        ->assertJsonValidationErrors('period');
-});
-
-test('rejects a malformed basis', function (): void {
-    $this->actingAs(User::factory()->create())
-        ->getJson('/api/revenue?basis=7')
-        ->assertUnprocessable()
-        ->assertJsonValidationErrors('basis');
-});
+        ->assertJsonValidationErrors($field);
+})->with([
+    'period' => ['period=T3-2026', 'period'],
+    'basis' => ['basis=7', 'basis'],
+]);
