@@ -10,6 +10,7 @@ use App\Domain\Invoices\Data\SaveInvoiceDraftData;
 use App\Domain\Invoices\Documents\DocumentFormatter;
 use App\Domain\Invoices\Documents\DocumentTotals;
 use App\Domain\Invoices\Enums\DocumentLanguage;
+use App\Domain\Invoices\Enums\InvoiceStatus;
 use App\Domain\Invoices\Enums\LineUnit;
 use App\Domain\Invoices\Enums\QuoteBilling;
 use App\Domain\Invoices\Enums\QuoteStatus;
@@ -44,7 +45,7 @@ class InvoiceQuote
     public function handle(User $user, Quote $quote, QuoteBilling $billing): Invoice
     {
         return $this->lockQuote->handle($quote, function (Quote $locked) use ($user, $billing): Invoice {
-            $locked->load(['lines', 'invoices.lines']);
+            $locked->load(['lines', 'invoices.lines', 'invoices.creditNotes.lines']);
             $this->assertAllowed($locked, $billing);
 
             $settings = $user->settingsOrFail();
@@ -124,7 +125,7 @@ class InvoiceQuote
         }
 
         foreach ($quote->invoices as $invoice) {
-            if ($invoice->quote_billing !== QuoteBilling::Deposit || ! $invoice->status->isIssued()) {
+            if ($invoice->quote_billing !== QuoteBilling::Deposit || ! $invoice->status->isIssued() || $invoice->status === InvoiceStatus::Cancelled) {
                 continue;
             }
 
@@ -172,7 +173,7 @@ class InvoiceQuote
     }
 
     /**
-     * What a deposit invoice billed before tax, per VAT rate.
+     * What a deposit invoice billed before tax, per VAT rate, net of what credit notes took back.
      *
      * @return array<int, Money>
      */
@@ -184,6 +185,14 @@ class InvoiceQuote
             $bases[$line->vat_rate_bp] = ($bases[$line->vat_rate_bp] ?? new Money(0, $invoice->currency))->add($line->total_ht_cents);
         }
 
+        // What a credit note took back of the deposit is no longer to deduct.
+        foreach ($invoice->creditNotes as $creditNote) {
+            foreach ($creditNote->lines as $line) {
+                $bases[$line->vat_rate_bp] = ($bases[$line->vat_rate_bp] ?? new Money(0, $invoice->currency))->subtract($line->total_ht_cents);
+            }
+        }
+
+        $bases = array_filter($bases, static fn (Money $base): bool => $base->isPositive());
         krsort($bases);
 
         return $bases;
