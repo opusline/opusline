@@ -11,7 +11,7 @@ import {
   AlertDialogTrigger,
 } from "@opusline/ui/components/alert-dialog";
 import { Badge } from "@opusline/ui/components/badge";
-import { Button } from "@opusline/ui/components/button";
+import { Button, ButtonLink } from "@opusline/ui/components/button";
 import { Panel } from "@opusline/ui/components/panel";
 import {
   StatusRow,
@@ -83,14 +83,14 @@ export function BankConnectionCard({
         </StatusRowContent>
         <StatusRowActions>
           {state === "unconfigured" && (
-            <Button
+            <ButtonLink
               data-testid="bank-connection-setup"
               render={<Link search={{ tab: "integrations" }} to="/settings" />}
               size="lg"
               variant="secondary"
             >
               {m.bank_connection_setup()}
-            </Button>
+            </ButtonLink>
           )}
           {state === "disconnected" && (
             <Button

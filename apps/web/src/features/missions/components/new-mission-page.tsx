@@ -6,7 +6,7 @@ import type {
   EntryRounding,
 } from "@opusline/api-client";
 import { Alert, AlertDescription } from "@opusline/ui/components/alert";
-import { Button } from "@opusline/ui/components/button";
+import { Button, ButtonLink } from "@opusline/ui/components/button";
 import { Chip, ChipGroup } from "@opusline/ui/components/chip";
 import { eyebrowVariants } from "@opusline/ui/components/eyebrow";
 import { Field, FieldError, FieldLabel } from "@opusline/ui/components/field";
@@ -182,9 +182,9 @@ export function NewMissionPage({
         <p className="mb-5 text-muted-foreground-3 text-sm">
           {m.missions_new_no_client_hint()}
         </p>
-        <Button render={<Link to="/clients/new" />} size="2xl">
+        <ButtonLink render={<Link to="/clients/new" />} size="2xl">
           {m.clients_create_short()}
-        </Button>
+        </ButtonLink>
       </div>
     );
   }
