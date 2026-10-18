@@ -6,6 +6,10 @@ import viteReact from "@vitejs/plugin-react";
 import { defineConfig } from "vite";
 import { paraglideCompilerOptions } from "./paraglide.config.mjs";
 
+// The Sail stack publishes the API on APP_PORT (default 80): a rootless Docker
+// daemon cannot bind 80, so its stacks run on a higher port, and Vite follows.
+const apiOrigin = `http://localhost:${process.env.APP_PORT ?? "80"}`;
+
 const config = defineConfig({
   resolve: { tsconfigPaths: true },
   // The .map files ship in the image next to the bundle, so a Sentry instance
@@ -13,8 +17,8 @@ const config = defineConfig({
   build: { sourcemap: true },
   server: {
     proxy: {
-      "/api": "http://localhost",
-      "/sanctum": "http://localhost",
+      "/api": apiOrigin,
+      "/sanctum": apiOrigin,
     },
   },
   plugins: [
