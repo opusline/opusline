@@ -35,7 +35,7 @@ test('lists one template per kind, the built-in copy in the documents\' language
         ->assertJsonPath('templates.0.kind', EmailTemplateKind::NewInvoice->value)
         ->assertJsonPath('templates.0.subject', 'Invoice {numero} ({titre})')
         ->assertJsonPath('templates.0.isCustom', false)
-        ->assertJsonPath('templates.0.variables', ['numero', 'titre', 'montant', 'echeance', 'contact', 'client'])
+        ->assertJsonPath('templates.0.variables', ['numero', 'titre', 'montant', 'reste', 'echeance', 'contact', 'client'])
         ->assertJsonPath('templates.1.subject', 'Our quote {numero}')
         ->assertJsonPath('templates.1.isCustom', true);
 });

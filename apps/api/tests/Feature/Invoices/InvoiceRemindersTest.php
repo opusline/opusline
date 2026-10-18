@@ -2,6 +2,8 @@
 
 declare(strict_types=1);
 
+use App\Domain\Invoices\Documents\DocumentFormatter;
+use App\Domain\Invoices\Enums\DocumentLanguage;
 use App\Domain\Invoices\Enums\EmailTemplateKind;
 use App\Domain\Invoices\Enums\InvoiceEventKind;
 use App\Domain\Invoices\Enums\ReminderFrequency;
@@ -84,6 +86,24 @@ test('reminds now, with the reminder template and the PDF, and writes it into th
 
     $history = collect($this->actingAs($user)->getJson("/api/invoices/{$invoice->id}")->json('history'));
     expect($history->firstWhere('kind', InvoiceEventKind::Reminded->value)['note'])->toBe('compta@nordlys.test');
+});
+
+test('reminds a partly paid invoice of what is left, not of its total', function (): void {
+    $user = issuableAccount();
+    $invoice = remindableInvoice($user);
+    $this->travelTo('2026-09-12 12:00:00');
+    $user->refresh();
+    $this->actingAs($user)->postJson("/api/invoices/{$invoice->id}/pay", [
+        'paidOn' => '2026-09-05',
+        'amount' => ['amount' => 10_000, 'currency' => 'EUR'],
+    ])->assertOk();
+    $left = $invoice->refresh()->balanceDue();
+
+    $this->actingAs($user)->postJson("/api/invoicing/invoices/{$invoice->id}/reminders/send")->assertCreated();
+
+    $due = (new DocumentFormatter(DocumentLanguage::French, $user->settingsOrFail()->date_format))->money($left);
+    Mail::assertQueued(ClientDocumentMail::class, fn (ClientDocumentMail $mail): bool => $mail->content->amount === $due
+        && str_contains(implode(' ', $mail->content->paragraphs), "il reste {$due} TTC"));
 });
 
 test('has nobody to remind on an invoice that never left Opusline', function (): void {

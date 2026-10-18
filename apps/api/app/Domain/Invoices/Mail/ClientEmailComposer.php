@@ -27,6 +27,7 @@ final class ClientEmailComposer
         $ht = $format->money($figures->amountHt);
         $ttc = $format->money($figures->amountTtc);
         $title = $figures->title ?? $figures->number;
+        $due = $format->money($figures->amountDue);
         $dueOn = $figures->dueOn instanceof CarbonImmutable ? $format->date($figures->dueOn) : '';
         $validUntil = $figures->validUntil instanceof CarbonImmutable ? $format->date($figures->validUntil) : '';
 
@@ -34,6 +35,7 @@ final class ClientEmailComposer
             'numero' => $figures->number,
             'titre' => $title,
             'montant' => $kind === EmailTemplateKind::NewQuote ? $ht : $ttc,
+            'reste' => $due,
             'echeance' => $dueOn,
             'validite' => $validUntil,
             'retard' => (string) $figures->lateDays,
@@ -58,6 +60,7 @@ final class ClientEmailComposer
             amount: match ($kind) {
                 EmailTemplateKind::NewQuote => $ht,
                 EmailTemplateKind::CreditNote => '− '.$ttc,
+                EmailTemplateKind::PaymentReminder => $due,
                 default => $ttc,
             },
             flag: match ($kind) {

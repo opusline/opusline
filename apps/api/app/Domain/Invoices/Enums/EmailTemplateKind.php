@@ -34,10 +34,10 @@ enum EmailTemplateKind: int
     public function variables(): array
     {
         return match ($this) {
-            self::NewInvoice => ['numero', 'titre', 'montant', 'echeance', 'contact', 'client'],
+            self::NewInvoice => ['numero', 'titre', 'montant', 'reste', 'echeance', 'contact', 'client'],
             self::NewQuote => ['numero', 'titre', 'montant', 'validite', 'contact', 'client'],
             self::CreditNote => ['numero', 'facture', 'montant', 'traitement', 'contact', 'client'],
-            self::PaymentReminder => ['numero', 'titre', 'montant', 'echeance', 'retard', 'penalites', 'contact', 'client'],
+            self::PaymentReminder => ['numero', 'titre', 'montant', 'reste', 'echeance', 'retard', 'penalites', 'contact', 'client'],
         };
     }
 
