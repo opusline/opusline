@@ -39,9 +39,13 @@ const PUBLIC_API_ROUTES = [
     // A calendar app sends no cookie; the opaque token in the path is the
     // credential. See DeadlineCalendarController.
     'api/calendar/{token}.ics',
+    // The report relay: other instances call it server to server with no
+    // account here; a proof of work and rate limits gate it. See FileRelayedReport.
+    'api/relay/challenge',
+    'api/relay/reports',
 ];
 
-test('every API route but the ten documented public ones is behind auth:sanctum', function (): void {
+test('every API route but the documented public ones is behind auth:sanctum', function (): void {
     $unauthenticated = collect(Route::getRoutes()->getRoutes())
         ->filter(fn (RoutingRoute $route): bool => str_starts_with($route->uri(), 'api/'))
         ->reject(fn (RoutingRoute $route): bool => in_array(
