@@ -1,6 +1,8 @@
 import type {
+  OpenIssueData,
   RelayedIssueData,
   ReportData,
+  ReportDraftData,
   ReportKind,
 } from "@opusline/api-client";
 import { zReportData } from "@opusline/api-client/zod";
@@ -58,6 +60,10 @@ type ReportFormProps = {
   error?: string | null;
   filedIssue?: RelayedIssueData | null;
   onSendAnother?: () => void;
+  /** What Claude drafted with the account, to check and edit before sending. */
+  draft?: ReportDraftData | null;
+  /** Open issues that may already say the same thing. */
+  duplicates?: OpenIssueData[];
 };
 
 export function ReportForm({
@@ -67,13 +73,15 @@ export function ReportForm({
   error,
   filedIssue,
   onSendAnother,
+  draft = null,
+  duplicates = [],
 }: ReportFormProps) {
   const shareContextId = useId();
   const form = useForm({
     defaultValues: {
-      kind: 0 as ReportKind,
-      title: "",
-      body: "",
+      kind: draft?.kind ?? (0 as ReportKind),
+      title: draft?.title ?? "",
+      body: draft?.body ?? "",
       shareContext: true,
     },
     validators: {
@@ -133,6 +141,9 @@ export function ReportForm({
           <CircleAlert />
           <AlertDescription>{error}</AlertDescription>
         </Alert>
+      ) : null}
+      {duplicates.length > 0 ? (
+        <PossibleDuplicates issues={duplicates} />
       ) : null}
       <form.Field name="kind">
         {(field) => (
@@ -264,5 +275,31 @@ function ContextDetails({ context }: { context: ReportContext }) {
         ))}
       </dl>
     </details>
+  );
+}
+
+function PossibleDuplicates({ issues }: { issues: OpenIssueData[] }) {
+  return (
+    <div className="flex flex-col gap-1.5" data-testid="report-duplicates">
+      <span className="text-muted-foreground-3 text-xs">
+        {m.report_duplicates_heading()}
+      </span>
+      <ul className="flex flex-col gap-1 text-sm">
+        {issues.map((issue) => (
+          <li key={issue.number}>
+            <a
+              className={linkVariants({ underline: "hover" })}
+              data-number={issue.number}
+              data-testid="report-duplicate"
+              href={issue.url}
+              rel="noreferrer"
+              target="_blank"
+            >
+              #{issue.number} {issue.title}
+            </a>
+          </li>
+        ))}
+      </ul>
+    </div>
   );
 }

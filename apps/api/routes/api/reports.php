@@ -12,4 +12,7 @@ Route::middleware(['auth:sanctum', EnsureSessionIsUnlocked::class, RefuseAccessT
     Route::post('/reports', [ReportController::class, 'store'])
         ->middleware('throttle:reports')
         ->name('sendReport');
+    Route::post('/reports/conversation', [ReportController::class, 'converse'])
+        ->middleware('throttle:report-conversations')
+        ->name('continueReportConversation');
 });

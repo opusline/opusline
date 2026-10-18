@@ -1827,6 +1827,15 @@ export const zNotificationPreferencesData = z.object({
 });
 
 /**
+ * OpenIssueData
+ */
+export const zOpenIssueData = z.object({
+    number: z.int(),
+    title: z.string(),
+    url: z.string()
+});
+
+/**
  * OperationCategory
  *
  * A mandatory invoice mention since 1 September 2026 (e-invoicing reform).
@@ -2433,6 +2442,42 @@ export const zReportData = z.object({
         browser: z.string().check(z.maxLength(255)),
         locale: z.string().check(z.maxLength(16))
     }))
+});
+
+/**
+ * ReportDraftData
+ */
+export const zReportDraftData = z.object({
+    kind: zReportKind,
+    title: z.string(),
+    body: z.string()
+});
+
+/**
+ * ReportConversationTurnData
+ */
+export const zReportConversationTurnData = z.object({
+    reply: z.string(),
+    draft: z.nullable(zReportDraftData),
+    duplicates: z.array(zOpenIssueData)
+});
+
+/**
+ * ReportSpeaker
+ *
+ * Who said a line of the conversation that drafts a report.
+ *
+ */
+export const zReportSpeaker = z.union([z.literal(0), z.literal(1)]);
+
+/**
+ * ReportConversationData
+ */
+export const zReportConversationData = z.object({
+    messages: z.array(z.object({
+        speaker: zReportSpeaker,
+        text: z.string().check(z.minLength(1), z.maxLength(4000))
+    })).check(z.minLength(1), z.maxLength(20))
 });
 
 /**
@@ -5085,6 +5130,10 @@ export const zFileRelayedReportResponse = zRelayedIssueData;
 export const zSendReportBody = zReportData;
 
 export const zSendReportResponse = zRelayedIssueData;
+
+export const zContinueReportConversationBody = zReportConversationData;
+
+export const zContinueReportConversationResponse = zReportConversationTurnData;
 
 export const zShowRevenueQuery = z.object({
     period: z.nullish(z.string().check(z.regex(/^\d{4}(-(0[1-9]|1[0-2])|-Q[1-4])?$/))),

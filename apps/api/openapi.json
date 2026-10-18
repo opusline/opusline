@@ -7713,6 +7713,40 @@
                 }
             }
         },
+        "/reports/conversation": {
+            "post": {
+                "operationId": "continueReportConversation",
+                "summary": "One turn of the conversation in which Claude drafts the report with the account",
+                "tags": [
+                    "Report"
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/ReportConversationData"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ReportConversationTurnData"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    }
+                }
+            }
+        },
         "/revenue": {
             "get": {
                 "operationId": "showRevenue",
@@ -16291,6 +16325,26 @@
                 ],
                 "title": "NotificationPreferencesData"
             },
+            "OpenIssueData": {
+                "type": "object",
+                "properties": {
+                    "number": {
+                        "type": "integer"
+                    },
+                    "title": {
+                        "type": "string"
+                    },
+                    "url": {
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "number",
+                    "title",
+                    "url"
+                ],
+                "title": "OpenIssueData"
+            },
             "OperationCategory": {
                 "type": "integer",
                 "description": "A mandatory invoice mention since 1 September 2026 (e-invoicing reform).\n",
@@ -17617,6 +17671,67 @@
                 ],
                 "title": "RenamePasskeyData"
             },
+            "ReportConversationData": {
+                "type": "object",
+                "properties": {
+                    "messages": {
+                        "type": "array",
+                        "items": {
+                            "type": "object",
+                            "properties": {
+                                "speaker": {
+                                    "$ref": "#/components/schemas/ReportSpeaker"
+                                },
+                                "text": {
+                                    "type": "string",
+                                    "minLength": 1,
+                                    "maxLength": 4000
+                                }
+                            },
+                            "required": [
+                                "speaker",
+                                "text"
+                            ]
+                        },
+                        "minItems": 1,
+                        "maxItems": 20
+                    }
+                },
+                "required": [
+                    "messages"
+                ],
+                "title": "ReportConversationData"
+            },
+            "ReportConversationTurnData": {
+                "type": "object",
+                "properties": {
+                    "reply": {
+                        "type": "string"
+                    },
+                    "draft": {
+                        "anyOf": [
+                            {
+                                "$ref": "#/components/schemas/ReportDraftData"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ]
+                    },
+                    "duplicates": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/OpenIssueData"
+                        }
+                    }
+                },
+                "required": [
+                    "reply",
+                    "draft",
+                    "duplicates"
+                ],
+                "title": "ReportConversationTurnData"
+            },
             "ReportData": {
                 "type": "object",
                 "properties": {
@@ -17666,6 +17781,26 @@
                 ],
                 "title": "ReportData"
             },
+            "ReportDraftData": {
+                "type": "object",
+                "properties": {
+                    "kind": {
+                        "$ref": "#/components/schemas/ReportKind"
+                    },
+                    "title": {
+                        "type": "string"
+                    },
+                    "body": {
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "kind",
+                    "title",
+                    "body"
+                ],
+                "title": "ReportDraftData"
+            },
             "ReportKind": {
                 "type": "integer",
                 "enum": [
@@ -17677,6 +17812,19 @@
                     "Feature"
                 ],
                 "title": "ReportKind"
+            },
+            "ReportSpeaker": {
+                "type": "integer",
+                "description": "Who said a line of the conversation that drafts a report.\n",
+                "enum": [
+                    0,
+                    1
+                ],
+                "x-enum-varnames": [
+                    "Account",
+                    "Claude"
+                ],
+                "title": "ReportSpeaker"
             },
             "RequestPasswordResetData": {
                 "type": "object",

@@ -104,3 +104,51 @@ it("links to the filed issue once the report is sent", () => {
   );
   expect(onSendAnother).toHaveBeenCalled();
 });
+
+it("starts from the draft Claude wrote, editable", async () => {
+  const onSubmit = vi.fn();
+  render(
+    <ReportForm
+      context={context}
+      draft={{
+        kind: 1,
+        title: "Export the CRA as CSV",
+        body: "A CSV next to the PDF.",
+      }}
+      onSubmit={onSubmit}
+    />,
+  );
+
+  expect(screen.getByLabelText(m.report_title_label())).toHaveValue(
+    "Export the CRA as CSV",
+  );
+  fireEvent.click(screen.getByRole("button", { name: m.report_submit() }));
+
+  await waitFor(() =>
+    expect(onSubmit).toHaveBeenCalledWith(
+      expect.objectContaining({ kind: 1, body: "A CSV next to the PDF." }),
+    ),
+  );
+});
+
+it("lists the open issues that may already say the same thing", () => {
+  render(
+    <ReportForm
+      context={context}
+      duplicates={[
+        {
+          number: 612,
+          title: "Invoice preview cut on narrow screens",
+          url: "https://github.com/opusline/opusline/issues/612",
+        },
+      ]}
+      onSubmit={vi.fn()}
+    />,
+  );
+
+  expect(
+    screen.getByRole("link", {
+      name: "#612 Invoice preview cut on narrow screens",
+    }),
+  ).toHaveAttribute("href", "https://github.com/opusline/opusline/issues/612");
+});

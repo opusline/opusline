@@ -449,6 +449,18 @@ rest with `APP_KEY`, and the heuristics take over whenever Claude cannot answer.
 Set `ANTHROPIC_MODEL` to change the model every account uses (default
 `claude-opus-5-5`). Without a key, nothing leaves the server.
 
+**Bug reports and ideas.** A button in the corner of every screen lets an
+account report a bug or suggest a feature. The report is filed as a public
+issue on the project's GitHub through a relay the project runs
+([report-relay.md](report-relay.md)), without the account's name or email: only
+its text, the technical details the account left ticked (page, browser,
+language) and an id derived from `APP_KEY` that says nothing about it. An
+account with an Anthropic key can have Claude ask the missing questions, look
+for an open issue saying the same and write the draft first, on that key. Set
+`OPUSLINE_REPORTS=false` to remove the button from your instance;
+`OPUSLINE_REPORTS_RELAY_URL` names the relay, and the button hides while it is
+unset.
+
 **Email.** Opusline sends none until you name a mailer. Set `MAIL_MAILER=smtp`
 with the `MAIL_HOST`, `MAIL_PORT`, `MAIL_USERNAME` and `MAIL_PASSWORD` of any
 SMTP relay, plus the `MAIL_FROM_ADDRESS` it lets you send as, and each account
