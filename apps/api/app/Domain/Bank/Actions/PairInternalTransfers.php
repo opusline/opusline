@@ -15,8 +15,9 @@ use Carbon\CarbonImmutable;
  * at most. Both sides are neither revenue nor an expense, so they leave the
  * reconciliation queues — the credit's pending invoice suggestion included.
  *
- * Only movements nothing explains yet take part: a validated invoice or a
- * linked expense is the user's word and is never overridden.
+ * Only movements nothing explains yet take part: a validated invoice, a
+ * linked expense or an undone pairing (UnpairInternalTransfer) is the user's
+ * word and is never overridden.
  *
  * Runs inside the caller's transaction, after User::lockRow().
  */
@@ -37,6 +38,7 @@ class PairInternalTransfers
 
         $candidates = $locked->bankMovements()
             ->whereNull('transfer_counterpart_id')
+            ->where('transfer_pairing_refused', false)
             ->whereNull('invoice_id')
             ->whereNull('expense_id')
             ->where('booked_on', '>=', $windowStart->subDays(self::DAYS_APART)->toDateString())

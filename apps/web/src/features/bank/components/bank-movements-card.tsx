@@ -1,5 +1,6 @@
 import type { BankAccountData, BankMovementData } from "@opusline/api-client";
 import { Badge } from "@opusline/ui/components/badge";
+import { Button } from "@opusline/ui/components/button";
 import { eyebrowVariants } from "@opusline/ui/components/eyebrow";
 import {
   Table,
@@ -10,6 +11,7 @@ import {
   TableRow,
 } from "@opusline/ui/components/table";
 import { cn } from "@opusline/ui/lib/utils";
+import { XIcon } from "lucide-react";
 
 import { LoadMoreButton } from "@/components/load-more-button";
 import {
@@ -30,11 +32,17 @@ const HEAD_CLASSES = "sticky top-0 z-10 bg-card px-0 pt-3 pb-2 font-normal";
 type BankMovementsCardProps = {
   data: BankAccountData;
   olderMovements?: OlderMovements;
+  /** Undoes a pairing the app got wrong; absent, the transfer badge is read-only. */
+  onUnpairTransfer?: (movementId: number) => void;
+  /** The movement an undo request is in flight for. */
+  unpairingMovementId?: number | null;
 };
 
 export function BankMovementsCard({
   data,
   olderMovements,
+  onUnpairTransfer,
+  unpairingMovementId = null,
 }: BankMovementsCardProps) {
   const dateFormat = useDateFormat();
   const accountNames = bankAccountNames(data);
@@ -115,8 +123,14 @@ export function BankMovementsCard({
             {movements.map((movement) => (
               <MovementRow
                 accountName={accountNames?.get(movement.bankAccountId) ?? null}
+                isUnpairing={unpairingMovementId === movement.id}
                 key={movement.id}
                 movement={movement}
+                onUnpairTransfer={
+                  onUnpairTransfer === undefined
+                    ? undefined
+                    : () => onUnpairTransfer(movement.id)
+                }
               />
             ))}
           </TableBody>
@@ -154,9 +168,13 @@ function bankAccountNames(data: BankAccountData): Map<number, string> | null {
 function MovementRow({
   movement,
   accountName,
+  isUnpairing,
+  onUnpairTransfer,
 }: {
   movement: BankMovementData;
   accountName: string | null;
+  isUnpairing: boolean;
+  onUnpairTransfer: (() => void) | undefined;
 }) {
   const format = useMoneyFormat();
   const dateFormat = useDateFormat();
@@ -170,9 +188,24 @@ function MovementRow({
     ) : movement.pendingMatchId !== null ? (
       <Badge variant="brand">{m.bank_movement_pending_chip()}</Badge>
     ) : movement.isInternalTransfer ? (
-      <Badge data-testid="bank-movement-internal-transfer" variant="quiet">
-        {m.bank_movement_internal_transfer_chip()}
-      </Badge>
+      <span className="inline-flex items-center gap-0.5">
+        <Badge data-testid="bank-movement-internal-transfer" variant="quiet">
+          {m.bank_movement_internal_transfer_chip()}
+        </Badge>
+        {onUnpairTransfer !== undefined && (
+          <Button
+            aria-label={m.bank_movement_unpair_aria()}
+            data-testid="bank-movement-unpair"
+            disabled={isUnpairing}
+            onClick={onUnpairTransfer}
+            size="icon-xs"
+            title={m.bank_movement_unpair_aria()}
+            variant="ghost"
+          >
+            <XIcon aria-hidden />
+          </Button>
+        )}
+      </span>
     ) : null;
   const balance =
     movement.runningBalance === null

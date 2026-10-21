@@ -1,6 +1,11 @@
 import type { Meta, StoryObj } from "@storybook/react";
 
-import { bankData, bankMovement, emptyBankData } from "../lib/fixtures";
+import {
+  bankData,
+  bankMovement,
+  emptyBankData,
+  twoAccountsBankData,
+} from "../lib/fixtures";
 import { BankMovementsCard } from "./bank-movements-card";
 
 const meta = {
@@ -38,4 +43,8 @@ export const WithoutAnchor: Story = {
 
 export const EmptyAccount: Story = {
   args: { data: emptyBankData() },
+};
+
+export const TransferBetweenAccounts: Story = {
+  args: { data: twoAccountsBankData(), onUnpairTransfer: () => {} },
 };

@@ -15,6 +15,7 @@ import {
   showBankAccountQueryKey,
   startBankConnectionMutation,
   syncBankConnectionMutation,
+  unpairBankTransferMutation,
   updateBankAccountMutation,
   updateBankBalanceMutation,
   validateBankMatchMutation,
@@ -306,6 +307,24 @@ function BankRoute() {
     },
   });
 
+  // Both freed movements can raise suggestions again, and the debit can pair
+  // with an expense, so the undo owes the same fan-out as an import.
+  const unpairTransfer = useMutation({
+    ...unpairBankTransferMutation(),
+    onMutate: () => setActionError(null),
+    onSuccess: async (account) => {
+      acceptSummary(account);
+      await Promise.all([
+        refreshInvoices(),
+        queryClient.invalidateQueries(subscriptionsFilter()),
+        queryClient.invalidateQueries(expensesFilter()),
+      ]);
+    },
+    onError: (error) => {
+      setActionError(serverErrorMessage(error, m.bank_unpair_failed()));
+    },
+  });
+
   const validate = useMutation({
     ...validateBankMatchMutation(),
     onMutate: () => setActionError(null),
@@ -477,7 +496,15 @@ function BankRoute() {
         onValidateMatch={(matchId) =>
           validate.mutate({ path: { match: matchId } })
         }
+        onUnpairTransfer={(movementId) =>
+          unpairTransfer.mutate({ path: { movement: movementId } })
+        }
         pendingMatchId={pendingMatchId}
+        unpairingMovementId={
+          unpairTransfer.isPending
+            ? (unpairTransfer.variables?.path.movement ?? null)
+            : null
+        }
       />
 
       <ImportStatementDialog
