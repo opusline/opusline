@@ -104,7 +104,7 @@ function FacturesPage() {
   );
   const isAdding = adding !== null;
   const [createError, setCreateError] = useState<string | null>(null);
-  const [remindError, setRemindError] = useState<string | null>(null);
+  const [todoError, setTodoError] = useState<string | null>(null);
 
   // `?invoice=` is how the other screens deep-link a fiche — the Compte pro
   // suggestions, a shared link. The drawer owns it from there, so the parameter
@@ -156,14 +156,14 @@ function FacturesPage() {
 
   const refreshInvoices = () => invalidateInvoiceWrites(queryClient);
 
-  // Noting a reminder from the "à traiter" panel reports here rather than in the
-  // drawer, which is not open when the panel triggers it.
+  // The "à traiter" panel's own actions report here rather than in the drawer,
+  // which is not open when the panel triggers them.
   const remind = useMutation({
     ...remindInvoiceMutation(),
-    onMutate: () => setRemindError(null),
+    onMutate: () => setTodoError(null),
     onSuccess: refreshInvoices,
     onError: (error) => {
-      setRemindError(serverErrorMessage(error, m.invoices_remind_failed()));
+      setTodoError(serverErrorMessage(error, m.invoices_remind_failed()));
     },
   });
 
@@ -183,6 +183,36 @@ function FacturesPage() {
   const openAddDialog = () => {
     setCreateError(null);
     setAdding({ missionId: null });
+  };
+
+  // Billing worked time follows the setting, like « Créer une facture ». The
+  // setting is awaited: a click landing before it loads must not fall back to
+  // recording an invoice from another tool.
+  const billWork = async (todo: InvoiceTodoData) => {
+    setTodoError(null);
+
+    if (invoicing && todo.work != null) {
+      let mode: number;
+      try {
+        mode = (
+          await queryClient.ensureQueryData(showInvoicingSettingsOptions())
+        ).mode;
+      } catch {
+        setTodoError(m.invoicing_settings_load_failed());
+        return;
+      }
+
+      if (mode === 0) {
+        await navigate({
+          to: "/invoicing/invoices/new",
+          search: { mission: todo.work.missionId },
+        });
+        return;
+      }
+    }
+
+    setCreateError(null);
+    setCreatingFor(todo);
   };
 
   const noteReminder = (invoiceId: number) => {
@@ -294,9 +324,9 @@ function FacturesPage() {
 
       <div className="grid gap-5 lg:grid-cols-[minmax(0,1fr)_20rem] lg:items-start">
         <div className="flex flex-col gap-5">
-          {remindError !== null && (
+          {todoError !== null && (
             <Alert variant="destructive">
-              <AlertDescription>{remindError}</AlertDescription>
+              <AlertDescription>{todoError}</AlertDescription>
             </Alert>
           )}
 
@@ -321,10 +351,7 @@ function FacturesPage() {
                 setCreateError(null);
                 setAdding({ missionId: budget.missionId });
               }}
-              onCreateInvoice={(todo) => {
-                setCreateError(null);
-                setCreatingFor(todo);
-              }}
+              onCreateInvoice={(todo) => void billWork(todo)}
             />
           )}
 

@@ -37,6 +37,8 @@ import {
   duplicateDraft,
   type InvoiceDraft,
   newInvoiceDraft,
+  withClient,
+  withMission,
 } from "./invoice-draft";
 import { usePaperPreview } from "./use-paper-preview";
 
@@ -55,6 +57,8 @@ export function useInvoiceEditor(
   invoiceId: number | null,
   /** A new invoice may start as a copy of another one. */
   duplicateOf: number | null = null,
+  /** Or on a mission, its client chosen, when « À traiter » bills its time. */
+  forMissionId: number | null = null,
 ): InvoiceEditor {
   const format = useMoneyFormat();
   const queryClient = useQueryClient();
@@ -79,7 +83,24 @@ export function useInvoiceEditor(
     }
 
     if (sourceId === null) {
-      return newInvoiceDraft(format.locale, settings.data);
+      const blank = newInvoiceDraft(format.locale, settings.data);
+
+      if (forMissionId === null) {
+        return blank;
+      }
+
+      if (clients.data === undefined) {
+        return null;
+      }
+
+      const client = clients.data.clients.find((candidate) =>
+        candidate.missions.some((mission) => mission.id === forMissionId),
+      );
+
+      // A mission gone since the link was made leaves the choice to the form.
+      return client === undefined
+        ? blank
+        : withMission(withClient(blank, client, settings.data), forMissionId);
     }
 
     if (saved.data === undefined) {
@@ -94,7 +115,15 @@ export function useInvoiceEditor(
     return saved.data.invoice.status === 0
       ? draftFromDetail(format, saved.data)
       : null;
-  }, [format, invoiceId, sourceId, settings.data, saved.data]);
+  }, [
+    format,
+    invoiceId,
+    sourceId,
+    forMissionId,
+    settings.data,
+    saved.data,
+    clients.data,
+  ]);
   const draft = edited ?? seed;
   const preview = usePaperPreview(
     ["invoice-editor-preview"],

@@ -6,6 +6,7 @@ import type {
   CreateMissionData,
   InvoiceData,
   InvoiceDetailData,
+  InvoicingSettingsData,
   MissionData,
   QuoteDetailData,
   RegisterUserData,
@@ -13,6 +14,7 @@ import type {
   SaveQuoteDraftData,
   SettingsData,
   TimeEntryInputData,
+  UpdateInvoicingSettingsData,
   UpdateSettingsData,
 } from "@opusline/api-client";
 import type { Api } from "./api";
@@ -104,6 +106,30 @@ export async function joinInvoicingBeta(api: Api): Promise<void> {
 /** Several bank accounts side by side are in beta, like invoicing. */
 export async function joinBankAccountsBeta(api: Api): Promise<void> {
   await api.put("/api/user/features/bank_accounts", { active: true });
+}
+
+/** Réglages → Facturation set to writing invoices in Opusline rather than another tool. */
+export async function writeInvoicesInOpusline(api: Api): Promise<void> {
+  const current = await api.get<InvoicingSettingsData>(
+    "/api/invoicing/settings",
+  );
+  const settings: UpdateInvoicingSettingsData = {
+    mode: 0,
+    defaultPaymentTermsDays: current.defaultPaymentTermsDays,
+    defaultPaymentTermsEndOfMonth: current.defaultPaymentTermsEndOfMonth,
+    quoteValidityDays: current.quoteValidityDays,
+    operationCategory: current.operationCategory,
+    showIbanOnInvoices: current.showIbanOnInvoices,
+    showEmailOnDocuments: current.showEmailOnDocuments,
+    vatOnDebits: current.vatOnDebits,
+    documentLanguage: current.documentLanguage,
+    latePenaltyRateBp: current.latePenaltyRateBp,
+    customMentions: current.customMentions,
+    quoteNumberFormat: current.quoteNumberFormat,
+    creditNoteNumberFormat: current.creditNoteNumberFormat,
+  };
+
+  await api.put("/api/invoicing/settings", settings);
 }
 
 /** The seller identity an invoice needs before it can be validated. */
