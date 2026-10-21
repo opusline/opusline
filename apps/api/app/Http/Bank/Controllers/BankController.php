@@ -9,6 +9,7 @@ use App\Domain\Bank\Actions\DismissBankMatch;
 use App\Domain\Bank\Actions\ImportBankStatement;
 use App\Domain\Bank\Actions\ListBankMovements;
 use App\Domain\Bank\Actions\SummarizeBankAccount;
+use App\Domain\Bank\Actions\UnpairInternalTransfer;
 use App\Domain\Bank\Actions\UpdateBankAccount;
 use App\Domain\Bank\Actions\UpdateBankBalance;
 use App\Domain\Bank\Actions\ValidateBankMatch;
@@ -20,6 +21,7 @@ use App\Domain\Bank\Data\UpdateBankAccountData;
 use App\Domain\Bank\Data\UpdateBankBalanceData;
 use App\Domain\Bank\Models\BankAccount;
 use App\Domain\Bank\Models\BankMatch;
+use App\Domain\Bank\Models\BankMovement;
 use App\Domain\Users\Models\User;
 use App\Http\Controllers\Controller;
 use Illuminate\Container\Attributes\CurrentUser;
@@ -40,6 +42,17 @@ class BankController extends Controller
         ['movements' => $movements, 'nextCursor' => $nextCursor] = $listBankMovements->handle($user, $data->cursor);
 
         return response()->json(new BankMovementPageData(movements: $movements, nextCursor: $nextCursor));
+    }
+
+    public function unpairTransfer(
+        BankMovement $movement,
+        #[CurrentUser] User $user,
+        UnpairInternalTransfer $unpairInternalTransfer,
+        SummarizeBankAccount $summarizeBankAccount,
+    ): JsonResponse {
+        $unpairInternalTransfer->handle($user, $movement);
+
+        return response()->json($summarizeBankAccount->handle($user));
     }
 
     public function updateBalance(
