@@ -297,6 +297,7 @@ export function InvoiceDocumentPage({
                 onDelete={onDelete}
                 onPay={onPay}
                 onRemind={onRemind}
+                canDelete={detail.canBeDeleted}
                 onSend={() => {}}
               />
             </Panel>
