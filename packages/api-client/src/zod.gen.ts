@@ -4130,6 +4130,12 @@ export const zListBankMovementsQuery = z.object({
 
 export const zListBankMovementsResponse = zBankMovementPageData;
 
+export const zUnpairBankTransferPath = z.object({
+    movement: z.int()
+});
+
+export const zUnpairBankTransferResponse = zBankAccountData;
+
 export const zUpdateBankBalanceBody = zUpdateBankBalanceData;
 
 export const zUpdateBankBalanceResponse = zBankAccountData;

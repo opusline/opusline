@@ -16,6 +16,10 @@ Route::middleware(['auth:sanctum', EnsureSessionIsUnlocked::class, RefuseAccessT
     Route::get('/bank/movements', [BankController::class, 'movements'])
         ->name('listBankMovements');
 
+    Route::delete('/bank/movements/{movement}/transfer-pairing', [BankController::class, 'unpairTransfer'])
+        ->whereNumber('movement')
+        ->name('unpairBankTransfer');
+
     Route::put('/bank/balance', [BankController::class, 'updateBalance'])
         ->name('updateBankBalance');
 

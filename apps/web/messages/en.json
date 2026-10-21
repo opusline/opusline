@@ -182,6 +182,7 @@
   "bank_match_validate": "Validate",
   "bank_movement_internal_transfer_chip": "Internal transfer",
   "bank_movement_pending_chip": "To reconcile",
+  "bank_movement_unpair_aria": "Not a transfer between my accounts",
   "bank_movements_amount_header": "Amount",
   "bank_movements_balance_header": "Balance",
   "bank_movements_date_header": "Date",
@@ -273,6 +274,7 @@
     }
   ],
   "bank_title": "Business account",
+  "bank_unpair_failed": "The transfer could not be undone.",
   "bank_validate_failed": "The match could not be validated.",
   "beta_badge": "Beta",
   "beta_description": "Try what is coming before everyone else. These features may still change, and your feedback is welcome.",

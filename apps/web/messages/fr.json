@@ -182,6 +182,7 @@
   "bank_match_validate": "Valider",
   "bank_movement_internal_transfer_chip": "Virement interne",
   "bank_movement_pending_chip": "À rapprocher",
+  "bank_movement_unpair_aria": "Pas un virement entre mes comptes",
   "bank_movements_amount_header": "Montant",
   "bank_movements_balance_header": "Solde",
   "bank_movements_date_header": "Date",
@@ -273,6 +274,7 @@
     }
   ],
   "bank_title": "Compte pro",
+  "bank_unpair_failed": "Le virement interne n'a pas pu être annulé.",
   "bank_validate_failed": "Le rapprochement n'a pas pu être validé.",
   "beta_badge": "Bêta",
   "beta_description": "Essayez ce qui arrive avant tout le monde. Ces fonctionnalités peuvent encore changer, et vos retours sont les bienvenus.",

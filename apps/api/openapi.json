@@ -495,6 +495,43 @@
                 }
             }
         },
+        "/bank/movements/{movement}/transfer-pairing": {
+            "delete": {
+                "operationId": "unpairBankTransfer",
+                "tags": [
+                    "Bank"
+                ],
+                "parameters": [
+                    {
+                        "name": "movement",
+                        "in": "path",
+                        "required": true,
+                        "description": "The movement ID",
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/BankAccountData"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/ModelNotFoundException"
+                    }
+                }
+            }
+        },
         "/bank/balance": {
             "put": {
                 "operationId": "updateBankBalance",
