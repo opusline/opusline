@@ -8,6 +8,7 @@ use App\Domain\Bank\Factories\BankMovementFactory;
 use App\Domain\Expenses\Models\Expense;
 use App\Domain\Invoices\Models\Invoice;
 use App\Domain\Shared\Casts\CalendarDate;
+use App\Domain\Shared\Routing\OwnedRouteBinding;
 use App\Domain\Users\Models\User;
 use Carbon\CarbonImmutable;
 use Cknow\Money\Casts\MoneyIntegerCast;
@@ -28,6 +29,7 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
  * @property ?int $invoice_id
  * @property ?int $expense_id
  * @property ?int $transfer_counterpart_id
+ * @property bool $transfer_pairing_refused
  * @property CarbonImmutable $booked_on
  * @property string $label
  * @property Money $amount_cents
@@ -74,7 +76,25 @@ class BankMovement extends Model
         return [
             'booked_on' => CalendarDate::class,
             'amount_cents' => MoneyIntegerCast::class.':currency',
+            'transfer_pairing_refused' => 'boolean',
         ];
+    }
+
+    /**
+     * Scope every {movement} route binding to the authenticated user, so a
+     * foreign row resolves to a 404 instead of leaking across accounts.
+     *
+     * @param  mixed  $value
+     * @param  string|null  $field
+     */
+    #[\Override]
+    public function resolveRouteBinding($value, $field = null): ?Model
+    {
+        return OwnedRouteBinding::resolve(
+            auth()->user()?->bankMovements(),
+            $field ?? $this->getRouteKeyName(),
+            $value,
+        );
     }
 
     /** @return BelongsTo<User, $this> */
