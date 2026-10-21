@@ -1,4 +1,8 @@
-import type { InvoiceDetailData, InvoiceSource } from "@opusline/api-client";
+import type {
+  InvoiceData,
+  InvoiceDetailData,
+  InvoiceSource,
+} from "@opusline/api-client";
 import {
   correctInvoiceDatesMutation,
   deleteInvoiceDocumentMutation,
@@ -68,7 +72,6 @@ export function InvoiceDrawerProvider({
   const navigate = useNavigate();
   const invoicing = useFeature(INVOICING);
   const toast = useToast();
-  const format = useMoneyFormat();
   const [openInvoiceId, setOpenInvoiceId] = useState<number | null>(null);
   const [isConfirmingDelete, setIsConfirmingDelete] = useState(false);
   const [actionError, setActionError] = useState<string | null>(null);
@@ -157,16 +160,35 @@ export function InvoiceDrawerProvider({
     );
   };
 
-  const deleteDraft = useMutation({
+  const removeInvoice = useMutation({
     ...deleteInvoiceMutation(),
     onMutate: () => setActionError(null),
     onSuccess: async () => {
       closeInvoice();
-      toast.add({ title: m.invoices_deleted() });
       await refresh();
     },
-    onError: reportFailure(m.invoices_delete_failed()),
   });
+
+  const confirmRemoval = (invoice: InvoiceData) => {
+    const isDraft = invoice.status === 0;
+
+    removeInvoice.mutate(
+      { path: { invoice: invoice.id } },
+      {
+        onSuccess: () =>
+          toast.add({
+            title: isDraft
+              ? m.invoices_deleted()
+              : m.invoices_deleted_recorded(),
+          }),
+        onError: reportFailure(
+          isDraft
+            ? m.invoices_delete_failed()
+            : m.invoices_delete_recorded_failed(),
+        ),
+      },
+    );
+  };
 
   const remind = useMutation({
     ...remindInvoiceMutation(),
@@ -338,8 +360,9 @@ export function InvoiceDrawerProvider({
                   setReference.isPending ||
                   pay.isPending ||
                   remind.isPending ||
-                  deleteDraft.isPending
+                  removeInvoice.isPending
                 }
+                canDelete={detail.data.canBeDeleted}
                 onDelete={() => setIsConfirmingDelete(true)}
                 onPay={(paidOn, amountCents) =>
                   pay.mutate({
@@ -417,32 +440,68 @@ export function InvoiceDrawerProvider({
         }}
         open={openInvoiceId !== null}
       />
+      {detail.data === undefined ? null : (
+        <ConfirmInvoiceRemoval
+          detail={detail.data}
+          isDeleting={removeInvoice.isPending}
+          onConfirm={() => {
+            setIsConfirmingDelete(false);
+            confirmRemoval(detail.data.invoice);
+          }}
+          onOpenChange={setIsConfirmingDelete}
+          open={isConfirmingDelete}
+        />
+      )}
+    </InvoiceDrawerContext.Provider>
+  );
+}
+
+/** A draft is a note to self; a sent invoice recorded from another tool names its reference. */
+function ConfirmInvoiceRemoval({
+  detail,
+  isDeleting,
+  onConfirm,
+  onOpenChange,
+  open,
+}: {
+  detail: InvoiceDetailData;
+  isDeleting: boolean;
+  onConfirm: () => void;
+  onOpenChange: (open: boolean) => void;
+  open: boolean;
+}) {
+  const format = useMoneyFormat();
+  const amount = formatAmountWithCents(format, detail.invoice.amountTtc.amount);
+  const client = detail.client.name;
+
+  if (detail.invoice.status === 0) {
+    return (
       <ConfirmDeleteDialog
         confirmLabel={m.invoices_delete_draft()}
-        description={
-          detail.data === undefined
-            ? ""
-            : m.invoices_delete_body({
-                amount: formatAmountWithCents(
-                  format,
-                  detail.data.invoice.amountTtc.amount,
-                ),
-                client: detail.data.client.name,
-              })
-        }
-        isDeleting={deleteDraft.isPending}
-        onConfirm={() => {
-          setIsConfirmingDelete(false);
-
-          if (detail.data !== undefined) {
-            deleteDraft.mutate({ path: { invoice: detail.data.invoice.id } });
-          }
-        }}
-        onOpenChange={setIsConfirmingDelete}
-        open={isConfirmingDelete}
+        description={m.invoices_delete_body({ amount, client })}
+        isDeleting={isDeleting}
+        onConfirm={onConfirm}
+        onOpenChange={onOpenChange}
+        open={open}
         title={m.invoices_delete_title()}
       />
-    </InvoiceDrawerContext.Provider>
+    );
+  }
+
+  return (
+    <ConfirmDeleteDialog
+      confirmLabel={m.invoices_delete_recorded()}
+      description={m.invoices_delete_recorded_body({
+        amount,
+        client,
+        number: detail.invoice.number ?? "",
+      })}
+      isDeleting={isDeleting}
+      onConfirm={onConfirm}
+      onOpenChange={onOpenChange}
+      open={open}
+      title={m.invoices_delete_recorded_title()}
+    />
   );
 }
 

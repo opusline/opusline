@@ -11,22 +11,39 @@ import { m } from "@/paraglide/messages.js";
 type NewInvoiceSearch = {
   /** The invoice this one starts as a copy of. */
   duplicate?: number;
+  /** The mission whose unbilled time it starts on. */
+  mission?: number;
 };
+
+function positiveId(value: unknown): number | undefined {
+  const id = Number(value);
+
+  return Number.isInteger(id) && id > 0 ? id : undefined;
+}
 
 export const Route = createFileRoute("/_authed/invoicing/invoices_/new")({
   beforeLoad: ({ context }) => requireInvoicing(context.user),
   validateSearch: (search: Record<string, unknown>): NewInvoiceSearch => {
-    const duplicate = Number(search.duplicate);
+    const duplicate = positiveId(search.duplicate);
+    const mission = positiveId(search.mission);
 
-    return Number.isInteger(duplicate) && duplicate > 0 ? { duplicate } : {};
+    return {
+      ...(duplicate === undefined ? {} : { duplicate }),
+      ...(mission === undefined ? {} : { mission }),
+    };
   },
   component: NewInvoiceRoute,
 });
 
 function NewInvoiceRoute() {
   const { user } = Route.useRouteContext();
-  const { duplicate } = Route.useSearch();
-  const editor = useInvoiceEditor(user, null, duplicate ?? null);
+  const { duplicate, mission } = Route.useSearch();
+  const editor = useInvoiceEditor(
+    user,
+    null,
+    duplicate ?? null,
+    mission ?? null,
+  );
 
   if (editor.status === "pending") {
     return <Skeleton className="h-150 w-full" />;

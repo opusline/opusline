@@ -1734,6 +1734,7 @@ export type InvoiceDetailData = {
     deductedCreditNotes: Array<CreditNoteData>;
     nextReminderOn: string | null;
     nextStatuses: Array<InvoiceStatus>;
+    canBeDeleted: boolean;
 };
 
 /**
