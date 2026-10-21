@@ -1,0 +1,22 @@
+# Layered over compose.prod.yaml by scripts/stack.sh. A Docker client configured
+# with a proxy hands it to every container it starts, and the images'
+# healthchecks probe their own 127.0.0.1 with BusyBox wget, which ignores
+# NO_PROXY: through the proxy they never come up healthy. Nothing the suite
+# exercises leaves the stack, so the e2e stack runs with no proxy at all.
+x-no-proxy: &no-proxy
+  HTTP_PROXY: ""
+  http_proxy: ""
+  HTTPS_PROXY: ""
+  https_proxy: ""
+
+services:
+  web:
+    environment: *no-proxy
+  api:
+    environment: *no-proxy
+  scheduler:
+    environment: *no-proxy
+  queue:
+    environment: *no-proxy
+  mailpit:
+    environment: *no-proxy
