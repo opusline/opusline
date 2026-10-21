@@ -8,4 +8,4 @@ services:
     restart: unless-stopped
     ports:
       # 8026, not Mailpit's own 8025: that one is the Sail stack's mailbox.
-      - "127.0.0.1:8026:8025"
+      - "127.0.0.1:${E2E_MAILPIT_PORT:-8026}:8025"
