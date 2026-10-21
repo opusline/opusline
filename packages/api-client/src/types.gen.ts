@@ -4351,6 +4351,47 @@ export type ListBankMovementsResponses = {
 
 export type ListBankMovementsResponse = ListBankMovementsResponses[keyof ListBankMovementsResponses];
 
+export type UnpairBankTransferData = {
+    body?: never;
+    path: {
+        /**
+         * The movement ID
+         */
+        movement: number;
+    };
+    query?: never;
+    url: '/bank/movements/{movement}/transfer-pairing';
+};
+
+export type UnpairBankTransferErrors = {
+    /**
+     * Unauthenticated
+     */
+    401: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+    /**
+     * Not found
+     */
+    404: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+};
+
+export type UnpairBankTransferError = UnpairBankTransferErrors[keyof UnpairBankTransferErrors];
+
+export type UnpairBankTransferResponses = {
+    200: BankAccountData;
+};
+
+export type UnpairBankTransferResponse = UnpairBankTransferResponses[keyof UnpairBankTransferResponses];
+
 export type UpdateBankBalanceData2 = {
     body?: UpdateBankBalanceData;
     path?: never;

@@ -81,7 +81,8 @@ one sets up their own.
   **Settings → Early access** and choose *Connect another bank*: each account
   keeps its own balance, the page shows their total, and a transfer between
   two of your accounts is marked as internal rather than offered as an expense
-  or a payment. Close the old account once it is empty, so it stops holding back
+  or a payment. If one is not, the cross next to its « Internal transfer »
+  badge undoes it for both sides for good. Close the old account once it is empty, so it stops holding back
   the date the transferable amount relies on.
 
 ## Disconnecting
