@@ -86,6 +86,18 @@ on http://localhost:8026). `E2E_BASE_URL=http://localhost:3000
 pnpm e2e` points the same suite at `pnpm dev`; past a handful of tests that needs
 `TRUSTED_PROXIES=*` in `apps/api/.env`, or the register limiter sees one visitor.
 
+Behind a proxy that intercepts TLS, the image build cannot download its
+dependencies until it trusts that proxy's CA: name the PEM file with
+`E2E_BUILD_CA=/path/to/ca.pem pnpm --filter @opusline/e2e stack:build`. It is
+passed as a BuildKit secret, so it never ends up in the images.
+
+Two stacks on one Docker daemon, such as parallel clones, each need their own
+`E2E_STACK_PROJECT`, `E2E_HTTP_PORT` and `E2E_MAILPIT_PORT`, set the same way
+for `stack:up`, `stack:down` and the run. When the daemon's published ports
+cannot be reached from where you run the suite, as in a sandbox,
+`sh apps/e2e/scripts/stack.sh e2e` runs it in a Playwright container inside the
+stack's network instead; extra arguments go to `playwright test`.
+
 CI is narrower than the hooks: it runs only the lanes your diff touches, so a
 frontend-only PR reports the backend jobs as *skipped*, and a docs-only PR skips
 nearly everything. Skipped counts as passing — the lane table lives in the
