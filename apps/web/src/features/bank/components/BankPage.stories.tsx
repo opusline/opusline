@@ -38,6 +38,8 @@ const meta = {
     onValidateMatch: () => {},
     onDismissMatch: () => {},
     onOpenInvoice: () => {},
+    onUnpairTransfer: () => {},
+    unpairingMovementId: null,
   },
   decorators: [
     (Story) => (
