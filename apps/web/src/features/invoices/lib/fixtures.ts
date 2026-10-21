@@ -99,6 +99,10 @@ export function invoiceDetail(
     deductedCreditNotes: [],
     nextReminderOn: null,
     nextStatuses: NEXT_INVOICE_STATUSES[item.invoice.status],
+    // Mirrors Invoice::isDeletable, for a fixture that carries no payment.
+    canBeDeleted:
+      item.invoice.status === 0 ||
+      (item.invoice.status === 1 && item.invoice.source === 0),
     history: [
       { id: 1, kind: 0, occurredOn: "2026-06-30", note: null },
       { id: 2, kind: 1, occurredOn: "2026-06-30", note: null },

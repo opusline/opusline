@@ -15131,6 +15131,9 @@
                         "items": {
                             "$ref": "#/components/schemas/InvoiceStatus"
                         }
+                    },
+                    "canBeDeleted": {
+                        "type": "boolean"
                     }
                 },
                 "required": [
@@ -15146,7 +15149,8 @@
                     "creditNotes",
                     "deductedCreditNotes",
                     "nextReminderOn",
-                    "nextStatuses"
+                    "nextStatuses",
+                    "canBeDeleted"
                 ],
                 "title": "InvoiceDetailData"
             },
