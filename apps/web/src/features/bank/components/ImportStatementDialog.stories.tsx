@@ -8,6 +8,7 @@ const meta = {
   tags: ["autodocs"],
   args: {
     open: true,
+    accounts: [],
     isSaving: false,
     error: null,
     onOpenChange: () => {},
@@ -26,4 +27,13 @@ export const Analysing: Story = {
 
 export const Failed: Story = {
   args: { error: "Ce fichier n'a pas pu être lu comme un relevé bancaire." },
+};
+
+export const SeveralAccounts: Story = {
+  args: {
+    accounts: [
+      { id: 1, name: "Banque Orvella" },
+      { id: 2, name: "Banque Vesterhus" },
+    ],
+  },
 };

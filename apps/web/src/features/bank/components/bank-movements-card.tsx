@@ -21,6 +21,7 @@ import { calendarDateNumericLabel } from "@/lib/dates";
 import { useIsPhone } from "@/lib/use-is-phone";
 import { m } from "@/paraglide/messages.js";
 
+import { bankAccountName } from "../lib/connection";
 import { movementsSourceNote, signedAmountLabel } from "../lib/labels";
 import type { OlderMovements } from "../lib/use-older-movements";
 
@@ -36,6 +37,7 @@ export function BankMovementsCard({
   olderMovements,
 }: BankMovementsCardProps) {
   const dateFormat = useDateFormat();
+  const accountNames = bankAccountNames(data);
 
   // The summary window and the appended pages can briefly overlap while a
   // write refreshes one before the other — a movement must never render twice.
@@ -64,6 +66,7 @@ export function BankMovementsCard({
         <Table
           className="table-fixed border-separate border-spacing-0 sm:min-w-xl"
           containerClassName="max-h-96 overflow-auto"
+          scrollLabel={m.bank_movements_title()}
         >
           <TableHeader>
             <TableRow className="hover:bg-transparent">
@@ -110,7 +113,11 @@ export function BankMovementsCard({
           </TableHeader>
           <TableBody>
             {movements.map((movement) => (
-              <MovementRow key={movement.id} movement={movement} />
+              <MovementRow
+                accountName={accountNames?.get(movement.bankAccountId) ?? null}
+                key={movement.id}
+                movement={movement}
+              />
             ))}
           </TableBody>
         </Table>
@@ -130,7 +137,27 @@ export function BankMovementsCard({
 
 const CELL_CLASSES = "border-secondary border-t px-0 py-2.5";
 
-function MovementRow({ movement }: { movement: BankMovementData }) {
+/** Only worth a line once there are several accounts to tell apart. */
+function bankAccountNames(data: BankAccountData): Map<number, string> | null {
+  if (data.accounts.length < 2) {
+    return null;
+  }
+
+  return new Map(
+    data.accounts.map((account) => [
+      account.id,
+      bankAccountName(account, data.connections),
+    ]),
+  );
+}
+
+function MovementRow({
+  movement,
+  accountName,
+}: {
+  movement: BankMovementData;
+  accountName: string | null;
+}) {
   const format = useMoneyFormat();
   const dateFormat = useDateFormat();
   const isPhone = useIsPhone();
@@ -142,6 +169,10 @@ function MovementRow({ movement }: { movement: BankMovementData }) {
       </span>
     ) : movement.pendingMatchId !== null ? (
       <Badge variant="brand">{m.bank_movement_pending_chip()}</Badge>
+    ) : movement.isInternalTransfer ? (
+      <Badge data-testid="bank-movement-internal-transfer" variant="quiet">
+        {m.bank_movement_internal_transfer_chip()}
+      </Badge>
     ) : null;
   const balance =
     movement.runningBalance === null
@@ -165,6 +196,14 @@ function MovementRow({ movement }: { movement: BankMovementData }) {
         )}
       >
         {movement.label}
+        {accountName !== null && (
+          <span
+            className="mt-0.75 block truncate text-muted-foreground-3 text-xs"
+            data-testid="bank-movement-account"
+          >
+            {accountName}
+          </span>
+        )}
         {/* Below sm the date, link and balance ride under the label and the
             amount: five columns leave the label none of a phone's width. */}
         {isPhone && (

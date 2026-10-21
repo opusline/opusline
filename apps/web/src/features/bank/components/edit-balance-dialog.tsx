@@ -31,6 +31,8 @@ type EditBalanceDialogProps = {
   open: boolean;
   /** The current balance, seeding the field; null on a blank account. */
   balance: SignedMoneyData | null;
+  /** Which of several bank accounts the balance is for; null when there is only one. */
+  accountName?: string | null;
   isSaving: boolean;
   error: string | null;
   onOpenChange: (open: boolean) => void;
@@ -40,6 +42,7 @@ type EditBalanceDialogProps = {
 export function EditBalanceDialog({
   open,
   balance,
+  accountName = null,
   isSaving,
   error,
   onOpenChange,
@@ -50,6 +53,7 @@ export function EditBalanceDialog({
       <DialogContent className="sm:max-w-md">
         {open && (
           <EditBalanceForm
+            accountName={accountName}
             balance={balance}
             error={error}
             isSaving={isSaving}
@@ -63,6 +67,7 @@ export function EditBalanceDialog({
 
 type EditBalanceFormProps = {
   balance: SignedMoneyData | null;
+  accountName: string | null;
   isSaving: boolean;
   error: string | null;
   onSubmit: (cents: number) => void;
@@ -70,6 +75,7 @@ type EditBalanceFormProps = {
 
 function EditBalanceForm({
   balance,
+  accountName,
   isSaving,
   error,
   onSubmit,
@@ -102,7 +108,11 @@ function EditBalanceForm({
       }}
     >
       <DialogHeader>
-        <DialogTitle size="lg">{m.bank_balance_dialog_title()}</DialogTitle>
+        <DialogTitle size="lg">
+          {accountName === null
+            ? m.bank_balance_dialog_title()
+            : m.bank_balance_dialog_title_account({ name: accountName })}
+        </DialogTitle>
         <DialogDescription className="text-pretty text-sm">
           {m.bank_balance_dialog_description()}
         </DialogDescription>

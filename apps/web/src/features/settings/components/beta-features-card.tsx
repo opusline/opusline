@@ -15,6 +15,10 @@ const FEATURE_COPY: Record<
     title: m.beta_feature_invoicing_title,
     description: m.beta_feature_invoicing_description,
   },
+  1: {
+    title: m.beta_feature_bank_accounts_title,
+    description: m.beta_feature_bank_accounts_description,
+  },
 };
 
 type BetaFeaturesCardProps = {

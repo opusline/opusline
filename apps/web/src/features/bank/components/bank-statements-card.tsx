@@ -5,6 +5,7 @@ import { FileTextIcon, RefreshCwIcon } from "lucide-react";
 import { useDateFormat } from "@/components/money-format-provider";
 import { calendarDateNumericLabel } from "@/lib/dates";
 import { m } from "@/paraglide/messages.js";
+import { bankAccountName } from "../lib/connection";
 import { isSyncedStatement } from "../lib/statements";
 
 type BankStatementsCardProps = {
@@ -23,7 +24,11 @@ export function BankStatementsCard({ data }: BankStatementsCardProps) {
       ) : (
         <div className="mt-1.5 max-h-80 overflow-y-auto">
           {data.statements.map((statement) => (
-            <StatementRow key={statement.id} statement={statement} />
+            <StatementRow
+              accountName={statementAccountName(data, statement)}
+              key={statement.id}
+              statement={statement}
+            />
           ))}
         </div>
       )}
@@ -31,7 +36,31 @@ export function BankStatementsCard({ data }: BankStatementsCardProps) {
   );
 }
 
-function StatementRow({ statement }: { statement: BankStatementData }) {
+/** Only worth a mention once there are several accounts to tell apart. */
+function statementAccountName(
+  data: BankAccountData,
+  statement: BankStatementData,
+): string | null {
+  if (data.accounts.length < 2) {
+    return null;
+  }
+
+  const account = data.accounts.find(
+    (candidate) => candidate.id === statement.bankAccountId,
+  );
+
+  return account === undefined
+    ? null
+    : bankAccountName(account, data.connections);
+}
+
+function StatementRow({
+  statement,
+  accountName,
+}: {
+  statement: BankStatementData;
+  accountName: string | null;
+}) {
   const dateFormat = useDateFormat();
   const period = {
     start: calendarDateNumericLabel(dateFormat, statement.periodStart),
@@ -53,7 +82,9 @@ function StatementRow({ statement }: { statement: BankStatementData }) {
       </span>
       <div className="min-w-0 flex-1 basis-56">
         <div className="truncate text-foreground-2 text-sm">
-          {statement.fileName}
+          {accountName === null
+            ? statement.fileName
+            : `${accountName} · ${statement.fileName}`}
         </div>
         <div className="mt-0.5 text-muted-foreground-3 text-xs">
           {isSynced

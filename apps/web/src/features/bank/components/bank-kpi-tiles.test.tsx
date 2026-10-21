@@ -8,6 +8,7 @@ import {
   manualBankData,
   noVatBankData,
   reconciledBankData,
+  twoAccountsBankData,
   unlinkedCreditsBankData,
 } from "../lib/fixtures";
 import { BankKpiTiles } from "./bank-kpi-tiles";
@@ -90,4 +91,13 @@ it("opens the balance editor from the tile", () => {
   fireEvent.click(screen.getByRole("button", { name: "Modifier le solde" }));
 
   expect(onEditBalance).toHaveBeenCalled();
+});
+
+it("leaves typing a balance to each account once there are several", () => {
+  render(
+    <BankKpiTiles data={twoAccountsBankData()} onEditBalance={() => {}} />,
+  );
+
+  expect(tile("Solde courant")).toHaveTextContent("14 820 €");
+  expect(screen.queryByTestId("bank-balance-edit")).toBeNull();
 });
