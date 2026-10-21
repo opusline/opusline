@@ -1,5 +1,14 @@
 # Changelog
 
+## [0.35.0](https://github.com/opusline/opusline/compare/v0.34.0...v0.35.0) (2026-10-21)
+
+
+### Features
+
+* **web:** connect several bank accounts ([#690](https://github.com/opusline/opusline/issues/690)) ([c6d48eb](https://github.com/opusline/opusline/commit/c6d48ebfb8f35daea43e27315a1d67ff990423e0))
+* **web:** delete invoices recorded elsewhere ([#693](https://github.com/opusline/opusline/issues/693)) ([9aee968](https://github.com/opusline/opusline/commit/9aee968c1405d017ac33e2c5ecc2929df7fe00ae))
+* **web:** undo a wrong internal-transfer pairing ([#692](https://github.com/opusline/opusline/issues/692)) ([689c706](https://github.com/opusline/opusline/commit/689c706c082e283d730f92a931b0f0aa40cbfe8b))
+
 ## [0.34.0](https://github.com/opusline/opusline/compare/v0.33.5...v0.34.0) (2026-10-18)
 
 
