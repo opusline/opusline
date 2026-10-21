@@ -27,12 +27,15 @@ class ImportBankStatementData extends Data
         /**
          * The balance read on the bank at the statement date, in signed cents.
          * Flat scalars rather than a nested money object: multipart cannot
-         * carry nested fields. When given, it replaces the hand-typed balance,
-         * dated at the statement's end.
+         * carry nested fields. When given, it replaces the account's hand-typed
+         * balance, dated at the statement's end.
          */
         #[IntegerType, RequiredWith('balanceCurrency')]
         public ?int $balanceAmount = null,
         #[RequiredWith('balanceAmount'), Rule(new AccountCurrency)]
         public ?Currency $balanceCurrency = null,
+        /** The bank account the file was exported from; required once there are several. */
+        #[IntegerType]
+        public ?int $bankAccountId = null,
     ) {}
 }

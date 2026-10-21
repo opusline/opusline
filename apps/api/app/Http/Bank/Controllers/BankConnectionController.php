@@ -14,11 +14,13 @@ use App\Domain\Bank\Actions\SyncBankConnection;
 use App\Domain\Bank\Data\BankAspspData;
 use App\Domain\Bank\Data\BankAspspListData;
 use App\Domain\Bank\Data\BankAuthorizationData;
+use App\Domain\Bank\Data\BankConnectionCompletedData;
 use App\Domain\Bank\Data\BankImportData;
 use App\Domain\Bank\Data\ChooseBankAccountData;
 use App\Domain\Bank\Data\CompleteBankConnectionData;
 use App\Domain\Bank\Data\StartBankConnectionData;
 use App\Domain\Bank\EnableBanking\PsuContext;
+use App\Domain\Bank\Models\BankConnection;
 use App\Domain\Users\Models\User;
 use App\Http\Controllers\Controller;
 use Illuminate\Container\Attributes\CurrentUser;
@@ -48,30 +50,35 @@ class BankConnectionController extends Controller
         CompleteBankConnection $completeBankConnection,
         SummarizeBankAccount $summarizeBankAccount,
     ): JsonResponse {
-        $completeBankConnection->handle($user, $data);
+        $connectionId = $completeBankConnection->handle($user, $data);
 
-        return response()->json($summarizeBankAccount->handle($user));
+        return response()->json(new BankConnectionCompletedData(
+            connectionId: $connectionId,
+            account: $summarizeBankAccount->handle($user),
+        ));
     }
 
     public function chooseAccount(
+        BankConnection $connection,
         ChooseBankAccountData $data,
         #[CurrentUser] User $user,
         ChooseBankAccount $chooseBankAccount,
         SummarizeBankAccount $summarizeBankAccount,
     ): JsonResponse {
-        $chooseBankAccount->handle($user, $data);
+        $chooseBankAccount->handle($user, $connection, $data);
 
         return response()->json($summarizeBankAccount->handle($user));
     }
 
     public function sync(
+        BankConnection $connection,
         Request $request,
         #[CurrentUser] User $user,
         SyncBankConnection $syncBankConnection,
         SummarizeBankAccount $summarizeBankAccount,
     ): JsonResponse {
         $psu = new PsuContext(ipAddress: (string) $request->ip(), userAgent: (string) $request->userAgent());
-        $synced = $syncBankConnection->handle($user, $psu);
+        $synced = $syncBankConnection->handle($connection, $psu);
 
         return response()->json(new BankImportData(
             lineCount: $synced['fetched'],
@@ -82,11 +89,12 @@ class BankConnectionController extends Controller
     }
 
     public function disconnect(
+        BankConnection $connection,
         #[CurrentUser] User $user,
         DisconnectBankConnection $disconnectBankConnection,
         SummarizeBankAccount $summarizeBankAccount,
     ): JsonResponse {
-        $disconnectBankConnection->handle($user);
+        $disconnectBankConnection->handle($user, $connection);
 
         return response()->json($summarizeBankAccount->handle($user));
     }

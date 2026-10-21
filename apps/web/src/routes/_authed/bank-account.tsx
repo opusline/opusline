@@ -1,7 +1,12 @@
-import type { BankAccountData, BankImportData } from "@opusline/api-client";
+import type {
+  BankAccountData,
+  BankConnectionData,
+  BankImportData,
+} from "@opusline/api-client";
 import {
   chooseBankConnectionAccountMutation,
   completeBankConnectionMutation,
+  createBankAccountMutation,
   disconnectBankConnectionMutation,
   dismissBankMatchMutation,
   importBankStatementMutation,
@@ -10,6 +15,7 @@ import {
   showBankAccountQueryKey,
   startBankConnectionMutation,
   syncBankConnectionMutation,
+  updateBankAccountMutation,
   updateBankBalanceMutation,
   validateBankMatchMutation,
 } from "@opusline/api-client/react-query";
@@ -31,6 +37,7 @@ import { BankPage } from "@/features/bank/components/bank-page";
 import { ChooseBankAccountDialog } from "@/features/bank/components/choose-bank-account-dialog";
 import { ConnectBankDialog } from "@/features/bank/components/connect-bank-dialog";
 import { EditBalanceDialog } from "@/features/bank/components/edit-balance-dialog";
+import { EditBankAccountDialog } from "@/features/bank/components/edit-bank-account-dialog";
 import {
   ImportStatementDialog,
   type ImportStatementSubmit,
@@ -39,8 +46,12 @@ import {
   parseBankCallbackSearch,
   useBankAuthorizationCallback,
 } from "@/features/bank/lib/bank-callback";
-import { connectionState } from "@/features/bank/lib/connection";
+import {
+  bankAccountName,
+  connectionState,
+} from "@/features/bank/lib/connection";
 import { useOlderMovements } from "@/features/bank/lib/use-older-movements";
+import { BANK_ACCOUNTS, useFeature } from "@/lib/features";
 import { requireFrenchFiscality } from "@/lib/fiscality";
 import {
   expensesFilter,
@@ -76,16 +87,28 @@ function BankRoute() {
   });
 
   const olderMovements = useOlderMovements(bank.data);
+  const canManageAccounts = useFeature(BANK_ACCOUNTS);
 
   const [importOpen, setImportOpen] = useState(false);
-  const [editingBalance, setEditingBalance] = useState(false);
-  const [connectOpen, setConnectOpen] = useState(false);
-  const [chooseAccountOpen, setChooseAccountOpen] = useState(false);
+  // Null: the only account, or the first a balance opens.
+  const [editingBalanceFor, setEditingBalanceFor] = useState<{
+    accountId: number | null;
+  } | null>(null);
+  // Null inside the object opens a new account.
+  const [editingAccount, setEditingAccount] = useState<{
+    accountId: number | null;
+  } | null>(null);
+  // The connection the dialog renews; null inside the object adds a new one.
+  const [connectFor, setConnectFor] = useState<{
+    connection: BankConnectionData | null;
+  } | null>(null);
+  const [chooseAccountFor, setChooseAccountFor] = useState<number | null>(null);
   const [importResult, setImportResult] = useState<MovementsResult | null>(
     null,
   );
   const [importError, setImportError] = useState<string | null>(null);
   const [balanceError, setBalanceError] = useState<string | null>(null);
+  const [accountError, setAccountError] = useState<string | null>(null);
   const [actionError, setActionError] = useState<string | null>(null);
   const [connectError, setConnectError] = useState<string | null>(null);
   const [chooseAccountError, setChooseAccountError] = useState<string | null>(
@@ -94,7 +117,7 @@ function BankRoute() {
 
   const aspsps = useQuery({
     ...listBankAspspsOptions(),
-    enabled: connectOpen,
+    enabled: connectFor !== null,
     staleTime: 5 * 60_000,
   });
 
@@ -176,16 +199,20 @@ function BankRoute() {
   const completeConnection = useMutation({
     ...completeBankConnectionMutation(),
     onMutate: () => setActionError(null),
-    onSuccess: (account) => {
+    onSuccess: ({ connectionId, account }) => {
       acceptSummary(account);
       void clearBankCallback();
 
-      const state = connectionState(account);
+      const completed =
+        account.connections.find(
+          (candidate) => candidate.id === connectionId,
+        ) ?? null;
+      const state = connectionState(account.bankSyncConfigured, completed);
 
       if (state === "active") {
-        syncConnection.mutate({});
+        syncConnection.mutate({ path: { connection: connectionId } });
       } else if (state === "awaiting-account") {
-        setChooseAccountOpen(true);
+        setChooseAccountFor(connectionId);
       }
     },
     onError: (error) => {
@@ -215,10 +242,10 @@ function BankRoute() {
   const chooseAccount = useMutation({
     ...chooseBankConnectionAccountMutation(),
     onMutate: () => setChooseAccountError(null),
-    onSuccess: (account) => {
-      setChooseAccountOpen(false);
+    onSuccess: (account, { path }) => {
+      setChooseAccountFor(null);
       acceptSummary(account);
-      syncConnection.mutate({});
+      syncConnection.mutate({ path });
     },
     onError: (error) => {
       setChooseAccountError(
@@ -242,7 +269,7 @@ function BankRoute() {
     ...updateBankBalanceMutation(),
     onMutate: () => setBalanceError(null),
     onSuccess: async (account) => {
-      setEditingBalance(false);
+      setEditingBalanceFor(null);
       acceptSummary(account);
       // The balance is the Virement figure's starting point; the other writes
       // here go through invalidateInvoiceWrites, which already carries it.
@@ -250,6 +277,32 @@ function BankRoute() {
     },
     onError: (error) => {
       setBalanceError(serverErrorMessage(error, m.bank_balance_save_failed()));
+    },
+  });
+
+  const createAccount = useMutation({
+    ...createBankAccountMutation(),
+    onMutate: () => setAccountError(null),
+    onSuccess: (account) => {
+      setEditingAccount(null);
+      acceptSummary(account);
+    },
+    onError: (error) => {
+      setAccountError(serverErrorMessage(error, m.bank_account_save_failed()));
+    },
+  });
+
+  const updateAccount = useMutation({
+    ...updateBankAccountMutation(),
+    onMutate: () => setAccountError(null),
+    onSuccess: async (account) => {
+      setEditingAccount(null);
+      acceptSummary(account);
+      // Closing an account moves the date the Virement figure trusts.
+      await invalidateTreasury(queryClient);
+    },
+    onError: (error) => {
+      setAccountError(serverErrorMessage(error, m.bank_account_save_failed()));
     },
   });
 
@@ -280,12 +333,17 @@ function BankRoute() {
       ? (dismiss.variables?.path.match ?? null)
       : null;
 
-  const submitImport = ({ file, balanceCents }: ImportStatementSubmit) => {
+  const submitImport = ({
+    file,
+    balanceCents,
+    bankAccountId,
+  }: ImportStatementSubmit) => {
     importStatement.mutate({
       body: {
         file,
         balanceAmount: balanceCents ?? undefined,
         balanceCurrency: balanceCents === null ? undefined : format.currency,
+        bankAccountId: bankAccountId ?? undefined,
       },
     });
   };
@@ -307,6 +365,25 @@ function BankRoute() {
       </Alert>
     );
   }
+
+  const summary = bank.data;
+  const accountNamed = (accountId: number) => {
+    const account = summary.accounts.find(
+      (candidate) => candidate.id === accountId,
+    );
+
+    return account === undefined
+      ? null
+      : { ...account, label: bankAccountName(account, summary.connections) };
+  };
+  const balanceAccount =
+    editingBalanceFor?.accountId == null
+      ? null
+      : accountNamed(editingBalanceFor.accountId);
+  const editedAccount =
+    editingAccount?.accountId == null
+      ? null
+      : accountNamed(editingAccount.accountId);
 
   return (
     <div className="flex flex-col gap-3.5">
@@ -350,24 +427,42 @@ function BankRoute() {
         data={bank.data}
         isRefreshing={bank.isPlaceholderData}
         olderMovements={olderMovements}
+        canManageAccounts={canManageAccounts}
         connection={{
-          isSyncing: syncConnection.isPending || completeConnection.isPending,
-          isDisconnecting: disconnect.isPending,
-          onConnect: () => {
+          syncingConnectionId: syncConnection.isPending
+            ? (syncConnection.variables?.path.connection ?? null)
+            : null,
+          disconnectingConnectionId: disconnect.isPending
+            ? (disconnect.variables?.path.connection ?? null)
+            : null,
+          onConnect: (connection) => {
             setConnectError(null);
-            setConnectOpen(true);
+            setConnectFor({ connection });
           },
-          onChooseAccount: () => {
+          onChooseAccount: (connectionId) => {
             setChooseAccountError(null);
-            setChooseAccountOpen(true);
+            setChooseAccountFor(connectionId);
           },
-          onSync: () => syncConnection.mutate({}),
-          onDisconnect: () => disconnect.mutate({}),
+          onSync: (connectionId) =>
+            syncConnection.mutate({ path: { connection: connectionId } }),
+          onDisconnect: (connectionId) =>
+            disconnect.mutate({ path: { connection: connectionId } }),
         }}
         onDismissMatch={(matchId) =>
           dismiss.mutate({ path: { match: matchId } })
         }
-        onEditBalance={() => setEditingBalance(true)}
+        onCreateAccount={() => {
+          setAccountError(null);
+          setEditingAccount({ accountId: null });
+        }}
+        onEditAccount={(accountId) => {
+          setAccountError(null);
+          setEditingAccount({ accountId });
+        }}
+        onEditBalance={(accountId) => {
+          setBalanceError(null);
+          setEditingBalanceFor({ accountId });
+        }}
         onImport={() => {
           setImportError(null);
           setImportResult(null);
@@ -386,6 +481,10 @@ function BankRoute() {
       />
 
       <ImportStatementDialog
+        accounts={bank.data.accounts.map((account) => ({
+          id: account.id,
+          name: bankAccountName(account, bank.data.connections),
+        }))}
         error={importError}
         isSaving={importStatement.isPending}
         onOpenChange={(open) => {
@@ -400,7 +499,7 @@ function BankRoute() {
 
       <ConnectBankDialog
         banks={aspsps.data?.aspsps}
-        defaultBankName={bank.data.connection?.aspspName ?? null}
+        defaultBankName={connectFor?.connection?.aspspName ?? null}
         error={
           connectError ??
           (aspsps.isError
@@ -410,49 +509,95 @@ function BankRoute() {
         isStarting={startConnection.isPending || startConnection.isSuccess}
         onOpenChange={(open) => {
           if (!open) {
-            setConnectOpen(false);
+            setConnectFor(null);
             setConnectError(null);
             // A success only means the browser was sent to the bank; coming
             // back through history must find the dialog usable again.
             startConnection.reset();
           }
         }}
-        onSubmit={(body) => startConnection.mutate({ body })}
-        open={connectOpen}
+        onSubmit={(body) =>
+          startConnection.mutate({
+            body: { ...body, connectionId: connectFor?.connection?.id },
+          })
+        }
+        open={connectFor !== null}
       />
 
       <ChooseBankAccountDialog
-        accounts={bank.data.connection?.accounts ?? []}
+        accounts={
+          bank.data.connections.find(
+            (candidate) => candidate.id === chooseAccountFor,
+          )?.accounts ?? []
+        }
         error={chooseAccountError}
         isSaving={chooseAccount.isPending}
         onOpenChange={(open) => {
           if (!open) {
-            setChooseAccountOpen(false);
+            setChooseAccountFor(null);
             setChooseAccountError(null);
           }
         }}
-        onSubmit={(accountUid) =>
-          chooseAccount.mutate({ body: { accountUid } })
-        }
-        open={chooseAccountOpen}
+        onSubmit={(accountUid) => {
+          if (chooseAccountFor !== null) {
+            chooseAccount.mutate({
+              path: { connection: chooseAccountFor },
+              body: { accountUid },
+            });
+          }
+        }}
+        open={chooseAccountFor !== null}
       />
 
       <EditBalanceDialog
-        balance={bank.data.balance?.amount ?? null}
+        accountName={
+          bank.data.accounts.length > 1 ? (balanceAccount?.label ?? null) : null
+        }
+        balance={
+          balanceAccount === null
+            ? (bank.data.balance?.amount ?? null)
+            : (balanceAccount.balance?.amount ?? null)
+        }
         error={balanceError}
         isSaving={updateBalance.isPending}
         onOpenChange={(open) => {
           if (!open) {
-            setEditingBalance(false);
+            setEditingBalanceFor(null);
             setBalanceError(null);
           }
         }}
         onSubmit={(cents) =>
           updateBalance.mutate({
-            body: { balance: { amount: cents, currency: format.currency } },
+            body: {
+              balance: { amount: cents, currency: format.currency },
+              bankAccountId: balanceAccount?.id,
+            },
           })
         }
-        open={editingBalance}
+        open={editingBalanceFor !== null}
+      />
+
+      <EditBankAccountDialog
+        account={editedAccount}
+        error={accountError}
+        isConnected={bank.data.connections.some(
+          (candidate) => candidate.bankAccountId === editedAccount?.id,
+        )}
+        isSaving={createAccount.isPending || updateAccount.isPending}
+        onOpenChange={(open) => {
+          if (!open) {
+            setEditingAccount(null);
+            setAccountError(null);
+          }
+        }}
+        onSubmit={(body) => {
+          if (editedAccount === null) {
+            createAccount.mutate({ body: { name: body.name ?? "" } });
+          } else {
+            updateAccount.mutate({ path: { account: editedAccount.id }, body });
+          }
+        }}
+        open={editingAccount !== null}
       />
     </div>
   );

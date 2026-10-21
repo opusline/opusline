@@ -17,6 +17,9 @@ class BankConnectionData extends Data
      * @param  list<BankConnectionAccountData>  $accounts
      */
     public function __construct(
+        public int $id,
+        /** The bank account its movements land in; null while the user still has to pick one. */
+        public ?int $bankAccountId,
         public string $aspspName,
         public BankConnectionStatus $status,
         /** The account being synced; null while the user still has to pick one. */
@@ -37,6 +40,8 @@ class BankConnectionData extends Data
         $attached = array_find($accounts, static fn (LinkedAccount $account): bool => $account->uid === $connection->account_uid);
 
         return new self(
+            id: $connection->id,
+            bankAccountId: $connection->bank_account_id,
             aspspName: $connection->aspsp_name,
             status: $connection->effectiveStatus(),
             account: $attached instanceof LinkedAccount ? BankConnectionAccountData::fromLinkedAccount($attached) : null,

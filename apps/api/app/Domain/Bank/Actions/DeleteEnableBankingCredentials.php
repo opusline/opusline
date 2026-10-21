@@ -10,7 +10,7 @@ use App\Domain\Users\Models\User;
 use Illuminate\Support\Facades\DB;
 
 /**
- * Forgets the account's Enable Banking application and the bank connection
+ * Forgets the account's Enable Banking application and the bank connections
  * that depended on it. The movements already synced stay: they are the
  * account's history, not the connection's.
  */
@@ -22,23 +22,26 @@ class DeleteEnableBankingCredentials
 
     public function handle(User $user): void
     {
-        [$credentials, $sessionId] = DB::transaction(function () use ($user): array {
+        [$credentials, $sessionIds] = DB::transaction(function () use ($user): array {
             $locked = User::lockRow($user->id);
             $settings = $locked->settings()->sole();
             $credentials = EnableBankingCredentials::of($settings);
-            $connection = $locked->bankConnection()->first();
+            /** @var list<string> $sessionIds */
+            $sessionIds = $locked->bankConnections()->pluck('session_id')->all();
 
-            $connection?->delete();
+            $locked->bankConnections()->delete();
             $settings->forceFill([
                 'enable_banking_application_id' => null,
                 'enable_banking_private_key' => null,
             ])->save();
 
-            return [$credentials, $connection?->session_id];
+            return [$credentials, $sessionIds];
         });
 
-        if ($credentials instanceof EnableBankingCredentials && $sessionId !== null) {
-            $this->enableBankingClient->revokeSession($credentials, $sessionId);
+        if ($credentials instanceof EnableBankingCredentials) {
+            foreach ($sessionIds as $sessionId) {
+                $this->enableBankingClient->revokeSession($credentials, $sessionId);
+            }
         }
     }
 }

@@ -1,4 +1,4 @@
-import type { BankAccountData } from "@opusline/api-client";
+import type { BankConnectionData } from "@opusline/api-client";
 import { fireEvent, render, screen } from "@testing-library/react";
 import { expect, it, vi } from "vitest";
 
@@ -6,9 +6,13 @@ import { StoryRouter } from "@/test/story-router";
 import { bankConnection } from "../lib/fixtures";
 import { BankConnectionCard } from "./bank-connection-card";
 
-function renderCard(
-  data: Pick<BankAccountData, "bankSyncConfigured" | "connection">,
-) {
+function renderCard({
+  bankSyncConfigured,
+  connection,
+}: {
+  bankSyncConfigured: boolean;
+  connection: BankConnectionData | null;
+}) {
   const handlers = {
     onConnect: vi.fn(),
     onChooseAccount: vi.fn(),
@@ -19,7 +23,8 @@ function renderCard(
   render(
     <StoryRouter>
       <BankConnectionCard
-        data={data}
+        bankSyncConfigured={bankSyncConfigured}
+        connection={connection}
         isDisconnecting={false}
         isSyncing={false}
         {...handlers}

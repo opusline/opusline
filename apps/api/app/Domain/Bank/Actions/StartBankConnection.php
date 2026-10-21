@@ -8,6 +8,8 @@ use App\Domain\Bank\Data\StartBankConnectionData;
 use App\Domain\Bank\EnableBanking\Aspsp;
 use App\Domain\Bank\EnableBanking\EnableBankingClient;
 use App\Domain\Bank\EnableBanking\EnableBankingCredentials;
+use App\Domain\Features\Enums\FeatureFlag;
+use App\Domain\Features\FeatureFlags;
 use App\Domain\Users\Models\User;
 use Carbon\CarbonImmutable;
 use Illuminate\Support\Facades\Cache;
@@ -17,6 +19,10 @@ use Illuminate\Validation\ValidationException;
  * Opens an authorization at the chosen bank and hands back the URL to send
  * the browser to. Nothing is stored on the account yet: the connection only
  * exists once the bank sends the user back with a code.
+ *
+ * The authorization either renews one connection or adds a new one. Without
+ * the multi-account beta there is only ever one connection, so asking for a
+ * new one renews it — as connecting always did.
  */
 class StartBankConnection
 {
@@ -29,6 +35,7 @@ class StartBankConnection
     public function __construct(
         private readonly ListBankAspsps $listBankAspsps,
         private readonly EnableBankingClient $enableBankingClient,
+        private readonly FeatureFlags $featureFlags,
     ) {}
 
     public function handle(User $user, StartBankConnectionData $data): string
@@ -47,6 +54,8 @@ class StartBankConnection
             throw ValidationException::withMessages(['psuType' => __('bank.sync_psu_type_unsupported')]);
         }
 
+        $connectionId = $this->connectionToRenew($user, $data->connectionId);
+
         // The bank hands the state back through the SPA's query string, which
         // the router JSON-parses: the leading letter keeps an all-digit draw
         // from turning into a number and losing digits on the way.
@@ -55,6 +64,7 @@ class StartBankConnection
         Cache::put(self::stateKey($state), [
             'userId' => $user->id,
             'aspspName' => $aspsp->name,
+            'connectionId' => $connectionId,
         ], now()->addMinutes(self::STATE_TTL_MINUTES));
 
         return $this->enableBankingClient->startAuthorization(
@@ -65,6 +75,23 @@ class StartBankConnection
             redirectUrl: config()->string('services.enable_banking.redirect_url'),
             validUntil: $this->consentEnd($aspsp),
         );
+    }
+
+    private function connectionToRenew(User $user, ?int $requestedId): ?int
+    {
+        if ($requestedId !== null) {
+            if (! $user->bankConnections()->whereKey($requestedId)->exists()) {
+                throw ValidationException::withMessages(['connectionId' => __('bank.sync_unknown_connection')]);
+            }
+
+            return $requestedId;
+        }
+
+        if ($this->featureFlags->isActive($user, FeatureFlag::BankAccounts)) {
+            return null;
+        }
+
+        return $user->bankConnections()->orderBy('id')->first()?->id;
     }
 
     /** The cache key binding an authorization in flight to the account that opened it. */

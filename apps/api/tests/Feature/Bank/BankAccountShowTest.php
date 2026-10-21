@@ -22,15 +22,14 @@ test('shows an untouched account as empty', function (): void {
         ->assertJsonPath('provisions.urssaf.amount.amount', 0)
         ->assertJsonPath('pendingMatches', [])
         ->assertJsonPath('movements', [])
-        ->assertJsonPath('statements', []);
+        ->assertJsonPath('statements', [])
+        ->assertJsonPath('accounts', [])
+        ->assertJsonPath('connections', []);
 });
 
 test('shows the hand-typed balance as the manual anchor', function (): void {
     $user = User::factory()->create();
-    $user->settings()->sole()->update([
-        'bank_balance_cents' => 250_000,
-        'bank_balance_recorded_on' => '2026-08-11',
-    ]);
+    typedBankBalanceFor($user, 250_000, '2026-08-11');
 
     $this->actingAs($user)
         ->getJson('/api/bank')
@@ -42,10 +41,7 @@ test('shows the hand-typed balance as the manual anchor', function (): void {
 
 test('rolls the hand-typed balance forward whatever a statement\'s own balance says', function (string $statementClosedOn): void {
     $user = User::factory()->create();
-    $user->settings()->sole()->update([
-        'bank_balance_cents' => 100_000,
-        'bank_balance_recorded_on' => '2026-08-05',
-    ]);
+    typedBankBalanceFor($user, 100_000, '2026-08-05');
     $statement = bankStatementOwnedBy($user, fn (BankStatementFactory $factory): BankStatementFactory => $factory->withClosingBalance(1_482_000, $statementClosedOn));
     bankMovementFor($user, $statement, fn (BankMovementFactory $factory): BankMovementFactory => $factory->credit(50_000)->on('2026-08-08'));
 
@@ -76,10 +72,7 @@ test('anchors on the newest statement\'s own balance when none was typed', funct
 
 test('rolls the anchor forward so the tile agrees with the newest movement row', function (): void {
     $user = User::factory()->create();
-    $user->settings()->sole()->update([
-        'bank_balance_cents' => 100_000,
-        'bank_balance_recorded_on' => '2026-08-10',
-    ]);
+    typedBankBalanceFor($user, 100_000, '2026-08-10');
     $statement = bankStatementOwnedBy($user);
     bankMovementFor($user, $statement, fn (BankMovementFactory $factory): BankMovementFactory => $factory->credit(50_000)->on('2026-08-12'));
     bankMovementFor($user, $statement, fn (BankMovementFactory $factory): BankMovementFactory => $factory->debit(20_000)->on('2026-08-08'));

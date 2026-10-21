@@ -6,6 +6,7 @@ import type * as React from "react";
 function Table({
   className,
   containerClassName,
+  scrollLabel,
   ...props
 }: React.ComponentProps<"table"> & {
   /**
@@ -14,11 +15,27 @@ function Table({
    * the table.
    */
   containerClassName?: string;
+  /**
+   * Names the scroll box and lets the keyboard reach it — required when it
+   * scrolls rows that hold nothing focusable, or keyboard users cannot scroll.
+   */
+  scrollLabel?: string;
 }) {
+  const scrollRegion =
+    scrollLabel === undefined
+      ? {}
+      : ({ role: "region", "aria-label": scrollLabel, tabIndex: 0 } as const);
+
   return (
     <div
+      {...scrollRegion}
       data-slot="table-container"
-      className={cn("relative w-full overflow-x-auto", containerClassName)}
+      className={cn(
+        "relative w-full overflow-x-auto",
+        scrollLabel !== undefined &&
+          "rounded-sm outline-none focus-visible:ring-2 focus-visible:ring-ring/30",
+        containerClassName,
+      )}
     >
       <table
         data-slot="table"
