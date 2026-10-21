@@ -55,6 +55,8 @@ class InvoiceDetailData extends Data
         public ?CarbonImmutable $nextReminderOn,
         /** The statuses it can move to from where it stands: what a screen may offer. */
         public array $nextStatuses,
+        /** Whether it may still be deleted: a draft, or one recorded from another tool with no money on it. */
+        public bool $canBeDeleted,
     ) {}
 
     public static function fromModel(Invoice $invoice, ?NetIncome $netIncome): self
@@ -75,6 +77,7 @@ class InvoiceDetailData extends Data
             deductedCreditNotes: array_values($invoice->deductedCreditNotes->map(CreditNoteData::fromModel(...))->all()),
             nextReminderOn: self::nextReminderOn($invoice),
             nextStatuses: $invoice->lifecycle->nextStatuses(),
+            canBeDeleted: $invoice->isDeletable(),
         );
     }
 

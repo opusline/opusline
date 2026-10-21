@@ -3866,7 +3866,8 @@ export const zInvoiceDetailData = z.object({
     creditNotes: z.array(zCreditNoteData),
     deductedCreditNotes: z.array(zCreditNoteData),
     nextReminderOn: z.nullable(z.iso.date()),
-    nextStatuses: z.array(zInvoiceStatus)
+    nextStatuses: z.array(zInvoiceStatus),
+    canBeDeleted: z.boolean()
 });
 
 /**

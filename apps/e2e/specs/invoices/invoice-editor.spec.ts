@@ -6,6 +6,7 @@ import {
   joinInvoicingBeta,
   logTime,
   WORKDAY_MINUTES,
+  writeInvoicesInOpusline,
 } from "../../support/provision";
 import { expect, test } from "../../support/test";
 
@@ -81,6 +82,48 @@ test("tracked time is imported into a draft, saved, opened and resumed", async (
 
   await page.getByTestId("document-resume-draft").click();
   await expect(page).toHaveURL(/\/invoicing\/invoices\/\d+\/edit$/);
+  await expect(page.getByTestId("editor-time-linked")).toHaveAttribute(
+    "data-entries",
+    String(ANCHOR_TRACKED_DAYS.length),
+  );
+});
+
+test("billing tracked time from « À traiter » opens the editor on its mission", async ({
+  page,
+  api,
+  account: _registered,
+}) => {
+  await writeInvoicesInOpusline(api);
+  const client = await createClient(api, { name: "Lunaprint" });
+  const mission = await createMission(api, client, { name: "Refonte vitrine" });
+
+  for (const date of ANCHOR_TRACKED_DAYS) {
+    await logTime(api, {
+      missionId: mission.id,
+      date,
+      durationMinutes: WORKDAY_MINUTES,
+    });
+  }
+
+  await page.goto("/invoicing/invoices");
+  await byTestId(page, "invoice-todo-item", {
+    kind: "to-invoice",
+    "mission-id": mission.id,
+  })
+    .getByTestId("invoice-todo-create")
+    .click();
+
+  await expect(page).toHaveURL(
+    new RegExp(`/invoicing/invoices/new\\?mission=${mission.id}$`),
+  );
+  await expect(page.getByTestId("editor-client")).toHaveValue(
+    String(client.id),
+  );
+  await expect(page.getByTestId("editor-mission")).toHaveValue(
+    String(mission.id),
+  );
+
+  await page.getByTestId("editor-import-time").click();
   await expect(page.getByTestId("editor-time-linked")).toHaveAttribute(
     "data-entries",
     String(ANCHOR_TRACKED_DAYS.length),
