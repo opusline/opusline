@@ -42,6 +42,9 @@ type BankPageProps = {
   onValidateMatch: (matchId: number) => void;
   onDismissMatch: (matchId: number) => void;
   onOpenInvoice: (invoiceId: number) => void;
+  onUnpairTransfer: (movementId: number) => void;
+  /** The movement an undo request is in flight for. */
+  unpairingMovementId: number | null;
 };
 
 export function BankPage({
@@ -58,6 +61,8 @@ export function BankPage({
   onValidateMatch,
   onDismissMatch,
   onOpenInvoice,
+  onUnpairTransfer,
+  unpairingMovementId,
 }: BankPageProps) {
   const canAddConnection =
     canManageAccounts && data.bankSyncConfigured && data.connections.length > 0;
@@ -134,7 +139,12 @@ export function BankPage({
         onValidate={onValidateMatch}
         pendingMatchId={pendingMatchId}
       />
-      <BankMovementsCard data={data} olderMovements={olderMovements} />
+      <BankMovementsCard
+        data={data}
+        olderMovements={olderMovements}
+        onUnpairTransfer={onUnpairTransfer}
+        unpairingMovementId={unpairingMovementId}
+      />
       <BankStatementsCard data={data} />
     </div>
   );
