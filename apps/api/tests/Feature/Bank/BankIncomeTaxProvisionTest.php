@@ -114,10 +114,8 @@ test('leaves out the receipts of the months the option was in force', function (
 });
 
 test('keeps a bill marked paid off the transferable figure until the balance can show it', function (): void {
-    $user = incomeTaxAccount([
-        'bank_balance_cents' => 5_000_000,
-        'bank_balance_recorded_on' => '2026-08-12',
-    ]);
+    $user = incomeTaxAccount();
+    typedBankBalanceFor($user, 5_000_000, '2026-08-12');
     paidInvoiceOn($user, '2025-05-10', htCents: 2_000_000, ttcCents: 2_000_000);
     FiscalDeadlineCompletion::factory()
         ->for($user)

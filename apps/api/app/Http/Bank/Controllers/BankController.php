@@ -4,16 +4,21 @@ declare(strict_types=1);
 
 namespace App\Http\Bank\Controllers;
 
+use App\Domain\Bank\Actions\CreateBankAccount;
 use App\Domain\Bank\Actions\DismissBankMatch;
 use App\Domain\Bank\Actions\ImportBankStatement;
 use App\Domain\Bank\Actions\ListBankMovements;
 use App\Domain\Bank\Actions\SummarizeBankAccount;
+use App\Domain\Bank\Actions\UpdateBankAccount;
 use App\Domain\Bank\Actions\UpdateBankBalance;
 use App\Domain\Bank\Actions\ValidateBankMatch;
 use App\Domain\Bank\Data\BankMovementPageData;
+use App\Domain\Bank\Data\CreateBankAccountData;
 use App\Domain\Bank\Data\ImportBankStatementData;
 use App\Domain\Bank\Data\ListBankMovementsData;
+use App\Domain\Bank\Data\UpdateBankAccountData;
 use App\Domain\Bank\Data\UpdateBankBalanceData;
+use App\Domain\Bank\Models\BankAccount;
 use App\Domain\Bank\Models\BankMatch;
 use App\Domain\Users\Models\User;
 use App\Http\Controllers\Controller;
@@ -44,6 +49,29 @@ class BankController extends Controller
         SummarizeBankAccount $summarizeBankAccount,
     ): JsonResponse {
         $updateBankBalance->handle($user, $data);
+
+        return response()->json($summarizeBankAccount->handle($user));
+    }
+
+    public function storeAccount(
+        CreateBankAccountData $data,
+        #[CurrentUser] User $user,
+        CreateBankAccount $createBankAccount,
+        SummarizeBankAccount $summarizeBankAccount,
+    ): JsonResponse {
+        $createBankAccount->handle($user, $data);
+
+        return response()->json($summarizeBankAccount->handle($user), 201);
+    }
+
+    public function updateAccount(
+        BankAccount $account,
+        UpdateBankAccountData $data,
+        #[CurrentUser] User $user,
+        UpdateBankAccount $updateBankAccount,
+        SummarizeBankAccount $summarizeBankAccount,
+    ): JsonResponse {
+        $updateBankAccount->handle($account, $data);
 
         return response()->json($summarizeBankAccount->handle($user));
     }

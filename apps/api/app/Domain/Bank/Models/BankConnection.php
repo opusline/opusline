@@ -8,6 +8,7 @@ use App\Domain\Bank\EnableBanking\LinkedAccount;
 use App\Domain\Bank\Enums\BankConnectionStatus;
 use App\Domain\Bank\Enums\BankSyncError;
 use App\Domain\Bank\Factories\BankConnectionFactory;
+use App\Domain\Shared\Routing\OwnedRouteBinding;
 use App\Domain\Users\Models\User;
 use Carbon\CarbonImmutable;
 use Illuminate\Database\Eloquent\Attributes\Hidden;
@@ -16,11 +17,12 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 /**
- * The account's consent at its bank, through Enable Banking, and how far the
- * sync has read.
+ * A consent at a bank, through Enable Banking, syncing one of its accounts
+ * into a bank account of the user's, and how far the sync has read.
  *
  * @property int $id
  * @property int $user_id
+ * @property ?int $bank_account_id
  * @property ?int $bank_statement_id
  * @property string $aspsp_name
  * @property BankConnectionStatus $status
@@ -36,6 +38,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property CarbonImmutable $updated_at
  * @property-read User $user
  * @property-read ?BankStatement $statement
+ * @property-read ?BankAccount $account
  */
 #[Hidden(['session_id'])]
 class BankConnection extends Model
@@ -70,6 +73,29 @@ class BankConnection extends Model
         return $this->belongsTo(User::class);
     }
 
+    /**
+     * Scope every {connection} route binding to the authenticated user, so a
+     * foreign row resolves to a 404 instead of leaking across accounts.
+     *
+     * @param  mixed  $value
+     * @param  string|null  $field
+     */
+    #[\Override]
+    public function resolveRouteBinding($value, $field = null): ?Model
+    {
+        return OwnedRouteBinding::resolve(
+            auth()->user()?->bankConnections(),
+            $field ?? $this->getRouteKeyName(),
+            $value,
+        );
+    }
+
+    /** @return BelongsTo<BankAccount, $this> */
+    public function account(): BelongsTo
+    {
+        return $this->belongsTo(BankAccount::class, 'bank_account_id');
+    }
+
     /** @return BelongsTo<BankStatement, $this> */
     public function statement(): BelongsTo
     {
@@ -94,17 +120,19 @@ class BankConnection extends Model
     }
 
     /**
-     * Points the connection at one account. Another account than the one
-     * synced so far starts a statement of its own, from its own first sync.
+     * Points the connection at one account at the bank, feeding $bankAccount.
+     * Another account than the one synced so far starts a statement of its
+     * own, from its own first sync.
      */
-    public function attachAccount(LinkedAccount $account): void
+    public function attachAccount(LinkedAccount $account, BankAccount $bankAccount): void
     {
-        if ($this->account_identification_hash !== $account->identificationHash) {
+        if ($this->account_identification_hash !== $account->identificationHash || $this->bank_account_id !== $bankAccount->id) {
             $this->bank_statement_id = null;
         }
 
         $this->account_uid = $account->uid;
         $this->account_identification_hash = $account->identificationHash;
+        $this->bank_account_id = $bankAccount->id;
         $this->status = BankConnectionStatus::Active;
     }
 }

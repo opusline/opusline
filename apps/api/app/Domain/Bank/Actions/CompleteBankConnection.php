@@ -8,6 +8,7 @@ use App\Domain\Bank\Data\CompleteBankConnectionData;
 use App\Domain\Bank\EnableBanking\BankSyncFailed;
 use App\Domain\Bank\EnableBanking\EnableBankingClient;
 use App\Domain\Bank\EnableBanking\EnableBankingCredentials;
+use App\Domain\Bank\EnableBanking\EnableBankingSession;
 use App\Domain\Bank\EnableBanking\LinkedAccount;
 use App\Domain\Bank\Enums\BankConnectionStatus;
 use App\Domain\Bank\Enums\BankSyncError;
@@ -17,20 +18,22 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
 
 /**
- * Turns the code the bank sent the browser back with into the account's bank
- * connection. A reconnection — after the consent lapsed, or to another bank —
- * updates the same connection, so the sync resumes where it stopped when the
- * account is the same one.
+ * Turns the code the bank sent the browser back with into a bank connection.
+ * A reconnection — after the consent lapsed, or to another bank — updates the
+ * connection it was started for, so the sync resumes where it stopped when the
+ * account is the same one; otherwise the connection is a new one.
  */
 class CompleteBankConnection
 {
     public function __construct(
         private readonly EnableBankingClient $enableBankingClient,
+        private readonly AttachConnectionAccount $attachConnectionAccount,
     ) {}
 
-    public function handle(User $user, CompleteBankConnectionData $data): void
+    /** @return int the id of the connection the authorization completed */
+    public function handle(User $user, CompleteBankConnectionData $data): int
     {
-        $aspspName = $this->pullPendingAuthorization($user, $data->state);
+        ['aspspName' => $aspspName, 'connectionId' => $connectionId] = $this->pullPendingAuthorization($user, $data->state);
         $settings = $user->settingsOrFail();
         $credentials = EnableBankingCredentials::ofOrFail($settings);
 
@@ -55,9 +58,34 @@ class CompleteBankConnection
             throw new BankSyncFailed(BankSyncError::CurrencyMismatch, 'The consent covers no account in the account currency.');
         }
 
-        $replacedSessionId = DB::transaction(function () use ($user, $aspspName, $session, $candidates): ?string {
+        try {
+            [$completedId, $replacedSessionId] = $this->record($user, $aspspName, $connectionId, $session, $candidates);
+        } catch (ValidationException $exception) {
+            // The bank account is synced by another connection already.
+            $this->enableBankingClient->revokeSession($credentials, $session->id);
+
+            throw $exception;
+        }
+
+        if ($replacedSessionId !== null) {
+            $this->enableBankingClient->revokeSession($credentials, $replacedSessionId);
+        }
+
+        return $completedId;
+    }
+
+    /**
+     * @param  non-empty-list<LinkedAccount>  $candidates
+     * @return array{0: int, 1: ?string} the connection's id, and the session it replaced
+     */
+    private function record(User $user, string $aspspName, ?int $connectionId, EnableBankingSession $session, array $candidates): array
+    {
+        return DB::transaction(function () use ($user, $aspspName, $connectionId, $session, $candidates): array {
             $locked = User::lockRow($user->id);
-            $connection = $locked->bankConnection()->first() ?? $locked->bankConnection()->make();
+            $locked->setRelation('settings', $locked->settings()->sole());
+            // Disconnected while the user was at the bank: the consent is a new connection.
+            $connection = ($connectionId === null ? null : $locked->bankConnections()->whereKey($connectionId)->first())
+                ?? $locked->bankConnections()->make();
             $replacedSessionId = $connection->exists ? $connection->session_id : null;
 
             $connection->forceFill([
@@ -75,21 +103,21 @@ class CompleteBankConnection
             $account = $this->accountToAttach($candidates, $connection->account_identification_hash);
 
             if ($account instanceof LinkedAccount) {
-                $connection->attachAccount($account);
+                $this->attachConnectionAccount->handle($locked, $connection, $account);
             }
 
             $connection->save();
 
-            return $replacedSessionId;
+            return [$connection->id, $replacedSessionId];
         });
-
-        if ($replacedSessionId !== null) {
-            $this->enableBankingClient->revokeSession($credentials, $replacedSessionId);
-        }
     }
 
-    /** The bank the authorization was opened at. */
-    private function pullPendingAuthorization(User $user, string $state): string
+    /**
+     * The bank the authorization was opened at, and the connection it renews.
+     *
+     * @return array{aspspName: string, connectionId: ?int}
+     */
+    private function pullPendingAuthorization(User $user, string $state): array
     {
         $pending = Cache::pull(StartBankConnection::stateKey($state));
 
@@ -99,7 +127,9 @@ class CompleteBankConnection
             throw ValidationException::withMessages(['state' => __('bank.sync_authorization_expired')]);
         }
 
-        return $pending['aspspName'];
+        $connectionId = $pending['connectionId'] ?? null;
+
+        return ['aspspName' => $pending['aspspName'], 'connectionId' => is_int($connectionId) ? $connectionId : null];
     }
 
     /**

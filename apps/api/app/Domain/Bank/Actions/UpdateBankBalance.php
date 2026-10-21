@@ -12,16 +12,22 @@ use Illuminate\Support\Facades\DB;
 
 class UpdateBankBalance
 {
+    public function __construct(
+        private readonly ResolveTargetBankAccount $resolveTargetBankAccount,
+    ) {}
+
     public function handle(User $user, UpdateBankBalanceData $data): void
     {
         DB::transaction(function () use ($user, $data): void {
             $locked = User::lockRow($user->id);
             $settings = $locked->settings()->sole();
+            $locked->setRelation('settings', $settings);
+            $account = $this->resolveTargetBankAccount->handle($locked, $data->bankAccountId);
 
             if (! $data->balance instanceof SignedMoneyData) {
-                $settings->update([
-                    'bank_balance_cents' => null,
-                    'bank_balance_recorded_on' => null,
+                $account->update([
+                    'balance_cents' => null,
+                    'balance_recorded_on' => null,
                 ]);
 
                 return;
@@ -29,9 +35,10 @@ class UpdateBankBalance
 
             AccountCurrency::assertMatchesSettings($settings, $data->balance);
 
-            $settings->update([
-                'bank_balance_cents' => $data->balance->toMoney(),
-                'bank_balance_recorded_on' => $settings->today(),
+            $account->update([
+                'currency' => $settings->currency->value,
+                'balance_cents' => $data->balance->toMoney(),
+                'balance_recorded_on' => $settings->today(),
             ]);
         });
     }

@@ -59,7 +59,18 @@ export type BankAccountData = {
     hasUnlinkedCredits: boolean;
     statements: Array<BankStatementData>;
     bankSyncConfigured: boolean;
-    connection: BankConnectionData | null;
+    accounts: Array<BankAccountEntryData>;
+    connections: Array<BankConnectionData>;
+};
+
+/**
+ * BankAccountEntryData
+ */
+export type BankAccountEntryData = {
+    id: number;
+    name: string | null;
+    balance: BankBalanceData | null;
+    isArchived: boolean;
 };
 
 /**
@@ -115,9 +126,19 @@ export type BankConnectionAccountData = {
 };
 
 /**
+ * BankConnectionCompletedData
+ */
+export type BankConnectionCompletedData = {
+    connectionId: number;
+    account: BankAccountData;
+};
+
+/**
  * BankConnectionData
  */
 export type BankConnectionData = {
+    id: number;
+    bankAccountId: number | null;
     aspspName: string;
     status: BankConnectionStatus;
     account: BankConnectionAccountData | null;
@@ -183,6 +204,7 @@ export type BankMatchReason = 0 | 1 | 2;
  */
 export type BankMovementData = {
     id: number;
+    bankAccountId: number;
     bookedOn: string;
     label: string;
     amount: SignedMoneyData;
@@ -190,6 +212,7 @@ export type BankMovementData = {
     invoice: BankMovementInvoiceData | null;
     pendingMatchId: number | null;
     expense: BankMovementExpenseData | null;
+    isInternalTransfer: boolean;
 };
 
 /**
@@ -256,6 +279,7 @@ export type BankPsuType = 0 | 1;
  */
 export type BankStatementData = {
     id: number;
+    bankAccountId: number;
     fileName: string;
     format: BankStatementFormat;
     periodStart: string;
@@ -689,6 +713,13 @@ export type CraStatus = 0 | 1 | 2;
 export type CreateAccessTokenData = {
     name: string;
     abilities: Array<TokenAbility>;
+};
+
+/**
+ * CreateBankAccountData
+ */
+export type CreateBankAccountData = {
+    name: string;
 };
 
 /**
@@ -1477,8 +1508,9 @@ export type ExpensesVatSummaryData = {
  * | |
  * |---|
  * | `0` <br/> Writing, issuing and rendering invoices in Opusline (#498). |
+ * | `1` <br/> Several bank accounts side by side, each with its own connection and balance. |
  */
-export type FeatureFlag = 0;
+export type FeatureFlag = 0 | 1;
 
 /**
  * FiscalDeadlineData
@@ -1555,6 +1587,7 @@ export type ImportBankStatementData = {
     file: Blob | File;
     balanceAmount?: number | null;
     balanceCurrency?: Currency | null;
+    bankAccountId?: number | null;
 };
 
 /**
@@ -3028,6 +3061,7 @@ export type SignedMoneyData = {
 export type StartBankConnectionData = {
     aspspName: string;
     psuType: BankPsuType;
+    connectionId?: number | null;
 };
 
 /**
@@ -3391,6 +3425,14 @@ export type UpcomingDebitData = {
 };
 
 /**
+ * UpdateBankAccountData
+ */
+export type UpdateBankAccountData = {
+    name?: string | null;
+    archived: boolean;
+};
+
+/**
  * UpdateBankBalanceData
  */
 export type UpdateBankBalanceData = {
@@ -3398,6 +3440,7 @@ export type UpdateBankBalanceData = {
         amount: number;
         currency: Currency;
     } | null;
+    bankAccountId?: number | null;
 };
 
 /**
@@ -4335,6 +4378,74 @@ export type UpdateBankBalanceResponses = {
 
 export type UpdateBankBalanceResponse = UpdateBankBalanceResponses[keyof UpdateBankBalanceResponses];
 
+export type CreateBankAccountData2 = {
+    body: CreateBankAccountData;
+    path?: never;
+    query?: never;
+    url: '/bank/accounts';
+};
+
+export type CreateBankAccountErrors = {
+    /**
+     * Unauthenticated
+     */
+    401: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+};
+
+export type CreateBankAccountError = CreateBankAccountErrors[keyof CreateBankAccountErrors];
+
+export type CreateBankAccountResponses = {
+    201: BankAccountData;
+};
+
+export type CreateBankAccountResponse = CreateBankAccountResponses[keyof CreateBankAccountResponses];
+
+export type UpdateBankAccountData2 = {
+    body: UpdateBankAccountData;
+    path: {
+        /**
+         * The account ID
+         */
+        account: number;
+    };
+    query?: never;
+    url: '/bank/accounts/{account}';
+};
+
+export type UpdateBankAccountErrors = {
+    /**
+     * Unauthenticated
+     */
+    401: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+    /**
+     * Not found
+     */
+    404: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+};
+
+export type UpdateBankAccountError = UpdateBankAccountErrors[keyof UpdateBankAccountErrors];
+
+export type UpdateBankAccountResponses = {
+    200: BankAccountData;
+};
+
+export type UpdateBankAccountResponse = UpdateBankAccountResponses[keyof UpdateBankAccountResponses];
+
 export type ImportBankStatementData2 = {
     body: ImportBankStatementData;
     path?: never;
@@ -4471,38 +4582,11 @@ export type ListBankAspspsResponses = {
 
 export type ListBankAspspsResponse = ListBankAspspsResponses[keyof ListBankAspspsResponses];
 
-export type DisconnectBankConnectionData = {
-    body?: never;
-    path?: never;
-    query?: never;
-    url: '/bank/connection';
-};
-
-export type DisconnectBankConnectionErrors = {
-    /**
-     * Unauthenticated
-     */
-    401: {
-        /**
-         * Error overview.
-         */
-        message: string;
-    };
-};
-
-export type DisconnectBankConnectionError = DisconnectBankConnectionErrors[keyof DisconnectBankConnectionErrors];
-
-export type DisconnectBankConnectionResponses = {
-    200: BankAccountData;
-};
-
-export type DisconnectBankConnectionResponse = DisconnectBankConnectionResponses[keyof DisconnectBankConnectionResponses];
-
 export type StartBankConnectionData2 = {
     body: StartBankConnectionData;
     path?: never;
     query?: never;
-    url: '/bank/connection';
+    url: '/bank/connections';
 };
 
 export type StartBankConnectionErrors = {
@@ -4529,7 +4613,7 @@ export type CompleteBankConnectionData2 = {
     body: CompleteBankConnectionData;
     path?: never;
     query?: never;
-    url: '/bank/connection/complete';
+    url: '/bank/connections/complete';
 };
 
 export type CompleteBankConnectionErrors = {
@@ -4547,16 +4631,21 @@ export type CompleteBankConnectionErrors = {
 export type CompleteBankConnectionError = CompleteBankConnectionErrors[keyof CompleteBankConnectionErrors];
 
 export type CompleteBankConnectionResponses = {
-    200: BankAccountData;
+    200: BankConnectionCompletedData;
 };
 
 export type CompleteBankConnectionResponse = CompleteBankConnectionResponses[keyof CompleteBankConnectionResponses];
 
 export type ChooseBankConnectionAccountData = {
     body: ChooseBankAccountData;
-    path?: never;
+    path: {
+        /**
+         * The connection ID
+         */
+        connection: number;
+    };
     query?: never;
-    url: '/bank/connection/account';
+    url: '/bank/connections/{connection}/account';
 };
 
 export type ChooseBankConnectionAccountErrors = {
@@ -4564,6 +4653,15 @@ export type ChooseBankConnectionAccountErrors = {
      * Unauthenticated
      */
     401: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+    /**
+     * Not found
+     */
+    404: {
         /**
          * Error overview.
          */
@@ -4581,9 +4679,14 @@ export type ChooseBankConnectionAccountResponse = ChooseBankConnectionAccountRes
 
 export type SyncBankConnectionData = {
     body?: never;
-    path?: never;
+    path: {
+        /**
+         * The connection ID
+         */
+        connection: number;
+    };
     query?: never;
-    url: '/bank/connection/sync';
+    url: '/bank/connections/{connection}/sync';
 };
 
 export type SyncBankConnectionErrors = {
@@ -4591,6 +4694,15 @@ export type SyncBankConnectionErrors = {
      * Unauthenticated
      */
     401: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+    /**
+     * Not found
+     */
+    404: {
         /**
          * Error overview.
          */
@@ -4605,6 +4717,47 @@ export type SyncBankConnectionResponses = {
 };
 
 export type SyncBankConnectionResponse = SyncBankConnectionResponses[keyof SyncBankConnectionResponses];
+
+export type DisconnectBankConnectionData = {
+    body?: never;
+    path: {
+        /**
+         * The connection ID
+         */
+        connection: number;
+    };
+    query?: never;
+    url: '/bank/connections/{connection}';
+};
+
+export type DisconnectBankConnectionErrors = {
+    /**
+     * Unauthenticated
+     */
+    401: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+    /**
+     * Not found
+     */
+    404: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+};
+
+export type DisconnectBankConnectionError = DisconnectBankConnectionErrors[keyof DisconnectBankConnectionErrors];
+
+export type DisconnectBankConnectionResponses = {
+    200: BankAccountData;
+};
+
+export type DisconnectBankConnectionResponse = DisconnectBankConnectionResponses[keyof DisconnectBankConnectionResponses];
 
 export type ListBetaFeaturesData = {
     body?: never;

@@ -23,9 +23,8 @@ function canvasAccount(): User
         'contribution_rate_bp' => 2600,
         'currency' => 'EUR',
         'treasury_buffer_cents' => 150_000,
-        'bank_balance_cents' => 1_482_000,
-        'bank_balance_recorded_on' => '2026-08-12',
     ]);
+    typedBankBalanceFor($user, 1_482_000, '2026-08-12');
 
     paidInvoiceOn($user, '2026-08-03', htCents: 1_045_000, ttcCents: 1_254_000);
 
@@ -71,7 +70,7 @@ test('dates each provision to the period it accrued over', function (): void {
 
 test('reports a negative transferable amount when the provisions outgrow the account', function (): void {
     $user = canvasAccount();
-    $user->settings()->sole()->update(['bank_balance_cents' => 20_000]);
+    typedBankBalanceFor($user, 20_000, '2026-08-12');
 
     $this->actingAs($user)
         ->getJson('/api/treasury')
@@ -115,7 +114,7 @@ test('clamps what the balance covers to today when a movement is dated in the fu
 
 test('cites the statement its closing balance was read from when no balance was typed', function (): void {
     $user = canvasAccount();
-    $user->settings()->sole()->update(['bank_balance_cents' => null, 'bank_balance_recorded_on' => null]);
+    typedBankBalanceFor($user, null, null);
     bankStatementOwnedBy($user, fn (BankStatementFactory $factory): BankStatementFactory => $factory->withClosingBalance(900_000, '2026-08-13'));
 
     $this->actingAs($user)

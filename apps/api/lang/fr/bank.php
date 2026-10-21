@@ -20,4 +20,9 @@ return [
     'sync_unknown_bank' => 'Cette banque n\'est pas disponible via Enable Banking.',
     'sync_psu_type_unsupported' => 'Cette banque ne propose pas ce type de compte.',
     'sync_unknown_account' => 'Ce compte ne fait pas partie de l\'autorisation bancaire.',
+    'sync_unknown_connection' => 'Cette connexion bancaire n\'existe plus.',
+    'sync_account_already_connected' => 'Ce compte est déjà synchronisé par une autre connexion bancaire.',
+    'account_unknown' => 'Ce compte bancaire n\'existe pas.',
+    'account_required' => 'Choisissez le compte bancaire concerné.',
+    'account_archive_connected' => 'Déconnectez la banque avant de clôturer ce compte.',
 ];
