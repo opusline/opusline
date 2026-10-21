@@ -22,9 +22,8 @@ function settledAccount(int $balanceCents = 1_000_000): User
         'business_started_on' => '2026-01-15',
         'contribution_rate_bp' => 2_500,
         'liberating_payment' => false,
-        'bank_balance_cents' => $balanceCents,
-        'bank_balance_recorded_on' => '2026-08-13',
     ]);
+    typedBankBalanceFor($user, $balanceCents, '2026-08-13');
     paidInvoiceOn($user, '2026-07-10');
 
     return $user;
@@ -68,7 +67,7 @@ test('a paid return is no longer matched against the provision', function (): vo
 
 test('a return paid after the balance was read is held out of what the balance covers', function (): void {
     $user = settledAccount(balanceCents: 50_000);
-    $user->settings()->sole()->update(['bank_balance_recorded_on' => '2026-08-10']);
+    typedBankBalanceFor($user, 50_000, '2026-08-10');
     paidInvoiceOn($user, '2026-06-10');
     FiscalDeadlineCompletion::factory()->for($user)->of(FiscalDeadlineKind::UrssafDeclaration, '2026-06')
         ->completedOn('2026-07-12')->paidOn('2026-08-13')->create();
@@ -111,7 +110,7 @@ test('an older period has no provision to match', function (): void {
 
 test('an account with no known balance matches nothing', function (): void {
     $user = settledAccount();
-    $user->settings()->sole()->update(['bank_balance_cents' => null, 'bank_balance_recorded_on' => null]);
+    typedBankBalanceFor($user, null, null);
 
     $this->actingAs($user)
         ->getJson('/api/declarations')

@@ -1,5 +1,7 @@
 import type {
   BankAccountData,
+  BankAccountEntryData,
+  BankBalanceData,
   BankConnectionData,
   BankMatchData,
   BankMovementData,
@@ -13,6 +15,7 @@ export function bankStatement(
 ): BankStatementData {
   return {
     id: 1,
+    bankAccountId: 1,
     fileName: "releve-compte-pro-aout-2026.csv",
     format: 0,
     periodStart: "2026-08-01",
@@ -32,6 +35,8 @@ export function bankConnection(
   const account = { uid: "07cc67f4", name: "Compte pro", ibanLast4: "0185" };
 
   return {
+    id: 1,
+    bankAccountId: 1,
     aspspName: "Banque Orvella",
     status: 0,
     account,
@@ -63,6 +68,7 @@ export function bankMovement(
 ): BankMovementData {
   return {
     id: 101,
+    bankAccountId: 1,
     bookedOn: "2026-07-31",
     label: "ENCAISSEMENT 2026-040 · NORDLYS",
     amount: eur(61_200),
@@ -70,6 +76,19 @@ export function bankMovement(
     invoice: { id: 40, number: "2026-040" },
     pendingMatchId: null,
     expense: null,
+    isInternalTransfer: false,
+    ...overrides,
+  };
+}
+
+export function bankAccountEntry(
+  overrides: Partial<BankAccountEntryData> = {},
+): BankAccountEntryData {
+  return {
+    id: 1,
+    name: null,
+    balance: { amount: eur(1_482_000), source: 1, asOf: "2026-08-10" },
+    isArchived: false,
     ...overrides,
   };
 }
@@ -186,7 +205,8 @@ export function bankData(
       }),
     ],
     bankSyncConfigured: false,
-    connection: null,
+    accounts: [bankAccountEntry()],
+    connections: [],
     ...overrides,
   };
 }
@@ -198,7 +218,7 @@ export function syncedBankData(): BankAccountData {
   return {
     ...data,
     bankSyncConfigured: true,
-    connection: bankConnection(),
+    connections: [bankConnection()],
     statements: [
       bankStatement({
         id: 3,
@@ -227,9 +247,16 @@ export function derivedBankData(): BankAccountData {
     rolledFromZero.set(movement.id, running);
   }
 
+  const balance: BankBalanceData = {
+    amount: eur(running),
+    source: 2,
+    asOf: null,
+  };
+
   return {
     ...data,
-    balance: { amount: eur(running), source: 2, asOf: null },
+    balance,
+    accounts: [bankAccountEntry({ balance })],
     movements: data.movements.map((movement) => ({
       ...movement,
       runningBalance: eur(rolledFromZero.get(movement.id) ?? 0),
@@ -239,8 +266,15 @@ export function derivedBankData(): BankAccountData {
 
 /** Balance typed by hand, nothing imported yet. */
 export function manualBankData(): BankAccountData {
+  const balance: BankBalanceData = {
+    amount: eur(742_000),
+    source: 0,
+    asOf: "2026-08-11",
+  };
+
   return bankData({
-    balance: { amount: eur(742_000), source: 0, asOf: "2026-08-11" },
+    balance,
+    accounts: [bankAccountEntry({ balance })],
     pendingMatches: [],
     movements: [],
     statements: [],
@@ -322,6 +356,60 @@ export function emptyBankData(): BankAccountData {
     hasUnlinkedCredits: false,
     statements: [],
     bankSyncConfigured: false,
-    connection: null,
+    accounts: [],
+    connections: [],
+  };
+}
+
+/**
+ * Moving from one bank to another: both accounts synced, the total on the
+ * tile, a transfer between them recognized on both sides.
+ */
+export function twoAccountsBankData(): BankAccountData {
+  const data = syncedBankData();
+  const swan = bankConnection({
+    id: 2,
+    bankAccountId: 2,
+    aspspName: "Banque Vesterhus",
+    account: { uid: "5d1e2f3a", name: "Compte pro", ibanLast4: "0242" },
+    accounts: [{ uid: "5d1e2f3a", name: "Compte pro", ibanLast4: "0242" }],
+  });
+
+  return {
+    ...data,
+    accounts: [
+      bankAccountEntry({
+        name: "Banque Orvella",
+        balance: { amount: eur(982_000), source: 1, asOf: "2026-08-10" },
+      }),
+      bankAccountEntry({
+        id: 2,
+        name: "Banque Vesterhus",
+        balance: { amount: eur(500_000), source: 1, asOf: "2026-08-13" },
+      }),
+    ],
+    connections: [...data.connections, swan],
+    movements: [
+      bankMovement({
+        id: 112,
+        bankAccountId: 2,
+        bookedOn: "2026-08-12",
+        label: "VIR RECU ATELIERS RUCHE",
+        amount: eur(500_000),
+        runningBalance: eur(1_482_000),
+        invoice: null,
+        isInternalTransfer: true,
+      }),
+      bankMovement({
+        id: 111,
+        bookedOn: "2026-08-11",
+        label: "VIR EMIS VERS COMPTE VESTERHUS",
+        amount: eur(-500_000),
+        runningBalance: eur(982_000),
+        invoice: null,
+        isInternalTransfer: true,
+      }),
+      ...data.movements,
+    ],
   };
 }

@@ -33,13 +33,13 @@ use Cknow\Money\Money;
  * movement history itself is never hydrated, whatever the account's age.
  *
  * @phpstan-import-type BalanceAnchor from ResolveBankBalance
+ * @phpstan-import-type AccountBalance from ResolveAccountBalances
  */
 class SummarizeTreasury
 {
     public function __construct(
-        private readonly ResolveBankBalance $resolveBankBalance,
+        private readonly ResolveAccountBalances $resolveAccountBalances,
         private readonly ComputeBankProvisions $computeBankProvisions,
-        private readonly ResolveCurrentBalance $resolveCurrentBalance,
         private readonly ResolveBalanceCoverage $resolveBalanceCoverage,
     ) {}
 
@@ -48,19 +48,9 @@ class SummarizeTreasury
         $settings = $user->settingsOrFail();
         $currency = $settings->currency->value;
 
-        $statements = $user->bankStatements()->get();
-
-        $anchor = $this->resolveBankBalance->handle($user, $statements);
-        $balance = $this->resolveCurrentBalance->handle($user, $anchor, $currency);
-
-        // value() hydrates through the CalendarDate cast, unlike max().
-        $lastBookedOn = $user->bankMovements()->orderByDesc('booked_on')->value('booked_on');
-
-        $coveredThrough = $this->resolveBalanceCoverage->handle(
-            $anchor,
-            $lastBookedOn instanceof CarbonImmutable ? $lastBookedOn : null,
-            $settings->today(),
-        );
+        $accountBalances = $this->resolveAccountBalances->handle($user, $user->bankStatements()->get());
+        $balance = ResolveAccountBalances::total($accountBalances, $currency);
+        [$anchor, $coveredThrough] = $this->coverage($accountBalances, $settings->today());
 
         $transfers = $user->personalTransfers()
             ->orderByDesc('transferred_on')
@@ -96,6 +86,48 @@ class SummarizeTreasury
                 ))
                 ->all()),
         );
+    }
+
+    /**
+     * How far the total balance is complete, and the anchor window its
+     * pending checks read. A transfer could leave from any open account, so
+     * the total covers a day only once every one of them does — the earliest
+     * coverage wins, and a typed balance's blind day on any account stays
+     * blind. Closed accounts move no more money and stop holding it back.
+     *
+     * @param  list<AccountBalance>  $accountBalances
+     * @return array{0: ?BalanceAnchor, 1: ?CarbonImmutable}
+     */
+    private function coverage(array $accountBalances, CarbonImmutable $today): array
+    {
+        $anchored = array_values(array_filter($accountBalances, static fn (array $accountBalance): bool => $accountBalance['anchor'] !== null));
+        $open = array_values(array_filter($anchored, static fn (array $accountBalance): bool => ! $accountBalance['account']->isArchived()));
+        $counted = $open === [] ? $anchored : $open;
+
+        $anchor = null;
+        $coveredThrough = null;
+
+        foreach ($counted as ['account' => $account, 'anchor' => $accountAnchor]) {
+            // value() hydrates through the CalendarDate cast, unlike max().
+            $lastBookedOn = $account->movements()->orderByDesc('booked_on')->value('booked_on');
+            $accountCoveredThrough = $this->resolveBalanceCoverage->handle(
+                $accountAnchor,
+                $lastBookedOn instanceof CarbonImmutable ? $lastBookedOn : null,
+                $today,
+            );
+
+            $coveredThrough = $coveredThrough instanceof CarbonImmutable && $accountCoveredThrough instanceof CarbonImmutable
+                ? $coveredThrough->min($accountCoveredThrough)
+                : $coveredThrough ?? $accountCoveredThrough;
+
+            $anchor = $anchor === null ? $accountAnchor : [
+                ...$anchor,
+                'asOf' => $anchor['asOf']->max($accountAnchor['asOf']),
+                'coversThrough' => $anchor['coversThrough']->min($accountAnchor['coversThrough']),
+            ];
+        }
+
+        return [$anchor, $coveredThrough];
     }
 
     /**

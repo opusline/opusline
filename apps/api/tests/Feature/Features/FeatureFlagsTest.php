@@ -4,6 +4,10 @@ declare(strict_types=1);
 
 use App\Domain\Users\Models\User;
 
+// phpunit.xml switches every flag on; the invoicing walk-through below reads
+// the account's features with that flag alone in play.
+beforeEach(fn () => bankAccountsReleasedAs('off'));
+
 test('keeps a beta feature off until the account opts in', function (): void {
     invoicingReleasedAs('beta');
     $user = User::factory()->create();
@@ -81,6 +85,27 @@ test('lists only the features offered in beta', function (): void {
     invoicingReleasedAs('beta');
     $this->getJson('/api/user/features')
         ->assertExactJson(['features' => [['feature' => 0, 'key' => 'invoicing', 'active' => false]]]);
+
+    bankAccountsReleasedAs('beta');
+    $this->getJson('/api/user/features')
+        ->assertExactJson(['features' => [
+            ['feature' => 0, 'key' => 'invoicing', 'active' => false],
+            ['feature' => 1, 'key' => 'bank_accounts', 'active' => false],
+        ]]);
+});
+
+test('lets the account join the several-bank-accounts beta', function (): void {
+    invoicingReleasedAs('on');
+    bankAccountsReleasedAs('beta');
+    $user = User::factory()->create();
+    $account = typedBankBalanceFor($user, 250_000, '2026-08-11');
+
+    $this->actingAs($user)->putJson("/api/bank/accounts/{$account->id}", ['name' => 'Shine', 'archived' => false])->assertNotFound();
+
+    $this->putJson('/api/user/features/bank_accounts', ['active' => true])->assertOk();
+
+    $this->getJson('/api/user')->assertJsonPath('features', [0, 1]);
+    $this->putJson("/api/bank/accounts/{$account->id}", ['name' => 'Shine', 'archived' => false])->assertOk();
 });
 
 test('answers 404 for a feature that does not exist', function (): void {
@@ -124,6 +149,17 @@ test('hides every invoicing endpoint while the feature is off', function (string
     ['PUT', '/api/invoicing/catalog/1'],
     ['DELETE', '/api/invoicing/catalog/1'],
 ]);
+
+test('hides the bank account endpoint while several bank accounts are off', function (): void {
+    $user = User::factory()->create();
+    $account = typedBankBalanceFor($user, 250_000, '2026-08-11');
+
+    $this->actingAs($user)
+        ->putJson("/api/bank/accounts/{$account->id}", ['name' => 'Shine', 'archived' => false])
+        ->assertNotFound();
+
+    expect($account->refresh()->name)->toBeNull();
+});
 
 test('keeps the invoices recorded from another tool reachable while it is off', function (): void {
     invoicingReleasedAs('off');

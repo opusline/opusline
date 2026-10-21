@@ -1,4 +1,4 @@
-import type { BankAccountData, BankConnectionData } from "@opusline/api-client";
+import type { BankConnectionData } from "@opusline/api-client";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -36,7 +36,9 @@ import {
 } from "../lib/connection";
 
 type BankConnectionCardProps = {
-  data: Pick<BankAccountData, "bankSyncConfigured" | "connection">;
+  bankSyncConfigured: boolean;
+  /** Null on the card that invites a first connection. */
+  connection: BankConnectionData | null;
   isSyncing: boolean;
   isDisconnecting: boolean;
   onConnect: () => void;
@@ -47,7 +49,8 @@ type BankConnectionCardProps = {
 
 /** Where the bank sync stands, and the one step it asks for next. */
 export function BankConnectionCard({
-  data,
+  bankSyncConfigured,
+  connection,
   isSyncing,
   isDisconnecting,
   onConnect,
@@ -55,15 +58,18 @@ export function BankConnectionCard({
   onSync,
   onDisconnect,
 }: BankConnectionCardProps) {
-  const state = connectionState(data);
-  const connection = data.connection;
+  const state = connectionState(bankSyncConfigured, connection);
   const isExpiringSoon =
     connection !== null &&
     state === "active" &&
     consentExpiresSoon(connection.validUntil);
 
   return (
-    <Panel data-status={state} data-testid="bank-connection-card">
+    <Panel
+      data-connection={connection?.id}
+      data-status={state}
+      data-testid="bank-connection-card"
+    >
       <StatusRow surface="plain">
         <StatusRowMedia>
           <Landmark aria-hidden />

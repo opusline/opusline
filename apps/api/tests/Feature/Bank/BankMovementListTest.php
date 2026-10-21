@@ -18,10 +18,7 @@ beforeEach(fn () => freezeTodayAtUtcNoon());
 function accountWithPagedMovements(int $count = 203, int $anchorCents = 1_000_000): User
 {
     $user = User::factory()->create();
-    $user->settings()->sole()->update([
-        'bank_balance_cents' => $anchorCents,
-        'bank_balance_recorded_on' => '2026-08-13',
-    ]);
+    typedBankBalanceFor($user, $anchorCents, '2026-08-13');
 
     $statement = bankStatementOwnedBy($user);
 

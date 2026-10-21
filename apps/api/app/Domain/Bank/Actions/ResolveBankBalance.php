@@ -5,13 +5,13 @@ declare(strict_types=1);
 namespace App\Domain\Bank\Actions;
 
 use App\Domain\Bank\Enums\BankBalanceSource;
+use App\Domain\Bank\Models\BankAccount;
 use App\Domain\Bank\Models\BankStatement;
-use App\Domain\Users\Models\User;
 use Carbon\CarbonImmutable;
 use Illuminate\Support\Collection;
 
 /**
- * Picks the account's balance anchor. A balance the user typed — with the
+ * Picks one bank account's balance anchor. A balance the user typed — with the
  * pencil, or in the import dialog — anchors the account for as long as it
  * stands: later imports roll it forward through their movements instead of
  * replacing it with the file's own closing balance, which users found drifting
@@ -43,33 +43,31 @@ use Illuminate\Support\Collection;
 class ResolveBankBalance
 {
     /**
-     * @param  Collection<int, BankStatement>  $statements  every statement of $user
+     * @param  Collection<int, BankStatement>  $statements  every statement of $account
      * @return ?BalanceAnchor
      */
-    public function handle(User $user, Collection $statements): ?array
+    public function handle(BankAccount $account, Collection $statements): ?array
     {
-        return $this->manualAnchor($user)
+        return $this->manualAnchor($account)
             ?? $this->statementAnchor($statements)
-            ?? $this->derived($user);
+            ?? $this->derived($account);
     }
 
     /**
      * @return ?BalanceAnchor
      */
-    private function manualAnchor(User $user): ?array
+    private function manualAnchor(BankAccount $account): ?array
     {
-        $settings = $user->settingsOrFail();
-
-        if ($settings->bank_balance_cents === null || $settings->bank_balance_recorded_on === null) {
+        if ($account->balance_cents === null || $account->balance_recorded_on === null) {
             return null;
         }
 
         return [
-            'cents' => (int) $settings->bank_balance_cents->getAmount(),
+            'cents' => (int) $account->balance_cents->getAmount(),
             'source' => BankBalanceSource::Manual,
-            'asOf' => $settings->bank_balance_recorded_on,
-            'coversThrough' => $settings->bank_balance_recorded_on->subDay(),
-            'citableAsOf' => $settings->bank_balance_recorded_on,
+            'asOf' => $account->balance_recorded_on,
+            'coversThrough' => $account->balance_recorded_on->subDay(),
+            'citableAsOf' => $account->balance_recorded_on,
         ];
     }
 
@@ -107,10 +105,10 @@ class ResolveBankBalance
     /**
      * @return ?BalanceAnchor
      */
-    private function derived(User $user): ?array
+    private function derived(BankAccount $account): ?array
     {
         // value() hydrates through the CalendarDate cast, unlike min().
-        $firstBookedOn = $user->bankMovements()->orderBy('booked_on')->value('booked_on');
+        $firstBookedOn = $account->movements()->orderBy('booked_on')->value('booked_on');
 
         if (! $firstBookedOn instanceof CarbonImmutable) {
             return null;

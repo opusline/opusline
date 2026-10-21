@@ -31,6 +31,10 @@ class BankMovementFactory extends Factory
                 ->whereKey($attributes['bank_statement_id'])
                 ->firstOrFail()
                 ->user_id,
+            'bank_account_id' => fn (array $attributes): int => BankStatement::query()
+                ->whereKey($attributes['bank_statement_id'])
+                ->firstOrFail()
+                ->bank_account_id,
             'invoice_id' => null,
             'booked_on' => CarbonImmutable::today(),
             'label' => 'VIR SEPA NORDLYS',

@@ -20,6 +20,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 /**
  * @property int $id
  * @property int $user_id
+ * @property int $bank_account_id
  * @property string $file_name
  * @property BankStatementFormat $format
  * @property CarbonImmutable $period_start
@@ -31,8 +32,10 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * @property CarbonImmutable $created_at
  * @property CarbonImmutable $updated_at
  * @property-read User $user
+ * @property-read BankAccount $account
  */
 #[Fillable([
+    'bank_account_id',
     'file_name',
     'format',
     'period_start',
@@ -74,6 +77,12 @@ class BankStatement extends Model
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
+    }
+
+    /** @return BelongsTo<BankAccount, $this> */
+    public function account(): BelongsTo
+    {
+        return $this->belongsTo(BankAccount::class, 'bank_account_id');
     }
 
     /** @return HasMany<BankMovement, $this> */

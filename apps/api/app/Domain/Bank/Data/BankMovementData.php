@@ -17,6 +17,7 @@ class BankMovementData extends Data
 {
     public function __construct(
         public int $id,
+        public int $bankAccountId,
         #[WithTransformer(DateTimeInterfaceTransformer::class, format: 'Y-m-d')]
         public CarbonImmutable $bookedOn,
         public string $label,
@@ -29,6 +30,8 @@ class BankMovementData extends Data
         public ?int $pendingMatchId,
         /** The expense this debit paid, once linked. */
         public ?BankMovementExpenseData $expense,
+        /** Money moved between two of the user's own bank accounts: neither revenue nor an expense. */
+        public bool $isInternalTransfer,
     ) {}
 
     public static function fromModel(BankMovement $movement, ?Money $runningBalance): self
@@ -37,6 +40,7 @@ class BankMovementData extends Data
 
         return new self(
             id: $movement->id,
+            bankAccountId: $movement->bank_account_id,
             bookedOn: $movement->booked_on,
             label: $movement->label,
             amount: SignedMoneyData::fromMoney($movement->amount_cents),
@@ -44,6 +48,7 @@ class BankMovementData extends Data
             invoice: $movement->invoice === null ? null : BankMovementInvoiceData::fromModel($movement->invoice),
             pendingMatchId: $match !== null && $match->status === BankMatchStatus::Pending ? $match->id : null,
             expense: $movement->expense === null ? null : BankMovementExpenseData::fromModel($movement->expense),
+            isInternalTransfer: $movement->isInternalTransfer(),
         );
     }
 }

@@ -15,6 +15,7 @@ class BankStatementData extends Data
 {
     public function __construct(
         public int $id,
+        public int $bankAccountId,
         public string $fileName,
         /** EnableBanking marks the statement a bank connection keeps extending; its fileName is the bank's name. */
         public BankStatementFormat $format,
@@ -34,6 +35,7 @@ class BankStatementData extends Data
     {
         return new self(
             id: $statement->id,
+            bankAccountId: $statement->bank_account_id,
             fileName: $statement->file_name,
             format: $statement->format,
             periodStart: $statement->period_start,

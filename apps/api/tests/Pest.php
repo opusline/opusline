@@ -2,11 +2,13 @@
 
 declare(strict_types=1);
 
+use App\Domain\Bank\Factories\BankAccountFactory;
 use App\Domain\Bank\Factories\BankConnectionFactory;
 use App\Domain\Bank\Factories\BankMatchFactory;
 use App\Domain\Bank\Factories\BankMovementFactory;
 use App\Domain\Bank\Factories\BankStatementFactory;
 use App\Domain\Bank\Factories\PersonalTransferFactory;
+use App\Domain\Bank\Models\BankAccount;
 use App\Domain\Bank\Models\BankConnection;
 use App\Domain\Bank\Models\BankMatch;
 use App\Domain\Bank\Models\BankMovement;
@@ -586,11 +588,72 @@ function accountWithBankBalance(string $recordedOn = '2026-08-10', int $cents = 
         'business_country' => 'DE',
         'currency' => 'EUR',
         'treasury_buffer_cents' => null,
-        'bank_balance_cents' => $cents,
-        'bank_balance_recorded_on' => $recordedOn,
     ]);
+    typedBankBalanceFor($user, $cents, $recordedOn);
 
     return $user;
+}
+
+/**
+ * The balance typed by hand on the user's first bank account, opened when
+ * they have none yet — what the pencil on a single-account Compte pro does.
+ * Null for both clears it.
+ */
+function typedBankBalanceFor(User $user, ?int $cents, ?string $recordedOn): BankAccount
+{
+    $account = BankAccount::query()->findOrFail(BankAccountFactory::firstOf($user->id));
+
+    $account->update([
+        'balance_cents' => $cents,
+        'balance_recorded_on' => $recordedOn === null ? null : CarbonImmutable::parse($recordedOn),
+    ]);
+
+    return $account;
+}
+
+/**
+ * Another bank account of the given user, next to the first one.
+ *
+ * @param  (callable(BankAccountFactory): BankAccountFactory)|null  $configure
+ */
+function bankAccountFor(User $user, ?callable $configure = null): BankAccount
+{
+    return configuredFactory(BankAccount::factory(), $configure)->create(['user_id' => $user->id]);
+}
+
+/**
+ * A bank statement imported for the given bank account.
+ *
+ * @param  (callable(BankStatementFactory): BankStatementFactory)|null  $configure
+ */
+function bankStatementOn(BankAccount $account, ?callable $configure = null): BankStatement
+{
+    return configuredFactory(BankStatement::factory(), $configure)->create([
+        'user_id' => $account->user_id,
+        'bank_account_id' => $account->id,
+    ]);
+}
+
+/**
+ * Imports a French-bank CSV of `dd/mm/yyyy;label;amount` lines, into $into
+ * when the user has to name the account.
+ */
+function importBankCsv(User $user, ?BankAccount $into, string ...$lines): TestResponse
+{
+    return test()->actingAs($user)->post(
+        '/api/bank/statements',
+        array_filter([
+            'file' => UploadedFile::fake()->createWithContent('releve.csv', "Date;Libellé;Montant\n".implode("\n", $lines)."\n"),
+            'bankAccountId' => $into?->id,
+        ], static fn (mixed $value): bool => $value !== null),
+        ['Accept' => 'application/json'],
+    );
+}
+
+/** How far the instance releases several bank accounts: "on", "off" or "beta" (FEATURE_BANK_ACCOUNTS). */
+function bankAccountsReleasedAs(string $release): void
+{
+    config(['features.bank_accounts' => $release]);
 }
 
 /**
