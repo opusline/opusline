@@ -16,6 +16,7 @@ import {
   InputGroupSuffix,
 } from "@opusline/ui/components/input-group";
 import { Label } from "@opusline/ui/components/label";
+import { NativeSelect } from "@opusline/ui/components/native-select";
 import { cn } from "@opusline/ui/lib/utils";
 import { UploadIcon } from "lucide-react";
 import { useId, useState } from "react";
@@ -37,10 +38,17 @@ import {
 export type ImportStatementSubmit = {
   file: File;
   balanceCents: number | null;
+  /** Null when there is no choice to make: the API files it in the only account. */
+  bankAccountId: number | null;
 };
+
+/** A bank account the file can be filed in. */
+export type ImportTargetAccount = { id: number; name: string };
 
 type ImportStatementDialogProps = {
   open: boolean;
+  /** Asked for only when there are several; an empty list hides the field. */
+  accounts: ImportTargetAccount[];
   isSaving: boolean;
   error: string | null;
   onOpenChange: (open: boolean) => void;
@@ -49,6 +57,7 @@ type ImportStatementDialogProps = {
 
 export function ImportStatementDialog({
   open,
+  accounts,
   isSaving,
   error,
   onOpenChange,
@@ -59,6 +68,7 @@ export function ImportStatementDialog({
       <DialogContent className="sm:max-w-lg">
         {open && (
           <ImportStatementForm
+            accounts={accounts}
             error={error}
             isSaving={isSaving}
             onSubmit={onSubmit}
@@ -70,18 +80,23 @@ export function ImportStatementDialog({
 }
 
 type ImportStatementFormProps = {
+  accounts: ImportTargetAccount[];
   isSaving: boolean;
   error: string | null;
   onSubmit: (input: ImportStatementSubmit) => void;
 };
 
 function ImportStatementForm({
+  accounts,
   isSaving,
   error,
   onSubmit,
 }: ImportStatementFormProps) {
   const format = useMoneyFormat();
   const balanceId = useId();
+  const accountId = useId();
+  const needsAccount = accounts.length > 1;
+  const [bankAccountId, setBankAccountId] = useState<number | null>(null);
   const [file, setFile] = useState<File | null>(null);
   const [rejected, setRejected] = useState<string | null>(null);
   const [balanceDraft, setBalanceDraft] = useState("");
@@ -104,14 +119,18 @@ function ImportStatementForm({
       : parseSignedAmountToCents(format.locale, balanceDraft);
   const balanceInvalid = balanceDraft.trim() !== "" && balanceCents === null;
   const balanceErrorId = `${balanceId}-invalid`;
-  const canSubmit = file !== null && !balanceInvalid && !isSaving;
+  const canSubmit =
+    file !== null &&
+    !balanceInvalid &&
+    !isSaving &&
+    (!needsAccount || bankAccountId !== null);
 
   const submit = () => {
     if (file === null || !canSubmit) {
       return;
     }
 
-    onSubmit({ file, balanceCents });
+    onSubmit({ file, balanceCents, bankAccountId });
   };
 
   const message = rejected ?? error;
@@ -149,6 +168,34 @@ function ImportStatementForm({
             : `${file.name} · ${formatFileSize(format.locale, file.size)}`}
         </span>
       </Dropzone>
+
+      {needsAccount && (
+        <div className="mt-4 flex flex-col gap-1.5">
+          <Label size="md" htmlFor={accountId}>
+            {m.bank_import_account_label()}
+          </Label>
+          <NativeSelect
+            data-testid="bank-import-account"
+            disabled={isSaving}
+            id={accountId}
+            onChange={(event) =>
+              setBankAccountId(
+                event.target.value === "" ? null : Number(event.target.value),
+              )
+            }
+            value={bankAccountId === null ? "" : String(bankAccountId)}
+          >
+            <option disabled value="">
+              {m.bank_import_account_placeholder()}
+            </option>
+            {accounts.map((account) => (
+              <option key={account.id} value={String(account.id)}>
+                {account.name}
+              </option>
+            ))}
+          </NativeSelect>
+        </div>
+      )}
 
       <div className="mt-4 flex flex-col gap-1.5">
         <Label size="md" htmlFor={balanceId}>

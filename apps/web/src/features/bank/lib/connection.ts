@@ -1,6 +1,7 @@
 import type {
-  BankAccountData,
+  BankAccountEntryData,
   BankConnectionAccountData,
+  BankConnectionData,
   BankPsuType,
   BankSyncError,
 } from "@opusline/api-client";
@@ -16,13 +17,14 @@ export type ConnectionState =
   | "expired";
 
 export function connectionState(
-  data: Pick<BankAccountData, "bankSyncConfigured" | "connection">,
+  bankSyncConfigured: boolean,
+  connection: BankConnectionData | null,
 ): ConnectionState {
-  if (data.connection === null) {
-    return data.bankSyncConfigured ? "disconnected" : "unconfigured";
+  if (connection === null) {
+    return bankSyncConfigured ? "disconnected" : "unconfigured";
   }
 
-  switch (data.connection.status) {
+  switch (connection.status) {
     case 0:
       return "active";
     case 1:
@@ -70,4 +72,24 @@ export function bankAccountLabel(account: BankConnectionAccountData): string {
   const name = account.name ?? m.bank_connection_unnamed_account();
 
   return account.ibanLast4 === null ? name : `${name} · ••${account.ibanLast4}`;
+}
+
+/**
+ * What an account is called on screen: the name given to it, else the bank
+ * that syncs it, else the plain « Compte pro » an account had before there
+ * could be several.
+ */
+export function bankAccountName(
+  account: Pick<BankAccountEntryData, "id" | "name">,
+  connections: BankConnectionData[],
+): string {
+  if (account.name !== null) {
+    return account.name;
+  }
+
+  const connection = connections.find(
+    (candidate) => candidate.bankAccountId === account.id,
+  );
+
+  return connection?.aspspName ?? m.bank_account_default_name();
 }

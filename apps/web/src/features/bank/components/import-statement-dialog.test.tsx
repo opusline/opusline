@@ -13,6 +13,7 @@ function renderDialog(
   render(
     <ImportStatementDialog
       open
+      accounts={[]}
       isSaving={false}
       error={null}
       onOpenChange={() => {}}
@@ -52,7 +53,11 @@ it("shows the chosen file and submits it", () => {
 
   fireEvent.click(screen.getByRole("button", { name: "Analyser le relevé" }));
 
-  expect(onSubmit).toHaveBeenCalledWith({ file, balanceCents: null });
+  expect(onSubmit).toHaveBeenCalledWith({
+    file,
+    balanceCents: null,
+    bankAccountId: null,
+  });
 });
 
 it("sends the typed balance as signed cents", () => {
@@ -122,4 +127,33 @@ it("surfaces the server's refusal", () => {
   expect(
     screen.getByText("Ce fichier n'a pas pu être lu comme un relevé bancaire."),
   ).toBeInTheDocument();
+});
+
+it("asks which account the file is from once there are several", () => {
+  const { onSubmit } = renderDialog({
+    accounts: [
+      { id: 1, name: "Banque Orvella" },
+      { id: 2, name: "Banque Vesterhus" },
+    ],
+  });
+
+  pickFile(new File(["x"], "releve.csv"));
+  const submit = screen.getByRole("button", { name: "Analyser le relevé" });
+
+  expect(submit).toBeDisabled();
+
+  fireEvent.change(screen.getByTestId("bank-import-account"), {
+    target: { value: "2" },
+  });
+  fireEvent.click(submit);
+
+  expect(onSubmit).toHaveBeenCalledWith(
+    expect.objectContaining({ bankAccountId: 2 }),
+  );
+});
+
+it("files the statement without asking when there is a single account", () => {
+  renderDialog({ accounts: [{ id: 1, name: "Banque Orvella" }] });
+
+  expect(screen.queryByTestId("bank-import-account")).toBeNull();
 });

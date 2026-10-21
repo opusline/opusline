@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Domain\Bank\Factories;
 
 use App\Domain\Bank\Enums\BankConnectionStatus;
+use App\Domain\Bank\Models\BankAccount;
 use App\Domain\Bank\Models\BankConnection;
 use App\Domain\Users\Models\User;
 use Carbon\CarbonImmutable;
@@ -44,6 +45,24 @@ class BankConnectionFactory extends Factory
             'account_uid' => $uid,
             'account_identification_hash' => $identificationHash,
             'valid_until' => CarbonImmutable::now()->addDays(150),
+            'bank_account_id' => fn (array $attributes): ?int => is_string($attributes['account_identification_hash'] ?? null)
+                ? $this->accountFor($attributes['user_id'], $attributes['account_identification_hash'])
+                : null,
         ];
+    }
+
+    /**
+     * The user's first account when nothing syncs it yet, so statements a
+     * test creates before or after land in the account the connection
+     * feeds; a fresh account otherwise.
+     */
+    private function accountFor(mixed $userId, string $identificationHash): int
+    {
+        $account = BankAccount::query()->where('user_id', $userId)->whereDoesntHave('connection')->orderBy('id')->first()
+            ?? BankAccount::factory()->make(['user_id' => $userId]);
+        $account->identification_hash = $identificationHash;
+        $account->save();
+
+        return $account->id;
     }
 }

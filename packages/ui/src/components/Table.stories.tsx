@@ -113,3 +113,28 @@ export const Compact: Story = {
     </Table>
   ),
 };
+
+/** A ledger scrolling in its own pane: labelled, so the keyboard can scroll it too. */
+export const ScrollingPane: Story = {
+  render: () => (
+    <Table containerClassName="max-h-40 overflow-auto" scrollLabel="Mouvements">
+      <TableHeader>
+        <TableRow>
+          <TableHead>Date</TableHead>
+          <TableHead className="text-right">Montant</TableHead>
+        </TableRow>
+      </TableHeader>
+      <TableBody>
+        {Array.from(
+          { length: 12 },
+          (_, index) => `${String(index + 1).padStart(2, "0")}/08/2026`,
+        ).map((day, index) => (
+          <TableRow key={day}>
+            <TableCell>{day}</TableCell>
+            <TableCell className="text-right">{`${(index + 1) * 120} €`}</TableCell>
+          </TableRow>
+        ))}
+      </TableBody>
+    </Table>
+  ),
+};

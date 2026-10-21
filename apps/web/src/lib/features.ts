@@ -6,6 +6,9 @@ import { redirect } from "@tanstack/react-router";
 /** Writing, issuing and rendering invoices in Opusline, still in beta. */
 export const INVOICING: FeatureFlag = 0;
 
+/** Several bank accounts side by side on the Compte pro page, still in beta. */
+export const BANK_ACCOUNTS: FeatureFlag = 1;
+
 /** The API resolved them, the instance's release and the account's beta choices included. */
 export function hasFeature(
   user: Pick<UserData, "features">,
