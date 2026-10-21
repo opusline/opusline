@@ -150,6 +150,7 @@ export const zBankStatementFormat = z.union([
  */
 export const zBankStatementData = z.object({
     id: z.int(),
+    bankAccountId: z.int(),
     fileName: z.string(),
     format: zBankStatementFormat,
     periodStart: z.iso.date(),
@@ -184,6 +185,8 @@ export const zBankSyncError = z.union([
  * BankConnectionData
  */
 export const zBankConnectionData = z.object({
+    id: z.int(),
+    bankAccountId: z.nullable(z.int()),
     aspspName: z.string(),
     status: zBankConnectionStatus,
     account: z.nullable(zBankConnectionAccountData),
@@ -394,6 +397,13 @@ export const zCraListItemData = z.object({
 export const zCraListData = z.object({
     cras: z.array(zCraListItemData),
     counts: zCraCountsData
+});
+
+/**
+ * CreateBankAccountData
+ */
+export const zCreateBankAccountData = z.object({
+    name: z.string().check(z.maxLength(120))
 });
 
 /**
@@ -938,8 +948,9 @@ export const zExpenseInputData = z.object({
  * | |
  * |---|
  * | `0` <br/> Writing, issuing and rendering invoices in Opusline (#498). |
+ * | `1` <br/> Several bank accounts side by side, each with its own connection and balance. |
  */
-export const zFeatureFlag = z.literal(0);
+export const zFeatureFlag = z.union([z.literal(0), z.literal(1)]);
 
 /**
  * BetaFeatureData
@@ -1014,7 +1025,8 @@ export const zFixedPriceBudgetState = z.union([
 export const zImportBankStatementData = z.object({
     file: z.string(),
     balanceAmount: z.nullish(z.int()),
-    balanceCurrency: z.nullish(zCurrency)
+    balanceCurrency: z.nullish(zCurrency),
+    bankAccountId: z.nullish(z.int())
 });
 
 /**
@@ -2715,17 +2727,29 @@ export const zBankBalanceData = z.object({
 });
 
 /**
+ * BankAccountEntryData
+ */
+export const zBankAccountEntryData = z.object({
+    id: z.int(),
+    name: z.nullable(z.string()),
+    balance: z.nullable(zBankBalanceData),
+    isArchived: z.boolean()
+});
+
+/**
  * BankMovementData
  */
 export const zBankMovementData = z.object({
     id: z.int(),
+    bankAccountId: z.int(),
     bookedOn: z.iso.date(),
     label: z.string(),
     amount: zSignedMoneyData,
     runningBalance: z.nullable(zSignedMoneyData),
     invoice: z.nullable(zBankMovementInvoiceData),
     pendingMatchId: z.nullable(z.int()),
-    expense: z.nullable(zBankMovementExpenseData)
+    expense: z.nullable(zBankMovementExpenseData),
+    isInternalTransfer: z.boolean()
 });
 
 /**
@@ -2740,7 +2764,16 @@ export const zBankAccountData = z.object({
     hasUnlinkedCredits: z.boolean(),
     statements: z.array(zBankStatementData),
     bankSyncConfigured: z.boolean(),
-    connection: z.nullable(zBankConnectionData)
+    accounts: z.array(zBankAccountEntryData),
+    connections: z.array(zBankConnectionData)
+});
+
+/**
+ * BankConnectionCompletedData
+ */
+export const zBankConnectionCompletedData = z.object({
+    connectionId: z.int(),
+    account: zBankAccountData
 });
 
 /**
@@ -3018,7 +3051,8 @@ export const zRevenueData = z.object({
  */
 export const zStartBankConnectionData = z.object({
     aspspName: z.string().check(z.maxLength(255)),
-    psuType: zBankPsuType
+    psuType: zBankPsuType,
+    connectionId: z.nullish(z.int())
 });
 
 /**
@@ -3480,13 +3514,22 @@ export const zSubscriptionsData = z.object({
 });
 
 /**
+ * UpdateBankAccountData
+ */
+export const zUpdateBankAccountData = z.object({
+    name: z.nullish(z.string().check(z.maxLength(120))),
+    archived: z.boolean()
+});
+
+/**
  * UpdateBankBalanceData
  */
 export const zUpdateBankBalanceData = z.object({
     balance: z.nullish(z.object({
         amount: z.int().check(z.gte(-100000000000), z.lte(100000000000)),
         currency: zCurrency
-    }))
+    })),
+    bankAccountId: z.nullish(z.int())
 });
 
 /**
@@ -4090,6 +4133,18 @@ export const zUpdateBankBalanceBody = zUpdateBankBalanceData;
 
 export const zUpdateBankBalanceResponse = zBankAccountData;
 
+export const zCreateBankAccountBody = zCreateBankAccountData;
+
+export const zCreateBankAccountResponse = zBankAccountData;
+
+export const zUpdateBankAccountBody = zUpdateBankAccountData;
+
+export const zUpdateBankAccountPath = z.object({
+    account: z.int()
+});
+
+export const zUpdateBankAccountResponse = zBankAccountData;
+
 export const zImportBankStatementBody = zImportBankStatementData;
 
 export const zImportBankStatementResponse = zBankImportData;
@@ -4108,21 +4163,33 @@ export const zDismissBankMatchResponse = zBankAccountData;
 
 export const zListBankAspspsResponse = zBankAspspListData;
 
-export const zDisconnectBankConnectionResponse = zBankAccountData;
-
 export const zStartBankConnectionBody = zStartBankConnectionData;
 
 export const zStartBankConnectionResponse = zBankAuthorizationData;
 
 export const zCompleteBankConnectionBody = zCompleteBankConnectionData;
 
-export const zCompleteBankConnectionResponse = zBankAccountData;
+export const zCompleteBankConnectionResponse = zBankConnectionCompletedData;
 
 export const zChooseBankConnectionAccountBody = zChooseBankAccountData;
 
+export const zChooseBankConnectionAccountPath = z.object({
+    connection: z.int()
+});
+
 export const zChooseBankConnectionAccountResponse = zBankAccountData;
 
+export const zSyncBankConnectionPath = z.object({
+    connection: z.int()
+});
+
 export const zSyncBankConnectionResponse = zBankImportData;
+
+export const zDisconnectBankConnectionPath = z.object({
+    connection: z.int()
+});
+
+export const zDisconnectBankConnectionResponse = zBankAccountData;
 
 export const zListBetaFeaturesResponse = zBetaFeaturesData;
 

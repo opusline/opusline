@@ -16,9 +16,11 @@ class BankAccountData extends Data
      * @param  list<BankMatchData>  $pendingMatches
      * @param  list<BankMovementData>  $movements
      * @param  list<BankStatementData>  $statements
+     * @param  list<BankAccountEntryData>  $accounts
+     * @param  list<BankConnectionData>  $connections
      */
     public function __construct(
-        /** Null until a balance is typed or a statement imported. */
+        /** Every bank account's balance added up; null until a balance is typed or a statement imported. */
         public ?BankBalanceData $balance,
         public BankProvisionsData $provisions,
         /** Most recent movement first. */
@@ -36,7 +38,11 @@ class BankAccountData extends Data
         public array $statements,
         /** Whether the account saved an Enable Banking application (Réglages › Intégrations). */
         public bool $bankSyncConfigured,
-        /** The bank the account syncs from; null until one is connected. */
-        public ?BankConnectionData $connection,
+        /** Oldest first. */
+        #[DataCollectionOf(BankAccountEntryData::class)]
+        public array $accounts,
+        /** The banks the account syncs from, oldest first. */
+        #[DataCollectionOf(BankConnectionData::class)]
+        public array $connections,
     ) {}
 }

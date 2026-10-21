@@ -22,20 +22,25 @@ export function BankKpiTiles({ data, onEditBalance }: BankKpiTilesProps) {
 
   const { balance, provisions, pendingMatches, statements } = data;
   const pendingCount = pendingMatches.length;
+  // Several accounts: the tile shows their total, and each balance is typed
+  // on its own row of the accounts card.
+  const canEditBalance = data.accounts.length < 2;
 
   return (
     <StatTileRow className="grid-cols-[repeat(auto-fit,minmax(min(11.25rem,100%),1fr))]">
       <StatTile
         action={
-          <Button
-            aria-label={m.bank_balance_edit_aria()}
-            data-testid="bank-balance-edit"
-            onClick={onEditBalance}
-            size="icon-sm"
-            variant="ghost"
-          >
-            <PencilIcon aria-hidden />
-          </Button>
+          canEditBalance && (
+            <Button
+              aria-label={m.bank_balance_edit_aria()}
+              data-testid="bank-balance-edit"
+              onClick={onEditBalance}
+              size="icon-sm"
+              variant="ghost"
+            >
+              <PencilIcon aria-hidden />
+            </Button>
+          )
         }
         label={m.bank_balance_tile()}
         size="lg"

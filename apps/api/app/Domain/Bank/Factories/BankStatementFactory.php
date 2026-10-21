@@ -29,6 +29,7 @@ class BankStatementFactory extends Factory
 
         return [
             'user_id' => User::factory(),
+            'bank_account_id' => fn (array $attributes): int => BankAccountFactory::firstOf($attributes['user_id']),
             'file_name' => 'releve-compte-pro.csv',
             'format' => BankStatementFormat::Csv,
             'period_start' => $periodEnd->subDays(30),

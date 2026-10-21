@@ -9,6 +9,7 @@ import {
   noVatBankData,
   reconciledBankData,
   syncedBankData,
+  twoAccountsBankData,
 } from "../lib/fixtures";
 import { BankPage } from "./bank-page";
 
@@ -21,9 +22,10 @@ const meta = {
     data: bankData(),
     isRefreshing: false,
     pendingMatchId: null,
+    canManageAccounts: false,
     connection: {
-      isSyncing: false,
-      isDisconnecting: false,
+      syncingConnectionId: null,
+      disconnectingConnectionId: null,
       onConnect: () => {},
       onChooseAccount: () => {},
       onSync: () => {},
@@ -31,6 +33,8 @@ const meta = {
     },
     onImport: () => {},
     onEditBalance: () => {},
+    onEditAccount: () => {},
+    onCreateAccount: () => {},
     onValidateMatch: () => {},
     onDismissMatch: () => {},
     onOpenInvoice: () => {},
@@ -69,4 +73,8 @@ export const NotVatLiable: Story = {
 
 export const SyncedFromTheBank: Story = {
   args: { data: syncedBankData() },
+};
+
+export const TwoBankAccounts: Story = {
+  args: { data: twoAccountsBankData(), canManageAccounts: true },
 };

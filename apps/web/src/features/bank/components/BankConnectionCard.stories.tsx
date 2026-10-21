@@ -18,7 +18,8 @@ const meta = {
     ),
   ],
   args: {
-    data: { bankSyncConfigured: true, connection: bankConnection() },
+    bankSyncConfigured: true,
+    connection: bankConnection(),
     isSyncing: false,
     isDisconnecting: false,
     onConnect: () => {},
@@ -39,55 +40,43 @@ export const Syncing: Story = {
 
 export const LastSyncFailed: Story = {
   args: {
-    data: {
-      bankSyncConfigured: true,
-      connection: bankConnection({
-        lastError: 1,
-      }),
-    },
+    connection: bankConnection({
+      lastError: 1,
+    }),
   },
 };
 
 export const ConsentEndingSoon: Story = {
   args: {
-    data: {
-      bankSyncConfigured: true,
-      connection: bankConnection({
-        validUntil: new Date(Date.now() + 5 * 86_400_000).toISOString(),
-      }),
-    },
+    connection: bankConnection({
+      validUntil: new Date(Date.now() + 5 * 86_400_000).toISOString(),
+    }),
   },
 };
 
 export const AwaitingAccount: Story = {
   args: {
-    data: {
-      bankSyncConfigured: true,
-      connection: bankConnection({
-        status: 1,
-        account: null,
-        accounts: [
-          { uid: "a-1", name: "Compte pro", ibanLast4: "0185" },
-          { uid: "a-2", name: "Compte réserve", ibanLast4: "0999" },
-        ],
-      }),
-    },
+    connection: bankConnection({
+      status: 1,
+      account: null,
+      accounts: [
+        { uid: "a-1", name: "Compte pro", ibanLast4: "0185" },
+        { uid: "a-2", name: "Compte réserve", ibanLast4: "0999" },
+      ],
+    }),
   },
 };
 
 export const Expired: Story = {
   args: {
-    data: {
-      bankSyncConfigured: true,
-      connection: bankConnection({ status: 2, lastError: 2 }),
-    },
+    connection: bankConnection({ status: 2, lastError: 2 }),
   },
 };
 
 export const ReadyToConnect: Story = {
-  args: { data: { bankSyncConfigured: true, connection: null } },
+  args: { connection: null },
 };
 
 export const NotSetUp: Story = {
-  args: { data: { bankSyncConfigured: false, connection: null } },
+  args: { bankSyncConfigured: false, connection: null },
 };

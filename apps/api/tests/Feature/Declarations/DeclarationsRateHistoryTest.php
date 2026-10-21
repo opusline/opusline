@@ -20,9 +20,8 @@ function acreStepEndedAccount(): User
         'business_started_on' => '2026-01-15',
         'contribution_rate_bp' => 1_200,
         'liberating_payment' => false,
-        'bank_balance_cents' => 1_000_000,
-        'bank_balance_recorded_on' => '2026-08-13',
     ]);
+    typedBankBalanceFor($user, 1_000_000, '2026-08-13');
 
     ContributionRate::query()->create([
         'user_id' => $user->id,
