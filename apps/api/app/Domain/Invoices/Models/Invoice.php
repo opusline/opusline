@@ -4,6 +4,9 @@ declare(strict_types=1);
 
 namespace App\Domain\Invoices\Models;
 
+use App\Domain\Bank\Enums\BankMatchStatus;
+use App\Domain\Bank\Models\BankMatch;
+use App\Domain\Bank\Models\BankMovement;
 use App\Domain\Clients\Models\Client;
 use App\Domain\Invoices\Actions\ComputeInvoiceAmounts;
 use App\Domain\Invoices\Enums\DocumentLanguage;
@@ -265,6 +268,30 @@ class Invoice extends Model
     public function isWrittenInOpusline(): bool
     {
         return $this->source === InvoiceSource::Opusline;
+    }
+
+    /**
+     * A draft always may go. An issued invoice Opusline numbered is part of the record
+     * and is only ever corrected by a credit note; one recorded from another tool is a
+     * note of what that tool did, so it may go until money is attached to it.
+     */
+    public function isDeletable(): bool
+    {
+        if (! $this->status->isIssued()) {
+            return true;
+        }
+
+        if ($this->isWrittenInOpusline() || $this->status !== InvoiceStatus::Sent) {
+            return false;
+        }
+
+        return ! $this->payments()->exists()
+            && ! $this->creditNotes()->exists()
+            && ! BankMovement::query()->where('invoice_id', $this->id)->exists()
+            && ! BankMatch::query()
+                ->where('invoice_id', $this->id)
+                ->where('status', BankMatchStatus::Validated)
+                ->exists();
     }
 
     /**

@@ -15,6 +15,7 @@ const meta = {
     onSend: () => {},
     onPay: () => {},
     onRemind: () => {},
+    canDelete: false,
     onDelete: () => {},
   },
 } satisfies Meta<typeof InvoiceLifecycleActions>;
@@ -24,12 +25,20 @@ type Story = StoryObj<typeof InvoiceLifecycleActions>;
 
 export const Sent: Story = {};
 
+/** Recorded from another tool with no money on it: it may still be deleted. */
+export const SentDeletable: Story = {
+  args: { canDelete: true },
+};
+
 export const Draft: Story = {
-  args: { invoice: invoiceDetail({ status: 0 }).invoice },
+  args: { invoice: invoiceDetail({ status: 0 }).invoice, canDelete: true },
 };
 
 export const DraftWithoutReference: Story = {
-  args: { invoice: invoiceDetail({ status: 0, number: null }).invoice },
+  args: {
+    invoice: invoiceDetail({ status: 0, number: null }).invoice,
+    canDelete: true,
+  },
 };
 
 export const Refused: Story = {
