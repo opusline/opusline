@@ -30,7 +30,8 @@ type InvoiceLifecycleActionsProps = {
   /** The amount is null for the whole balance, which the API takes as its default. */
   onPay: (paidOn: string, amountCents: number | null) => void;
   onRemind: () => void;
-  /** Drafts only: an issued invoice is part of the record and cannot be removed. */
+  /** A draft, or a sent invoice recorded from another tool with no money on it. */
+  canDelete: boolean;
   onDelete: () => void;
 };
 
@@ -50,6 +51,7 @@ export function InvoiceLifecycleActions({
   onSend,
   onPay,
   onRemind,
+  canDelete,
   onDelete,
 }: InvoiceLifecycleActionsProps) {
   // Paid or cancelled: the money is in, or nothing is due under it any more.
@@ -80,15 +82,30 @@ export function InvoiceLifecycleActions({
           </Button>
         </>
       ) : (
-        <CollectStep
-          // A payment changes the balance: the amount field opens on the new one.
-          key={invoice.amountDue.amount}
-          accountToday={accountToday}
-          invoice={invoice}
-          isPending={isPending}
-          onPay={onPay}
-          onRemind={onRemind}
-        />
+        <>
+          <CollectStep
+            // A payment changes the balance: the amount field opens on the new one.
+            key={invoice.amountDue.amount}
+            accountToday={accountToday}
+            invoice={invoice}
+            isPending={isPending}
+            onPay={onPay}
+            onRemind={onRemind}
+          />
+          {canDelete ? (
+            <Button
+              className="mt-4"
+              data-testid="invoice-delete-recorded"
+              disabled={isPending}
+              onClick={onDelete}
+              size="xl"
+              type="button"
+              variant="ghost"
+            >
+              {m.invoices_delete_recorded()}
+            </Button>
+          ) : null}
+        </>
       )}
 
       {error !== null && (
