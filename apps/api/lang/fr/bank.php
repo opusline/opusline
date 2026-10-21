@@ -24,5 +24,6 @@ return [
     'sync_account_already_connected' => 'Ce compte est déjà synchronisé par une autre connexion bancaire.',
     'account_unknown' => 'Ce compte bancaire n\'existe pas.',
     'account_required' => 'Choisissez le compte bancaire concerné.',
+    'transfer_not_paired' => 'Ce mouvement n\'est pas marqué comme un virement entre vos comptes.',
     'account_archive_connected' => 'Déconnectez la banque avant de clôturer ce compte.',
 ];

@@ -24,5 +24,6 @@ return [
     'sync_account_already_connected' => 'This account is already synced by another bank connection.',
     'account_unknown' => 'This bank account does not exist.',
     'account_required' => 'Choose the bank account this applies to.',
+    'transfer_not_paired' => 'This movement is not marked as a transfer between your accounts.',
     'account_archive_connected' => 'Disconnect the bank before closing this account.',
 ];

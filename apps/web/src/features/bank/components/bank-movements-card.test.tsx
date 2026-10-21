@@ -1,5 +1,5 @@
-import { render, screen } from "@testing-library/react";
-import { expect, it } from "vitest";
+import { fireEvent, render, screen } from "@testing-library/react";
+import { expect, it, vi } from "vitest";
 
 import {
   bankData,
@@ -87,4 +87,24 @@ it("marks both sides of a transfer between the user's accounts", () => {
   expect(screen.getAllByTestId("bank-movement-internal-transfer")).toHaveLength(
     2,
   );
+});
+
+it("undoes a transfer pairing from either side", () => {
+  const onUnpairTransfer = vi.fn();
+
+  render(
+    <BankMovementsCard
+      data={twoAccountsBankData()}
+      onUnpairTransfer={onUnpairTransfer}
+    />,
+  );
+  fireEvent.click(screen.getAllByTestId("bank-movement-unpair")[1]);
+
+  expect(onUnpairTransfer).toHaveBeenCalledWith(111);
+});
+
+it("keeps the transfer badge read-only without an undo", () => {
+  render(<BankMovementsCard data={twoAccountsBankData()} />);
+
+  expect(screen.queryByTestId("bank-movement-unpair")).toBeNull();
 });
