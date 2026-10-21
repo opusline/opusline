@@ -13,6 +13,24 @@ export type Release = {
 export const RELEASES: Release[] = [
   // release-notes:insert
   {
+    version: "0.35.0",
+    date: "2026-10-21",
+    items: [
+      {
+        kind: "new",
+        text: "Business account (beta): connect several banks side by side, each account with its own balance, and transfers between them are recognized instead of showing up as expenses.", // i18n-ignore
+      },
+      {
+        kind: "improved",
+        text: "An invoice recorded from another tool can now be deleted from its panel as long as no payment or bank transaction is attached to it, and the time it billed goes back to “to invoice”. When you write your invoices in Opusline, « Créer la facture » in the to-do list now opens the editor on that mission.", // i18n-ignore
+      },
+      {
+        kind: "improved",
+        text: "Business account (beta): a movement wrongly marked as a transfer between your accounts can be set back to a regular payment or expense.", // i18n-ignore
+      },
+    ],
+  },
+  {
     version: "0.34.0",
     date: "2026-10-18",
     items: [
