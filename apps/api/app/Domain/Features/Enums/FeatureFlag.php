@@ -13,11 +13,15 @@ enum FeatureFlag: int
     /** Writing, issuing and rendering invoices in Opusline (#498). */
     case Invoicing = 0;
 
+    /** Several bank accounts side by side, each with its own connection and balance. */
+    case BankAccounts = 1;
+
     /** The name Pennant stores, the route middleware takes and FEATURE_* spells. */
     public function key(): string
     {
         return match ($this) {
             self::Invoicing => 'invoicing',
+            self::BankAccounts => 'bank_accounts',
         };
     }
 

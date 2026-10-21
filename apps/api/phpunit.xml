@@ -40,5 +40,6 @@
         <!-- The suites exercise flagged features switched on; FeatureFlagsTest
              sets each release it is about. -->
         <env name="FEATURE_INVOICING" value="on"/>
+        <env name="FEATURE_BANK_ACCOUNTS" value="on"/>
     </php>
 </phpunit>

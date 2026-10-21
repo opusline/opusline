@@ -16,13 +16,16 @@ use Illuminate\Testing\TestResponse;
 
 beforeEach(fn () => freezeTodayAtUtcNoon());
 
+/** Syncs the user's one connection. */
 function syncBank(User $user): TestResponse
 {
+    $connectionId = $user->bankConnections()->sole()->id;
+
     // A fresh copy, as each real request loads: the settings memoize today(),
     // which a test travelling in time would otherwise read stale.
     return test()->actingAs($user->fresh())
         ->withHeader('User-Agent', 'Mozilla/5.0 (Opusline test)')
-        ->postJson('/api/bank/connection/sync');
+        ->postJson("/api/bank/connections/{$connectionId}/sync");
 }
 
 /**
@@ -71,7 +74,7 @@ test('records the movements on one statement the connection keeps', function ():
         ->assertJsonPath('account.statements.0.periodStart', '2026-05-15')
         ->assertJsonPath('account.statements.0.periodEnd', '2026-08-13')
         ->assertJsonPath('account.statements.0.lineCount', 2)
-        ->assertJsonPath('account.connection.lastError', null);
+        ->assertJsonPath('account.connections.0.lastError', null);
 
     expect($user->bankMovements()->orderBy('booked_on')->get()->map(fn (BankMovement $movement): int => (int) $movement->amount_cents->getAmount())->all())
         ->toBe([12_000, -4_550])
@@ -279,22 +282,22 @@ test('does not call the bank on a consent past its end', function (): void {
     expect($connection->refresh()->status)->toBe(BankConnectionStatus::Expired);
 });
 
-test('needs a connected account to sync', function (?callable $configure): void {
+test('needs a picked account to sync', function (): void {
     Http::fake();
     $user = User::factory()->create();
-
-    if ($configure !== null) {
-        connectedBankFor($user, $configure);
-    } else {
-        withEnableBankingCredentials($user);
-    }
+    connectedBankFor($user, fn ($factory) => $factory->state(['status' => BankConnectionStatus::AwaitingAccount, 'account_uid' => null]));
 
     syncBank($user)->assertConflict()->assertJsonPath('message', __('bank.sync_not_connected'));
     Http::assertNothingSent();
-})->with([
-    'no connection' => [null],
-    'account not picked yet' => [fn ($factory) => $factory->state(['status' => BankConnectionStatus::AwaitingAccount, 'account_uid' => null])],
-]);
+});
+
+test('answers 404 for a connection that does not exist', function (): void {
+    Http::fake();
+    $user = withEnableBankingCredentials(User::factory()->create());
+
+    test()->actingAs($user)->postJson('/api/bank/connections/999999/sync')->assertNotFound();
+    Http::assertNothingSent();
+});
 
 test('a synced payment raises the invoice suggestion', function (): void {
     fakeEnableBanking([
@@ -380,7 +383,7 @@ test('a reconnection to the same account reads its history again without doublin
     connectedBankFor($user, $sameAccount);
     syncBank($user)->assertOk()->assertJsonPath('importedCount', 1);
     // Disconnected and connected again: a fresh connection to the same account.
-    $user->bankConnection()->delete();
+    $user->bankConnections()->delete();
     connectedBankFor($user, $sameAccount);
 
     syncBank($user)->assertOk()->assertJsonPath('importedCount', 0);
@@ -445,7 +448,7 @@ test('a successful sync clears the last failure', function (): void {
         'last_failed_at' => now()->subDay(),
     ]));
 
-    syncBank($user)->assertOk()->assertJsonPath('account.connection.lastError', null);
+    syncBank($user)->assertOk()->assertJsonPath('account.connections.0.lastError', null);
 
     expect($connection->refresh()->last_failed_at)->toBeNull();
 });

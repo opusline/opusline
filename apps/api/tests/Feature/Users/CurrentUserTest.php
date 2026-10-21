@@ -32,8 +32,8 @@ test('the current user endpoint returns the authenticated user', function (): vo
             'workdayMinutes' => 420,
             'defaultPaymentTermsDays' => 45,
             'effectiveContributionRateBp' => 2580,
-            // phpunit.xml releases invoicing to every account.
-            'features' => [FeatureFlag::Invoicing->value],
+            // phpunit.xml releases every flagged feature to every account.
+            'features' => [FeatureFlag::Invoicing->value, FeatureFlag::BankAccounts->value],
             // phpunit.xml names no relay.
             'canSendReports' => false,
             'hasAnthropicApiKey' => false,

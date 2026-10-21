@@ -101,6 +101,11 @@ export async function joinInvoicingBeta(api: Api): Promise<void> {
   await api.put("/api/user/features/invoicing", { active: true });
 }
 
+/** Several bank accounts side by side are in beta, like invoicing. */
+export async function joinBankAccountsBeta(api: Api): Promise<void> {
+  await api.put("/api/user/features/bank_accounts", { active: true });
+}
+
 /** The seller identity an invoice needs before it can be validated. */
 export async function fillInvoicingIdentity(api: Api): Promise<void> {
   const current = await api.get<SettingsData>("/api/settings");

@@ -5,11 +5,11 @@ declare(strict_types=1);
 namespace App\Domain\Bank\Actions;
 
 use App\Domain\Bank\Data\BankAccountData;
+use App\Domain\Bank\Data\BankAccountEntryData;
 use App\Domain\Bank\Data\BankConnectionData;
 use App\Domain\Bank\Data\BankMatchData;
 use App\Domain\Bank\Data\BankStatementData;
 use App\Domain\Bank\Enums\BankMatchStatus;
-use App\Domain\Bank\Models\BankConnection;
 use App\Domain\Bank\Models\BankMatch;
 use App\Domain\Bank\Models\BankStatement;
 use App\Domain\Users\Models\User;
@@ -25,9 +25,8 @@ use Illuminate\Support\Facades\DB;
 class SummarizeBankAccount
 {
     public function __construct(
-        private readonly ResolveBankBalance $resolveBankBalance,
+        private readonly ResolveAccountBalances $resolveAccountBalances,
         private readonly ComputeBankProvisions $computeBankProvisions,
-        private readonly ResolveCurrentBalance $resolveCurrentBalance,
         private readonly ListBankMovements $listBankMovements,
     ) {}
 
@@ -40,7 +39,7 @@ class SummarizeBankAccount
 
         $settings = $user->settingsOrFail();
         $currency = $settings->currency->value;
-        $connection = $user->bankConnection()->first();
+        $connections = $user->bankConnections()->orderBy('id')->get();
 
         // A synced statement is extended in place, so its last sync — not its
         // creation — is what places it among the imports.
@@ -49,8 +48,8 @@ class SummarizeBankAccount
             ->orderByDesc('id')
             ->get();
 
-        $anchor = $this->resolveBankBalance->handle($user, $statements);
-        $balance = $this->resolveCurrentBalance->handle($user, $anchor, $currency);
+        $accountBalances = $this->resolveAccountBalances->handle($user, $statements);
+        $balance = ResolveAccountBalances::total($accountBalances, $currency);
 
         ['movements' => $movements, 'nextCursor' => $nextMovementsCursor] = $this->listBankMovements
             ->page($user, $balance?->amount->amount, $currency, cursor: null);
@@ -64,12 +63,17 @@ class SummarizeBankAccount
             hasUnlinkedCredits: $this->hasUnlinkedCredits($user),
             statements: $this->statements($user, $statements),
             bankSyncConfigured: $settings->hasEnableBankingCredentials(),
-            connection: $connection instanceof BankConnection ? BankConnectionData::fromModel($connection) : null,
+            accounts: array_map(
+                static fn (array $accountBalance): BankAccountEntryData => BankAccountEntryData::fromModel($accountBalance['account'], $accountBalance['balance']),
+                $accountBalances,
+            ),
+            connections: array_values($connections->map(BankConnectionData::fromModel(...))->all()),
         );
     }
 
     /**
-     * A credit nobody linked: no invoice attached and no suggestion pending.
+     * A credit nobody linked: no invoice attached, no suggestion pending, and
+     * not a transfer from another of the user's accounts.
      * Answered by the database because the screen only holds a window of the
      * movements — the page must never claim « tout est rapproché » while an
      * older credit sits unlinked past the window.
@@ -79,6 +83,7 @@ class SummarizeBankAccount
         return $user->bankMovements()
             ->where('amount_cents', '>', 0)
             ->whereNull('invoice_id')
+            ->whereNull('transfer_counterpart_id')
             ->whereDoesntHave('match', function (Builder $query): void {
                 $query->where('status', BankMatchStatus::Pending);
             })

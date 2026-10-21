@@ -23,10 +23,11 @@ class SyncBankConnections extends Command
             BankConnection::query()
                 ->where('status', BankConnectionStatus::Active)
                 ->whereNotNull('account_uid')
+                ->whereNotNull('bank_account_id')
                 ->where('valid_until', '>', now())
-                ->with('user.settings'),
+                ->with(['user.settings', 'statement']),
             // No holder at the keyboard: the bank must count it as a background read.
-            fn (BankConnection $connection): array => $syncBankConnection->handle($connection->user, psu: null),
+            fn (BankConnection $connection): array => $syncBankConnection->handle($connection, psu: null),
         );
 
         $this->components->info($run->summary($counts));

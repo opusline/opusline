@@ -15,16 +15,13 @@ use Cknow\Money\Money;
  * balance. The history is windowed — `bank_movements` is the account's
  * fastest-growing table, and hydrating all of it on every read and write of
  * the Compte pro screen is the cost this bounds.
- *
- * @phpstan-import-type BalanceAnchor from ResolveBankBalance
  */
 class ListBankMovements
 {
     public const int PAGE_SIZE = 200;
 
     public function __construct(
-        private readonly ResolveBankBalance $resolveBankBalance,
-        private readonly ResolveCurrentBalance $resolveCurrentBalance,
+        private readonly ResolveAccountBalances $resolveAccountBalances,
     ) {}
 
     /**
@@ -37,8 +34,10 @@ class ListBankMovements
     public function handle(User $user, ?string $cursor): array
     {
         $currency = $user->settingsOrFail()->currency->value;
-        $anchor = $this->resolveBankBalance->handle($user, $user->bankStatements()->get());
-        $balance = $this->resolveCurrentBalance->handle($user, $anchor, $currency);
+        $balance = ResolveAccountBalances::total(
+            $this->resolveAccountBalances->handle($user, $user->bankStatements()->get()),
+            $currency,
+        );
 
         return $this->page($user, $balance?->amount->amount, $currency, $cursor);
     }
@@ -100,7 +99,9 @@ class ListBankMovements
     }
 
     /**
-     * The walk's seed. The first page starts at the account's current balance;
+     * The walk's seed. The first page starts at the total of every bank
+     * account — each movement moves that total by its own amount, whichever
+     * account it was booked on;
      * a deeper page starts at that figure less every movement newer than the
      * page — one indexed SUM instead of hydrating the rows above it.
      *

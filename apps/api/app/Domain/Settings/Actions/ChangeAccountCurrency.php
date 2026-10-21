@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Domain\Settings\Actions;
 
+use App\Domain\Bank\Models\BankAccount;
 use App\Domain\Settings\Data\UpdateSettingsCurrencyData;
 use App\Domain\Settings\Models\UserSettings;
 use App\Domain\Users\Models\User;
@@ -36,8 +37,15 @@ class ChangeAccountCurrency
 
             $settings->update([
                 'currency' => $data->currency,
-                'bank_balance_recorded_on' => null,
                 ...array_fill_keys(UserSettings::CURRENCY_SCOPED_COLUMNS, null),
+            ]);
+
+            // A bank account without statements can still hold a typed balance;
+            // its cents are in the old currency, like the columns above.
+            $user->bankAccounts()->update([
+                'currency' => $data->currency->value,
+                ...array_fill_keys(BankAccount::CURRENCY_SCOPED_COLUMNS, null),
+                'balance_recorded_on' => null,
             ]);
 
             return $settings;

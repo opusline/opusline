@@ -5,6 +5,7 @@ declare(strict_types=1);
 use App\Domain\Bank\Actions\StartBankConnection;
 use App\Domain\Bank\Enums\BankConnectionStatus;
 use App\Domain\Bank\Enums\BankPsuType;
+use App\Domain\Bank\Models\BankConnection;
 use App\Domain\Users\Models\User;
 use Carbon\CarbonImmutable;
 use Illuminate\Http\Client\Request;
@@ -14,9 +15,12 @@ use Illuminate\Testing\TestResponse;
 
 beforeEach(fn () => freezeTodayAtUtcNoon());
 
-function startConnection(User $user, string $aspspName = 'Banque Orvella', int $psuType = 0): TestResponse
+function startConnection(User $user, string $aspspName = 'Banque Orvella', int $psuType = 0, ?int $renewing = null): TestResponse
 {
-    return test()->actingAs($user)->postJson('/api/bank/connection', ['aspspName' => $aspspName, 'psuType' => $psuType]);
+    return test()->actingAs($user)->postJson('/api/bank/connections', array_filter(
+        ['aspspName' => $aspspName, 'psuType' => $psuType, 'connectionId' => $renewing],
+        static fn (mixed $value): bool => $value !== null,
+    ));
 }
 
 /** The state POST /auth was sent with, as the bank would hand it back. */
@@ -39,13 +43,16 @@ function sentState(): string
 
 function completeConnection(User $user, string $state, string $code = 'code-from-the-bank'): TestResponse
 {
-    return test()->actingAs($user)->postJson('/api/bank/connection/complete', ['code' => $code, 'state' => $state]);
+    return test()->actingAs($user)->postJson('/api/bank/connections/complete', ['code' => $code, 'state' => $state]);
 }
 
-/** Starts and completes a connection, as the browser round trip would. */
-function connectThroughTheBank(User $user): TestResponse
+/**
+ * Starts and completes a connection, as the browser round trip would: a new
+ * one, or the renewal of $renewing.
+ */
+function connectThroughTheBank(User $user, ?BankConnection $renewing = null): TestResponse
 {
-    startConnection($user)->assertOk();
+    startConnection($user, renewing: $renewing?->id)->assertOk();
 
     return completeConnection($user, sentState());
 }
@@ -144,19 +151,20 @@ test('connects the only account of the consent and makes it active', function ()
     fakeEnableBanking();
     $user = withEnableBankingCredentials(User::factory()->create());
 
-    connectThroughTheBank($user)
+    $response = connectThroughTheBank($user)
         ->assertOk()
-        ->assertJsonPath('connection.aspspName', 'Banque Orvella')
-        ->assertJsonPath('connection.status', BankConnectionStatus::Active->value)
-        ->assertJsonPath('connection.account.uid', '07cc67f4-45d6-494b-adac-09b5cbc7e2b5')
-        ->assertJsonPath('connection.account.name', 'Compte pro')
-        ->assertJsonPath('connection.account.ibanLast4', '0185')
-        ->assertJsonPath('connection.validUntil', '2027-02-09T12:00:00+00:00')
-        ->assertJsonPath('bankSyncConfigured', true);
+        ->assertJsonPath('account.connections.0.aspspName', 'Banque Orvella')
+        ->assertJsonPath('account.connections.0.status', BankConnectionStatus::Active->value)
+        ->assertJsonPath('account.connections.0.account.uid', '07cc67f4-45d6-494b-adac-09b5cbc7e2b5')
+        ->assertJsonPath('account.connections.0.account.name', 'Compte pro')
+        ->assertJsonPath('account.connections.0.account.ibanLast4', '0185')
+        ->assertJsonPath('account.connections.0.validUntil', '2027-02-09T12:00:00+00:00')
+        ->assertJsonPath('account.bankSyncConfigured', true);
 
-    $connection = $user->bankConnection()->sole();
+    $connection = $user->bankConnections()->sole();
 
-    expect($connection->session_id)->toBe('4b1e7c2a-0d7f-4c0e-9a4e-2f1d3c5b6a70')
+    expect($response->json('connectionId'))->toBe($connection->id)
+        ->and($connection->session_id)->toBe('4b1e7c2a-0d7f-4c0e-9a4e-2f1d3c5b6a70')
         ->and(json_encode($connection->accounts))->not->toContain('FR76');
 });
 
@@ -168,18 +176,19 @@ test('lets the user pick when the consent covers several accounts', function ():
     ]))]);
     $user = withEnableBankingCredentials(User::factory()->create());
 
-    connectThroughTheBank($user)
+    $connectionId = connectThroughTheBank($user)
         ->assertOk()
-        ->assertJsonPath('connection.status', BankConnectionStatus::AwaitingAccount->value)
-        ->assertJsonPath('connection.account', null)
-        ->assertJsonCount(2, 'connection.accounts')
-        ->assertJsonPath('connection.accounts.1.name', 'Compte réserve');
+        ->assertJsonPath('account.connections.0.status', BankConnectionStatus::AwaitingAccount->value)
+        ->assertJsonPath('account.connections.0.account', null)
+        ->assertJsonCount(2, 'account.connections.0.accounts')
+        ->assertJsonPath('account.connections.0.accounts.1.name', 'Compte réserve')
+        ->json('connectionId');
 
     test()->actingAs($user)
-        ->putJson('/api/bank/connection/account', ['accountUid' => 'b2a1c3d4-0000-4000-8000-000000000002'])
+        ->putJson("/api/bank/connections/{$connectionId}/account", ['accountUid' => 'b2a1c3d4-0000-4000-8000-000000000002'])
         ->assertOk()
-        ->assertJsonPath('connection.status', BankConnectionStatus::Active->value)
-        ->assertJsonPath('connection.account.ibanLast4', '0999');
+        ->assertJsonPath('connections.0.status', BankConnectionStatus::Active->value)
+        ->assertJsonPath('connections.0.account.ibanLast4', '0999');
 });
 
 test('picking an account does not revive an expired consent', function (): void {
@@ -187,7 +196,7 @@ test('picking an account does not revive an expired consent', function (): void 
     $connection = connectedBankFor($user, fn ($factory) => $factory->state(['status' => BankConnectionStatus::Expired]));
 
     test()->actingAs($user)
-        ->putJson('/api/bank/connection/account', ['accountUid' => $connection->account_uid])
+        ->putJson("/api/bank/connections/{$connection->id}/account", ['accountUid' => $connection->account_uid])
         ->assertConflict();
 
     expect($connection->refresh()->status)->toBe(BankConnectionStatus::Expired);
@@ -195,10 +204,10 @@ test('picking an account does not revive an expired consent', function (): void 
 
 test('refuses to pick an account outside the consent', function (): void {
     $user = User::factory()->create();
-    connectedBankFor($user);
+    $connection = connectedBankFor($user);
 
     test()->actingAs($user)
-        ->putJson('/api/bank/connection/account', ['accountUid' => 'b2a1c3d4-0000-4000-8000-000000000003'])
+        ->putJson("/api/bank/connections/{$connection->id}/account", ['accountUid' => 'b2a1c3d4-0000-4000-8000-000000000003'])
         ->assertUnprocessable()
         ->assertJsonValidationErrors('accountUid');
 });
@@ -209,7 +218,7 @@ test('refuses a consent with no account in the account currency, and ends it', f
 
     connectThroughTheBank($user)->assertConflict()->assertJsonPath('message', __('bank.sync_currency_mismatch'));
 
-    expect($user->bankConnection()->exists())->toBeFalse();
+    expect($user->bankConnections()->exists())->toBeFalse();
     Http::assertSent(fn (Request $request): bool => $request->method() === 'DELETE' && str_contains($request->url(), '/sessions/'));
 });
 
@@ -224,8 +233,8 @@ test('only the account that opened an authorization can complete it, once', func
     completeConnection($intruder, $state)->assertUnprocessable()->assertJsonValidationErrors('state');
     completeConnection($owner, $state)->assertUnprocessable()->assertJsonValidationErrors('state');
 
-    expect($intruder->bankConnection()->exists())->toBeFalse()
-        ->and($owner->bankConnection()->exists())->toBeFalse();
+    expect($intruder->bankConnections()->exists())->toBeFalse()
+        ->and($owner->bankConnections()->exists())->toBeFalse();
 });
 
 test('an authorization expires with its state', function (): void {
@@ -257,7 +266,7 @@ test('a reconnection to the same account keeps the sync where it was', function 
         'bank_statement_id' => $statement->id,
     ]));
 
-    connectThroughTheBank($user)->assertOk()->assertJsonPath('connection.status', BankConnectionStatus::Active->value);
+    connectThroughTheBank($user, renewing: $connection)->assertOk()->assertJsonPath('account.connections.0.status', BankConnectionStatus::Active->value);
 
     $connection->refresh();
     expect($connection->bank_statement_id)->toBe($statement->id)
@@ -273,7 +282,7 @@ test('a reconnection to another account starts a statement of its own', function
         'bank_statement_id' => bankStatementOwnedBy($user)->id,
     ]));
 
-    connectThroughTheBank($user)->assertOk();
+    connectThroughTheBank($user, renewing: $connection)->assertOk();
 
     expect($connection->refresh()->bank_statement_id)->toBeNull();
 });
@@ -284,9 +293,9 @@ test('disconnecting ends the consent and keeps the movements', function (): void
     $connection = connectedBankFor($user);
     bankMovementFor($user);
 
-    test()->actingAs($user)->deleteJson('/api/bank/connection')
+    test()->actingAs($user)->deleteJson("/api/bank/connections/{$connection->id}")
         ->assertOk()
-        ->assertJsonPath('connection', null)
+        ->assertJsonPath('connections', [])
         ->assertJsonPath('bankSyncConfigured', true);
 
     expect($user->bankMovements()->count())->toBe(1);
@@ -300,8 +309,9 @@ test('the account summary shows the connection without its session', function ()
 
     $response = test()->actingAs($user)->getJson('/api/bank')
         ->assertOk()
-        ->assertJsonPath('connection.aspspName', 'Banque Orvella')
-        ->assertJsonPath('connection.status', BankConnectionStatus::Active->value);
+        ->assertJsonPath('connections.0.id', $connection->id)
+        ->assertJsonPath('connections.0.aspspName', 'Banque Orvella')
+        ->assertJsonPath('connections.0.status', BankConnectionStatus::Active->value);
 
     expect($response->getContent())->not->toContain($connection->session_id);
 });
@@ -310,7 +320,7 @@ test('a consent past its end shows as expired before any sync runs into it', fun
     $user = User::factory()->create();
     connectedBankFor($user, fn ($factory) => $factory->state(['valid_until' => CarbonImmutable::now()->subMinute()]));
 
-    test()->actingAs($user)->getJson('/api/bank')->assertJsonPath('connection.status', BankConnectionStatus::Expired->value);
+    test()->actingAs($user)->getJson('/api/bank')->assertJsonPath('connections.0.status', BankConnectionStatus::Expired->value);
 });
 
 test('the state of an authorization in flight lives in the cache only', function (): void {
@@ -320,5 +330,5 @@ test('the state of an authorization in flight lives in the cache only', function
     startConnection($user)->assertOk();
 
     expect(Cache::get(StartBankConnection::stateKey(sentState())))->toMatchArray(['userId' => $user->id, 'aspspName' => 'Banque Orvella'])
-        ->and($user->bankConnection()->exists())->toBeFalse();
+        ->and($user->bankConnections()->exists())->toBeFalse();
 });

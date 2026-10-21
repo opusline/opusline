@@ -29,6 +29,7 @@ class ImportBankStatement
     public function __construct(
         private readonly ParseBankStatement $parseBankStatement,
         private readonly RecordBankMovements $recordBankMovements,
+        private readonly ResolveTargetBankAccount $resolveTargetBankAccount,
         private readonly SummarizeBankAccount $summarizeBankAccount,
     ) {}
 
@@ -58,7 +59,10 @@ class ImportBankStatement
                 );
             }
 
+            $account = $this->resolveTargetBankAccount->handle($locked, $data->bankAccountId);
+
             $statement = $locked->bankStatements()->create([
+                'bank_account_id' => $account->id,
                 'file_name' => $this->sanitizedFileName($data->file->getClientOriginalName()),
                 'format' => $format,
                 'period_start' => $parsed->periodStart,
@@ -73,9 +77,10 @@ class ImportBankStatement
             // pencil, read at the statement's date: it becomes the account's
             // anchor, which a file's own closing balance never overrides.
             if ($data->balanceAmount !== null) {
-                $settings->update([
-                    'bank_balance_cents' => $this->cents($data->balanceAmount, $settings),
-                    'bank_balance_recorded_on' => $parsed->periodEnd,
+                $account->update([
+                    'currency' => $settings->currency->value,
+                    'balance_cents' => $this->cents($data->balanceAmount, $settings),
+                    'balance_recorded_on' => $parsed->periodEnd,
                 ]);
             }
 

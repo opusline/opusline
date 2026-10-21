@@ -2,10 +2,11 @@ import { expect, it } from "vitest";
 
 import {
   bankAccountLabel,
+  bankAccountName,
   connectionState,
   consentExpiresSoon,
 } from "./connection";
-import { bankConnection } from "./fixtures";
+import { bankAccountEntry, bankConnection } from "./fixtures";
 
 it.each([
   [false, null, "unconfigured"],
@@ -16,7 +17,7 @@ it.each([
 ] as const)(
   "with credentials %s and connection %o the page offers %s",
   (bankSyncConfigured, connection, state) => {
-    expect(connectionState({ bankSyncConfigured, connection })).toBe(state);
+    expect(connectionState(bankSyncConfigured, connection)).toBe(state);
   },
 );
 
@@ -35,3 +36,21 @@ it("names an account by its label and the tail of its IBAN", () => {
     "Compte sans nom",
   );
 });
+
+it.each([
+  ["the name given to it", { name: "Réserve" }, [bankConnection()], "Réserve"],
+  [
+    "the bank that syncs it",
+    { name: null },
+    [bankConnection()],
+    "Banque Orvella",
+  ],
+  ["Compte pro when nothing names it", { name: null }, [], "Compte pro"],
+] as const)(
+  "calls an account by %s",
+  (_case, overrides, connections, expected) => {
+    expect(bankAccountName(bankAccountEntry(overrides), [...connections])).toBe(
+      expected,
+    );
+  },
+);
