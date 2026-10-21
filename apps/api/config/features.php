@@ -9,4 +9,5 @@ declare(strict_types=1);
  */
 return [
     'invoicing' => env('FEATURE_INVOICING', 'beta'),
+    'bank_accounts' => env('FEATURE_BANK_ACCOUNTS', 'beta'),
 ];

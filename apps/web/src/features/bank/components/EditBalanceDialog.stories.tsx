@@ -28,3 +28,7 @@ export const Blank: Story = {
 export const Failed: Story = {
   args: { error: "Le solde n'a pas pu être enregistré." },
 };
+
+export const OneOfSeveralAccounts: Story = {
+  args: { accountName: "Banque Vesterhus" },
+};

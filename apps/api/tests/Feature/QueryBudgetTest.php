@@ -30,10 +30,7 @@ function accountWithThirtyMovements(User $user, string $kind): void
 
 test('the bank summary runs a bounded number of queries', function (): void {
     $user = vatLiableUser();
-    $user->settings()->sole()->update([
-        'bank_balance_cents' => 1_000_000,
-        'bank_balance_recorded_on' => '2026-08-13',
-    ]);
+    typedBankBalanceFor($user, 1_000_000, '2026-08-13');
     accountWithThirtyMovements($user, 'credit');
 
     $queries = queriesDuring(fn () => test()->actingAs($user)->getJson('/api/bank')->assertOk());
@@ -67,7 +64,7 @@ test('the expenses journal runs a bounded number of queries', function (): void 
 
 test('the declarations screen runs a bounded number of queries', function (): void {
     $user = vatLiableUser();
-    $user->settings()->sole()->update(['bank_balance_cents' => 1_000_000, 'bank_balance_recorded_on' => '2026-08-13']);
+    typedBankBalanceFor($user, 1_000_000, '2026-08-13');
     accountWithThirtyMovements($user, 'debit');
 
     foreach (range(1, 30) as $day) {

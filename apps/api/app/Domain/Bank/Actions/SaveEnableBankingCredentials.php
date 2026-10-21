@@ -51,7 +51,7 @@ class SaveEnableBankingCredentials
             throw ValidationException::withMessages(['applicationId' => __('settings.enable_banking_inactive')]);
         }
 
-        [$previousCredentials, $orphanedSessionId] = DB::transaction(function () use ($user, $data): array {
+        [$previousCredentials, $orphanedSessionIds] = DB::transaction(function () use ($user, $data): array {
             $locked = User::lockRow($user->id);
             $settings = $locked->settings()->sole();
             $previousCredentials = EnableBankingCredentials::of($settings);
@@ -61,21 +61,24 @@ class SaveEnableBankingCredentials
                 'enable_banking_private_key' => $data->privateKey,
             ])->save();
 
-            $connection = $locked->bankConnection()->first();
+            /** @var list<string> $sessionIds */
+            $sessionIds = $locked->bankConnections()->pluck('session_id')->all();
 
-            if ($connection === null || $previousCredentials?->applicationId === $data->applicationId) {
-                return [null, null];
+            if ($sessionIds === [] || $previousCredentials?->applicationId === $data->applicationId) {
+                return [null, []];
             }
 
             // A session belongs to the application that opened it: under
             // another one it is unreachable, so the user has to authorize again.
-            $connection->forceFill(['status' => BankConnectionStatus::Expired])->save();
+            $locked->bankConnections()->update(['status' => BankConnectionStatus::Expired]);
 
-            return [$previousCredentials, $connection->session_id];
+            return [$previousCredentials, $sessionIds];
         });
 
-        if ($previousCredentials instanceof EnableBankingCredentials && $orphanedSessionId !== null) {
-            $this->enableBankingClient->revokeSession($previousCredentials, $orphanedSessionId);
+        if ($previousCredentials instanceof EnableBankingCredentials) {
+            foreach ($orphanedSessionIds as $orphanedSessionId) {
+                $this->enableBankingClient->revokeSession($previousCredentials, $orphanedSessionId);
+            }
         }
     }
 }

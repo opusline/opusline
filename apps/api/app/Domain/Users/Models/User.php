@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Domain\Users\Models;
 
 use App\Domain\AccessTokens\Models\AccessToken;
+use App\Domain\Bank\Models\BankAccount;
 use App\Domain\Bank\Models\BankConnection;
 use App\Domain\Bank\Models\BankMatch;
 use App\Domain\Bank\Models\BankMovement;
@@ -232,10 +233,16 @@ class User extends Authenticatable implements HasLocalePreference, HasMedia
         return $this->hasOne(RunningTimer::class);
     }
 
-    /** @return HasOne<BankConnection, $this> */
-    public function bankConnection(): HasOne
+    /** @return HasMany<BankAccount, $this> */
+    public function bankAccounts(): HasMany
     {
-        return $this->hasOne(BankConnection::class);
+        return $this->hasMany(BankAccount::class);
+    }
+
+    /** @return HasMany<BankConnection, $this> */
+    public function bankConnections(): HasMany
+    {
+        return $this->hasMany(BankConnection::class);
     }
 
     /** @return HasOne<EInvoicingConnection, $this> */

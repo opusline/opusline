@@ -1,7 +1,12 @@
 import { render, screen } from "@testing-library/react";
 import { expect, it } from "vitest";
 
-import { bankData, bankMovement, emptyBankData } from "../lib/fixtures";
+import {
+  bankData,
+  bankMovement,
+  emptyBankData,
+  twoAccountsBankData,
+} from "../lib/fixtures";
 import { BankMovementsCard } from "./bank-movements-card";
 
 it("cites the statement the movements come from", () => {
@@ -60,4 +65,26 @@ it("scopes every column header to its column", () => {
   for (const header of headers) {
     expect(header).toHaveAttribute("scope", "col");
   }
+});
+
+it("names the account of each movement once there are several", () => {
+  render(<BankMovementsCard data={twoAccountsBankData()} />);
+
+  expect(screen.getAllByTestId("bank-movement-account")[0]).toHaveTextContent(
+    "Banque Vesterhus",
+  );
+});
+
+it("leaves the account unnamed while there is only one", () => {
+  render(<BankMovementsCard data={bankData()} />);
+
+  expect(screen.queryByTestId("bank-movement-account")).toBeNull();
+});
+
+it("marks both sides of a transfer between the user's accounts", () => {
+  render(<BankMovementsCard data={twoAccountsBankData()} />);
+
+  expect(screen.getAllByTestId("bank-movement-internal-transfer")).toHaveLength(
+    2,
+  );
 });

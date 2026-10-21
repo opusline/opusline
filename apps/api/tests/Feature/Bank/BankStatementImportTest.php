@@ -109,10 +109,7 @@ test('lets the typed balance beat the file\'s ledger balance', function (): void
 
 test('rolls a hand-typed balance forward through an imported statement instead of taking the file\'s balance', function (): void {
     $user = User::factory()->create();
-    $user->settings()->sole()->update([
-        'bank_balance_cents' => 500_000,
-        'bank_balance_recorded_on' => '2026-08-06',
-    ]);
+    typedBankBalanceFor($user, 500_000, '2026-08-06');
 
     importStatement($user, 'statement_v102.ofx', 'export.ofx')
         ->assertCreated()
@@ -125,10 +122,7 @@ test('rolls a hand-typed balance forward through an imported statement instead o
 
 test('replaces the hand-typed balance with one typed at import', function (): void {
     $user = User::factory()->create();
-    $user->settings()->sole()->update([
-        'bank_balance_cents' => 500_000,
-        'bank_balance_recorded_on' => '2026-08-12',
-    ]);
+    typedBankBalanceFor($user, 500_000, '2026-08-12');
 
     importStatement($user, 'statement_v102.ofx', 'export.ofx', [
         'balanceAmount' => '999999',

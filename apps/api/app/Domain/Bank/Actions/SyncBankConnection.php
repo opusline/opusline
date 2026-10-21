@@ -21,7 +21,7 @@ use Cknow\Money\Money;
 use Illuminate\Support\Facades\DB;
 
 /**
- * Reads the connected account's booked movements since the last sync and
+ * Reads one connection's booked movements since its last sync and
  * records them like an imported statement would be — same deduplication,
  * same reconciliation suggestions — on the connection's one statement row.
  *
@@ -50,13 +50,14 @@ class SyncBankConnection
      *
      * @throws BankSyncFailed
      */
-    public function handle(User $user, ?PsuContext $psu): array
+    public function handle(BankConnection $connection, ?PsuContext $psu): array
     {
+        $connection->loadMissing(['user.settings', 'statement']);
+        $user = $connection->user;
         $settings = $user->settingsOrFail();
         $credentials = EnableBankingCredentials::ofOrFail($settings);
-        $connection = $user->bankConnection()->first();
 
-        if ($connection === null || $connection->account_uid === null || $connection->account_identification_hash === null) {
+        if ($connection->account_uid === null || $connection->account_identification_hash === null || $connection->bank_account_id === null) {
             abort(409, __('bank.sync_not_connected'));
         }
 
@@ -92,7 +93,7 @@ class SyncBankConnection
             throw $exception;
         }
 
-        $recorded = DB::transaction(fn (): array => $this->record($user, $connection->account_uid, $movements, $closingBalance, $from, $to));
+        $recorded = DB::transaction(fn (): array => $this->record($user, $connection->id, $connection->account_uid, $movements, $closingBalance, $from, $to));
 
         return ['fetched' => count($movements), ...$recorded];
     }
@@ -104,6 +105,7 @@ class SyncBankConnection
      */
     private function record(
         User $user,
+        int $connectionId,
         string $accountUid,
         array $movements,
         ?array $closingBalance,
@@ -113,13 +115,14 @@ class SyncBankConnection
         $locked = User::lockRow($user->id);
         $settings = $locked->settings()->sole();
         $locked->setRelation('settings', $settings);
-        $connection = $locked->bankConnection()->first();
+        $connection = $locked->bankConnections()->whereKey($connectionId)->first();
 
         // Disconnected, or pointed at another account, while the bank answered.
-        abort_if($connection === null || $connection->account_uid !== $accountUid, 409, __('bank.sync_not_connected'));
+        abort_if($connection === null || $connection->account_uid !== $accountUid || $connection->bank_account_id === null, 409, __('bank.sync_not_connected'));
 
         $currency = $settings->currency->value;
         $statement = $connection->statement ?? $locked->bankStatements()->create([
+            'bank_account_id' => $connection->bank_account_id,
             'file_name' => $connection->aspsp_name,
             'format' => BankStatementFormat::EnableBanking,
             'period_start' => $from,

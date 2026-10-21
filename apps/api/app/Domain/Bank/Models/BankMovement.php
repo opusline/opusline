@@ -23,9 +23,11 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
 /**
  * @property int $id
  * @property int $user_id
+ * @property int $bank_account_id
  * @property int $bank_statement_id
  * @property ?int $invoice_id
  * @property ?int $expense_id
+ * @property ?int $transfer_counterpart_id
  * @property CarbonImmutable $booked_on
  * @property string $label
  * @property Money $amount_cents
@@ -34,12 +36,14 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
  * @property CarbonImmutable $created_at
  * @property CarbonImmutable $updated_at
  * @property-read User $user
+ * @property-read BankAccount $account
  * @property-read BankStatement $statement
  * @property-read ?Invoice $invoice
  * @property-read ?Expense $expense
  * @property-read ?BankMatch $match
  */
 #[Fillable([
+    'bank_account_id',
     'bank_statement_id',
     'invoice_id',
     'expense_id',
@@ -79,6 +83,12 @@ class BankMovement extends Model
         return $this->belongsTo(User::class);
     }
 
+    /** @return BelongsTo<BankAccount, $this> */
+    public function account(): BelongsTo
+    {
+        return $this->belongsTo(BankAccount::class, 'bank_account_id');
+    }
+
     /** @return BelongsTo<BankStatement, $this> */
     public function statement(): BelongsTo
     {
@@ -104,14 +114,20 @@ class BankMovement extends Model
     }
 
     /**
-     * The debits nothing explains yet: no invoice, no expense.
+     * The debits nothing explains yet: no invoice, no expense, and no
+     * transfer to another of the user's accounts.
      *
      * @param  Builder<BankMovement>  $query
      */
     #[Scope]
     protected function unlinkedDebits(Builder $query): void
     {
-        $query->where('amount_cents', '<', 0)->whereNull('invoice_id')->whereNull('expense_id');
+        $query->where('amount_cents', '<', 0)->whereNull('invoice_id')->whereNull('expense_id')->whereNull('transfer_counterpart_id');
+    }
+
+    public function isInternalTransfer(): bool
+    {
+        return $this->transfer_counterpart_id !== null;
     }
 
     public function isCredit(): bool

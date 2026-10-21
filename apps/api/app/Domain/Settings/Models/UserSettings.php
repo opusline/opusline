@@ -80,8 +80,6 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property bool $reminders_default_enabled
  * @property ReminderFrequency $reminders_default_frequency
  * @property ?Money $treasury_buffer_cents
- * @property ?Money $bank_balance_cents
- * @property ?CarbonImmutable $bank_balance_recorded_on
  * @property ?Money $cfe_expected_cents
  * @property ?string $enable_banking_application_id
  * @property ?string $enable_banking_private_key
@@ -159,8 +157,6 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
     'reminders_default_enabled',
     'reminders_default_frequency',
     'treasury_buffer_cents',
-    'bank_balance_cents',
-    'bank_balance_recorded_on',
     'cfe_expected_cents',
     'calendar_feed_invoices',
     'calendar_feed_reminders',
@@ -199,7 +195,6 @@ class UserSettings extends Model
      */
     public const array CURRENCY_SCOPED_COLUMNS = [
         'treasury_buffer_cents',
-        'bank_balance_cents',
         'cfe_expected_cents',
         'reference_tax_income_cents',
     ];
@@ -243,8 +238,6 @@ class UserSettings extends Model
             'vat_on_debits' => 'boolean',
             'document_language' => DocumentLanguage::class,
             'treasury_buffer_cents' => MoneyIntegerCast::class.':currency',
-            'bank_balance_cents' => MoneyIntegerCast::class.':currency',
-            'bank_balance_recorded_on' => 'date',
             'cfe_expected_cents' => MoneyIntegerCast::class.':currency',
             'enable_banking_private_key' => 'encrypted',
             'anthropic_api_key' => 'encrypted',

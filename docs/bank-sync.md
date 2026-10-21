@@ -75,8 +75,14 @@ one sets up their own.
   sync uses one. A sync you start yourself does not count against it, because
   you are there. If a bank refuses anyway, the page says so and the next sync
   tries again.
-- **One account per Opusline account.** If your authorization covers several,
-  Opusline asks which one to follow.
+- **One account per connection.** If your authorization covers several,
+  Opusline asks which one to follow. To follow several accounts — moving from
+  one bank to another, say — join the *Several bank accounts* beta under
+  **Settings → Early access** and choose *Connect another bank*: each account
+  keeps its own balance, the page shows their total, and a transfer between
+  two of your accounts is marked as internal rather than offered as an expense
+  or a payment. Close the old account once it is empty, so it stops holding back
+  the date the transferable amount relies on.
 
 ## Disconnecting
 

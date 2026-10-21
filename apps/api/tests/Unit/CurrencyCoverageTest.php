@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use App\Domain\Bank\Models\BankAccount;
 use App\Domain\Bank\Models\BankMovement;
 use App\Domain\Bank\Models\BankStatement;
 use App\Domain\Bank\Models\PersonalTransfer;
@@ -125,6 +126,10 @@ test('every money column either locks the account currency or is cleared with it
 
     foreach (UserSettings::CURRENCY_SCOPED_COLUMNS as $column) {
         $declared[] = 'user_settings.'.$column;
+    }
+
+    foreach (BankAccount::CURRENCY_SCOPED_COLUMNS as $column) {
+        $declared[] = 'bank_accounts.'.$column;
     }
 
     sort($declared);

@@ -408,9 +408,10 @@ each account is isolated, but every account can upload files.
 **Features in beta.** Features still being built ship switched off, behind a
 flag. Each one has a `FEATURE_*` variable: `beta` (the default) lets every
 account opt in from Réglages → Avant-première, `on` turns it on for everyone,
-and `off` hides it from everyone, whatever they chose. Today there is one:
-`FEATURE_INVOICING`, writing and issuing invoices in Opusline. An unknown value
-counts as `off`.
+and `off` hides it from everyone, whatever they chose. Today there are two:
+`FEATURE_INVOICING`, writing and issuing invoices in Opusline, and
+`FEATURE_BANK_ACCOUNTS`, several bank accounts side by side on the Compte pro
+page. An unknown value counts as `off`.
 
 **Passkeys.** Two-factor authentication needs nothing from you: authenticator
 apps and recovery codes work out of the box. Passkeys additionally need a

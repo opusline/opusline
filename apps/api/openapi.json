@@ -527,6 +527,86 @@
                 }
             }
         },
+        "/bank/accounts": {
+            "post": {
+                "operationId": "createBankAccount",
+                "tags": [
+                    "Bank"
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/CreateBankAccountData"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/BankAccountData"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    }
+                }
+            }
+        },
+        "/bank/accounts/{account}": {
+            "put": {
+                "operationId": "updateBankAccount",
+                "tags": [
+                    "Bank"
+                ],
+                "parameters": [
+                    {
+                        "name": "account",
+                        "in": "path",
+                        "required": true,
+                        "description": "The account ID",
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/UpdateBankAccountData"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/BankAccountData"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/ModelNotFoundException"
+                    }
+                }
+            }
+        },
         "/bank/statements": {
             "post": {
                 "operationId": "importBankStatement",
@@ -657,7 +737,7 @@
                 }
             }
         },
-        "/bank/connection": {
+        "/bank/connections": {
             "post": {
                 "operationId": "startBankConnection",
                 "tags": [
@@ -688,30 +768,9 @@
                         "$ref": "#/components/responses/AuthenticationException"
                     }
                 }
-            },
-            "delete": {
-                "operationId": "disconnectBankConnection",
-                "tags": [
-                    "BankConnection"
-                ],
-                "responses": {
-                    "200": {
-                        "description": "",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/BankAccountData"
-                                }
-                            }
-                        }
-                    },
-                    "401": {
-                        "$ref": "#/components/responses/AuthenticationException"
-                    }
-                }
             }
         },
-        "/bank/connection/complete": {
+        "/bank/connections/complete": {
             "post": {
                 "operationId": "completeBankConnection",
                 "tags": [
@@ -733,7 +792,7 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/BankAccountData"
+                                    "$ref": "#/components/schemas/BankConnectionCompletedData"
                                 }
                             }
                         }
@@ -744,11 +803,22 @@
                 }
             }
         },
-        "/bank/connection/account": {
+        "/bank/connections/{connection}/account": {
             "put": {
                 "operationId": "chooseBankConnectionAccount",
                 "tags": [
                     "BankConnection"
+                ],
+                "parameters": [
+                    {
+                        "name": "connection",
+                        "in": "path",
+                        "required": true,
+                        "description": "The connection ID",
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
                 ],
                 "requestBody": {
                     "required": true,
@@ -773,15 +843,29 @@
                     },
                     "401": {
                         "$ref": "#/components/responses/AuthenticationException"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/ModelNotFoundException"
                     }
                 }
             }
         },
-        "/bank/connection/sync": {
+        "/bank/connections/{connection}/sync": {
             "post": {
                 "operationId": "syncBankConnection",
                 "tags": [
                     "BankConnection"
+                ],
+                "parameters": [
+                    {
+                        "name": "connection",
+                        "in": "path",
+                        "required": true,
+                        "description": "The connection ID",
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
                 ],
                 "responses": {
                     "200": {
@@ -796,6 +880,46 @@
                     },
                     "401": {
                         "$ref": "#/components/responses/AuthenticationException"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/ModelNotFoundException"
+                    }
+                }
+            }
+        },
+        "/bank/connections/{connection}": {
+            "delete": {
+                "operationId": "disconnectBankConnection",
+                "tags": [
+                    "BankConnection"
+                ],
+                "parameters": [
+                    {
+                        "name": "connection",
+                        "in": "path",
+                        "required": true,
+                        "description": "The connection ID",
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/BankAccountData"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/ModelNotFoundException"
                     }
                 }
             }
@@ -9815,15 +9939,17 @@
                     "bankSyncConfigured": {
                         "type": "boolean"
                     },
-                    "connection": {
-                        "anyOf": [
-                            {
-                                "$ref": "#/components/schemas/BankConnectionData"
-                            },
-                            {
-                                "type": "null"
-                            }
-                        ]
+                    "accounts": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/BankAccountEntryData"
+                        }
+                    },
+                    "connections": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/BankConnectionData"
+                        }
                     }
                 },
                 "required": [
@@ -9835,9 +9961,44 @@
                     "hasUnlinkedCredits",
                     "statements",
                     "bankSyncConfigured",
-                    "connection"
+                    "accounts",
+                    "connections"
                 ],
                 "title": "BankAccountData"
+            },
+            "BankAccountEntryData": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "integer"
+                    },
+                    "name": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "balance": {
+                        "anyOf": [
+                            {
+                                "$ref": "#/components/schemas/BankBalanceData"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ]
+                    },
+                    "isArchived": {
+                        "type": "boolean"
+                    }
+                },
+                "required": [
+                    "id",
+                    "name",
+                    "balance",
+                    "isArchived"
+                ],
+                "title": "BankAccountEntryData"
             },
             "BankAspspData": {
                 "type": "object",
@@ -9954,9 +10115,34 @@
                 ],
                 "title": "BankConnectionAccountData"
             },
+            "BankConnectionCompletedData": {
+                "type": "object",
+                "properties": {
+                    "connectionId": {
+                        "type": "integer"
+                    },
+                    "account": {
+                        "$ref": "#/components/schemas/BankAccountData"
+                    }
+                },
+                "required": [
+                    "connectionId",
+                    "account"
+                ],
+                "title": "BankConnectionCompletedData"
+            },
             "BankConnectionData": {
                 "type": "object",
                 "properties": {
+                    "id": {
+                        "type": "integer"
+                    },
+                    "bankAccountId": {
+                        "type": [
+                            "integer",
+                            "null"
+                        ]
+                    },
                     "aspspName": {
                         "type": "string"
                     },
@@ -10000,6 +10186,8 @@
                     }
                 },
                 "required": [
+                    "id",
+                    "bankAccountId",
                     "aspspName",
                     "status",
                     "account",
@@ -10130,6 +10318,9 @@
                     "id": {
                         "type": "integer"
                     },
+                    "bankAccountId": {
+                        "type": "integer"
+                    },
                     "bookedOn": {
                         "type": "string",
                         "format": "date"
@@ -10175,17 +10366,22 @@
                                 "type": "null"
                             }
                         ]
+                    },
+                    "isInternalTransfer": {
+                        "type": "boolean"
                     }
                 },
                 "required": [
                     "id",
+                    "bankAccountId",
                     "bookedOn",
                     "label",
                     "amount",
                     "runningBalance",
                     "invoice",
                     "pendingMatchId",
-                    "expense"
+                    "expense",
+                    "isInternalTransfer"
                 ],
                 "title": "BankMovementData"
             },
@@ -10397,6 +10593,9 @@
                     "id": {
                         "type": "integer"
                     },
+                    "bankAccountId": {
+                        "type": "integer"
+                    },
                     "fileName": {
                         "type": "string"
                     },
@@ -10427,6 +10626,7 @@
                 },
                 "required": [
                     "id",
+                    "bankAccountId",
                     "fileName",
                     "format",
                     "periodStart",
@@ -11671,6 +11871,19 @@
                     "abilities"
                 ],
                 "title": "CreateAccessTokenData"
+            },
+            "CreateBankAccountData": {
+                "type": "object",
+                "properties": {
+                    "name": {
+                        "type": "string",
+                        "maxLength": 120
+                    }
+                },
+                "required": [
+                    "name"
+                ],
+                "title": "CreateBankAccountData"
             },
             "CreateClientData": {
                 "type": "object",
@@ -14143,12 +14356,14 @@
             },
             "FeatureFlag": {
                 "type": "integer",
-                "description": "A feature still being built, shipped to `main` switched off. Removing a case (and its checks, keeping the code it guarded) is how the feature is released.\n| |\n|---|\n| `0` <br/> Writing, issuing and rendering invoices in Opusline (#498). |",
+                "description": "A feature still being built, shipped to `main` switched off. Removing a case (and its checks, keeping the code it guarded) is how the feature is released.\n| |\n|---|\n| `0` <br/> Writing, issuing and rendering invoices in Opusline (#498). |\n| `1` <br/> Several bank accounts side by side, each with its own connection and balance. |",
                 "enum": [
-                    0
+                    0,
+                    1
                 ],
                 "x-enum-varnames": [
-                    "Invoicing"
+                    "Invoicing",
+                    "BankAccounts"
                 ],
                 "title": "FeatureFlag"
             },
@@ -14362,6 +14577,12 @@
                             {
                                 "type": "null"
                             }
+                        ]
+                    },
+                    "bankAccountId": {
+                        "type": [
+                            "integer",
+                            "null"
                         ]
                     }
                 },
@@ -18934,6 +19155,12 @@
                     },
                     "psuType": {
                         "$ref": "#/components/schemas/BankPsuType"
+                    },
+                    "connectionId": {
+                        "type": [
+                            "integer",
+                            "null"
+                        ]
                     }
                 },
                 "required": [
@@ -20085,6 +20312,25 @@
                 ],
                 "title": "UpcomingDebitData"
             },
+            "UpdateBankAccountData": {
+                "type": "object",
+                "properties": {
+                    "name": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "maxLength": 120
+                    },
+                    "archived": {
+                        "type": "boolean"
+                    }
+                },
+                "required": [
+                    "archived"
+                ],
+                "title": "UpdateBankAccountData"
+            },
             "UpdateBankBalanceData": {
                 "type": "object",
                 "properties": {
@@ -20106,6 +20352,12 @@
                         "required": [
                             "amount",
                             "currency"
+                        ]
+                    },
+                    "bankAccountId": {
+                        "type": [
+                            "integer",
+                            "null"
                         ]
                     }
                 },

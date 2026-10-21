@@ -156,7 +156,7 @@ test('removing the application drops the connection but keeps the movements', fu
         ->assertOk()
         ->assertJsonPath('enableBanking.applicationId', null);
 
-    expect($user->bankConnection()->exists())->toBeFalse()
+    expect($user->bankConnections()->exists())->toBeFalse()
         ->and($user->bankMovements()->count())->toBe(1)
         ->and($user->settings()->sole()->hasEnableBankingCredentials())->toBeFalse();
     Http::assertSent(fn (Request $request): bool => $request->method() === 'DELETE'
@@ -170,5 +170,5 @@ test('removing the application still succeeds when the session cannot be revoked
 
     test()->actingAs($user)->deleteJson('/api/settings/integrations/enable-banking')->assertOk();
 
-    expect($user->bankConnection()->exists())->toBeFalse();
+    expect($user->bankConnections()->exists())->toBeFalse();
 });

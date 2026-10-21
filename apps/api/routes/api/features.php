@@ -11,6 +11,6 @@ Route::middleware(['auth:sanctum', EnsureSessionIsUnlocked::class, RefuseAccessT
     Route::get('/user/features', [BetaFeatureController::class, 'index'])
         ->name('listBetaFeatures');
     Route::put('/user/features/{feature}', [BetaFeatureController::class, 'update'])
-        ->where('feature', '[a-z0-9-]+')
+        ->where('feature', '[a-z0-9_-]+')
         ->name('chooseBetaFeature');
 });

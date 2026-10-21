@@ -117,22 +117,23 @@ test('changing the currency clears the treasury buffer instead of re-denominatin
     ]);
 });
 
-test('changing the currency clears the hand-typed bank balance too', function (): void {
+test('changing the currency clears the hand-typed balance of every bank account too', function (): void {
     $user = User::factory()->create();
-    $user->settings()->sole()->update([
-        'bank_balance_cents' => 1_482_000,
-        'bank_balance_recorded_on' => '2026-08-10',
-    ]);
+    $first = typedBankBalanceFor($user, 1_482_000, '2026-08-10');
+    $second = bankAccountFor($user, fn ($factory) => $factory->withBalance(310_000, '2026-08-11'));
 
     $this->actingAs($user)
         ->putJson('/api/settings/currency', ['currency' => Currency::USD->value])
         ->assertOk();
 
-    $this->assertDatabaseHas('user_settings', [
-        'user_id' => $user->id,
-        'bank_balance_cents' => null,
-        'bank_balance_recorded_on' => null,
-    ]);
+    foreach ([$first, $second] as $account) {
+        $this->assertDatabaseHas('bank_accounts', [
+            'id' => $account->id,
+            'currency' => Currency::USD->value,
+            'balance_cents' => null,
+            'balance_recorded_on' => null,
+        ]);
+    }
 });
 
 test('changing the currency clears the expected CFE too', function (): void {

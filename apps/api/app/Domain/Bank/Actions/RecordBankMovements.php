@@ -15,8 +15,8 @@ use Carbon\CarbonImmutable;
  * Writes a batch of movements under a statement and raises the
  * reconciliation suggestions they make possible.
  *
- * A day's movements come from one source only: statement files, or the bank
- * connection. Files hash their rows by content and the bank by its own
+ * A day of one bank account's movements comes from one source only:
+ * statement files, or the bank connection. Files hash their rows by content and the bank by its own
  * references, so neither can recognize a movement the other brought in — a
  * day the other source already holds is skipped rather than doubled.
  *
@@ -30,6 +30,7 @@ class RecordBankMovements
     public function __construct(
         private readonly SuggestBankMatches $suggestBankMatches,
         private readonly SuggestExpenseMatches $suggestExpenseMatches,
+        private readonly PairInternalTransfers $pairInternalTransfers,
     ) {}
 
     /**
@@ -50,6 +51,7 @@ class RecordBankMovements
         foreach (array_chunk($hashes, self::INSERT_CHUNK) as $chunk) {
             /** @var list<string> $existingHashes */
             $existingHashes = $locked->bankMovements()
+                ->where('bank_account_id', $statement->bank_account_id)
                 ->whereIn('dedup_hash', $chunk)
                 ->pluck('dedup_hash')
                 ->all();
@@ -74,6 +76,7 @@ class RecordBankMovements
 
             $rows[] = [
                 'user_id' => $locked->id,
+                'bank_account_id' => $statement->bank_account_id,
                 'bank_statement_id' => $statement->id,
                 'booked_on' => $movement->bookedOn->toDateString(),
                 'label' => mb_strcut($movement->label, 0, 255),
@@ -96,10 +99,15 @@ class RecordBankMovements
         // cross-matching the whole account in PHP is the very shape the
         // chunked insert above exists to avoid, and it would run inside the
         // same user row lock.
+        // Transfers between the user's own accounts go first: neither side is
+        // an invoice payment nor an expense.
+        $this->pairInternalTransfers->handle($locked, $windowStart);
+
         $rescanFrom = $windowStart->subDays(SuggestExpenseMatches::DAYS_APART);
         $suggestible = array_values($locked->bankMovements()
             ->where('amount_cents', '>', 0)
             ->whereNull('invoice_id')
+            ->whereNull('transfer_counterpart_id')
             ->whereDoesntHave('match')
             ->where('booked_on', '>=', $rescanFrom->toDateString())
             ->get()
@@ -123,6 +131,7 @@ class RecordBankMovements
         }
 
         $otherSourceStatementIds = $locked->bankStatements()
+            ->where('bank_account_id', $statement->bank_account_id)
             ->where('format', $statement->format === BankStatementFormat::EnableBanking ? '!=' : '=', BankStatementFormat::EnableBanking)
             ->pluck('id');
 
