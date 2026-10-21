@@ -11,6 +11,12 @@
 # Nothing here bind-mounts the source or ships `vendor/`: the dev stack in
 # apps/api/compose.yaml is a Sail image built from the host's own vendor
 # directory, which is why it could never be a deployment.
+#
+# A build behind a TLS-intercepting proxy can hand the downloading steps its CA
+# as the optional `extra_ca` secret (`--secret id=extra_ca,src=<pem>`; see
+# apps/e2e/scripts/stack.sh). A secret is mounted for one RUN only, so the
+# certificate reaches neither a layer nor the image history; without it, as in
+# CI and releases, every step runs exactly as before.
 
 # ---------------------------------------------------------------- SPA build --
 # $BUILDPLATFORM, not the target: the SPA is static JS and CSS, so building it
@@ -19,7 +25,9 @@ FROM --platform=$BUILDPLATFORM node:26-alpine AS web-build
 
 # Node 26 ships no corepack, so pnpm is installed outright — pinned to the same
 # version package.json's `packageManager` field names.
-RUN npm install --global pnpm@10.33.4
+RUN --mount=type=secret,id=extra_ca \
+    if [ -f /run/secrets/extra_ca ]; then export NODE_EXTRA_CA_CERTS=/run/secrets/extra_ca; fi \
+    && npm install --global pnpm@10.33.4
 
 WORKDIR /src
 
@@ -31,7 +39,9 @@ COPY apps/storybook/package.json apps/storybook/
 COPY apps/web/package.json apps/web/
 COPY packages/api-client/package.json packages/api-client/
 COPY packages/ui/package.json packages/ui/
-RUN pnpm install --frozen-lockfile --ignore-scripts
+RUN --mount=type=secret,id=extra_ca \
+    if [ -f /run/secrets/extra_ca ]; then export NODE_EXTRA_CA_CERTS=/run/secrets/extra_ca; fi \
+    && pnpm install --frozen-lockfile --ignore-scripts
 
 # Only what Vite reads, so an API- or docs-only commit is a cache hit here.
 COPY apps/web apps/web
@@ -54,10 +64,16 @@ COPY apps/api/composer.json apps/api/composer.lock ./
 # Platform requirements are ignored here and satisfied in the runtime stage
 # below: this image resolves packages, it never runs them, and its PHP carries
 # neither the extensions nor the version the app asks for.
-RUN composer install \
+RUN --mount=type=secret,id=extra_ca \
+    if [ -f /run/secrets/extra_ca ]; then \
+      cat /etc/ssl/certs/ca-certificates.crt /run/secrets/extra_ca > /tmp/ca-bundle.pem \
+      && export SSL_CERT_FILE=/tmp/ca-bundle.pem; \
+    fi \
+    && composer install \
       --no-dev --no-scripts --no-autoloader \
       --prefer-dist --no-interaction --no-progress \
-      --ignore-platform-reqs
+      --ignore-platform-reqs \
+    && rm -f /tmp/ca-bundle.pem
 
 COPY apps/api ./
 RUN composer dump-autoload --optimize --classmap-authoritative --no-dev --ignore-platform-reqs
@@ -68,7 +84,12 @@ FROM dunglas/frankenphp:1-php8.5-alpine AS api
 # gd/exif back the media library, the two pdo drivers back the supported
 # databases, redis backs the recommended session/cache/queue stores, and pcntl
 # is what lets Octane manage its workers.
-RUN install-php-extensions \
+RUN --mount=type=secret,id=extra_ca \
+    if [ -f /run/secrets/extra_ca ]; then \
+      cat /etc/ssl/certs/ca-certificates.crt /run/secrets/extra_ca > /tmp/ca-bundle.pem \
+      && export SSL_CERT_FILE=/tmp/ca-bundle.pem CURL_CA_BUNDLE=/tmp/ca-bundle.pem; \
+    fi \
+    && install-php-extensions \
       bcmath \
       exif \
       gd \
@@ -78,7 +99,8 @@ RUN install-php-extensions \
       pdo_mysql \
       pdo_pgsql \
       redis \
-      zip
+      zip \
+    && rm -f /tmp/ca-bundle.pem
 
 WORKDIR /app
 
