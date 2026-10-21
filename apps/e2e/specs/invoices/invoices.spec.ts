@@ -138,6 +138,23 @@ test("an invoice without a reference is a draft, and deleting it frees the days"
   );
 });
 
+test("a sent invoice recorded from another tool can be deleted, freeing the days", async ({
+  page,
+}) => {
+  await invoiceUnbilledTime(page, REFERENCE);
+
+  const drawer = await openInvoice(page, REFERENCE);
+  await drawer.getByTestId("invoice-delete-recorded").click();
+  await page.getByTestId("confirm-delete-submit").click();
+
+  await expect(drawer).toBeHidden();
+  await expect(invoiceFilter(page, "open")).toHaveAttribute("data-count", "0");
+  await expect(unbilledWork(page)).toHaveAttribute(
+    "data-amount-cents",
+    THREE_DAYS_AT_550_CENTS,
+  );
+});
+
 test("an invoice issued elsewhere is added by hand", async ({ page }) => {
   await page.goto("/invoicing/invoices");
   await page.getByTestId("invoice-add-open").click();

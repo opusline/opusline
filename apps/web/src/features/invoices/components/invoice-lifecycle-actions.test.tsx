@@ -31,6 +31,7 @@ function renderActions(
       onSend={onSend}
       onPay={onPay}
       onRemind={onRemind}
+      canDelete={false}
       onDelete={onDelete}
       {...props}
     />,
@@ -101,6 +102,7 @@ it("refuses to send a referenceless draft on an empty field", () => {
 it("offers to delete a draft", () => {
   const { onDelete } = renderActions({
     invoice: invoiceDetail({ status: 0 }).invoice,
+    canDelete: true,
   });
 
   fireEvent.click(
@@ -116,6 +118,17 @@ it("offers no deletion once the invoice is out", () => {
   expect(
     screen.queryByRole("button", { name: "Supprimer le brouillon" }),
   ).not.toBeInTheDocument();
+  expect(
+    screen.queryByRole("button", { name: "Supprimer la facture" }),
+  ).not.toBeInTheDocument();
+});
+
+it("offers to delete a sent invoice the API allows to go", () => {
+  const { onDelete } = renderActions({ canDelete: true });
+
+  fireEvent.click(screen.getByRole("button", { name: "Supprimer la facture" }));
+
+  expect(onDelete).toHaveBeenCalled();
 });
 
 it("banks a payment on the date the money landed", async () => {
