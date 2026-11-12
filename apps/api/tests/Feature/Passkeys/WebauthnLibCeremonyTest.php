@@ -57,6 +57,8 @@ test('an assertion signed for the issued challenge is accepted', function (): vo
         'credential_id' => $verified->credentialId,
         'public_key' => $verified->publicKey,
         'counter' => 0,
+        'backup_eligible' => $verified->backupEligible,
+        'backed_up' => $verified->backedUp,
     ]);
 
     $request = $ceremony->requestOptions([$verified->credentialId], requireUserVerification: true);
@@ -80,6 +82,8 @@ test('the library refuses what a forged assertion gets wrong', function (string 
         'credential_id' => $verified->credentialId,
         'public_key' => $verified->publicKey,
         'counter' => 5,
+        'backup_eligible' => $verified->backupEligible,
+        'backed_up' => $verified->backedUp,
     ]);
     $request = $ceremony->requestOptions([$verified->credentialId], requireUserVerification: true);
 
