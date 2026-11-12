@@ -58,13 +58,13 @@ final readonly class DeductibleExpenses
         return new self($expenses, $declared);
     }
 
-    /** Case 2A — HT of what EU suppliers invoiced without TVA, on the month it is filed. */
+    /** Case A3 — HT of what EU suppliers invoiced without TVA, on the month it is filed. */
     public function intraCommunityHtCents(string $month): int
     {
         return $this->htOf($month, ExpenseVatTreatment::ReverseChargeEu);
     }
 
-    /** Case 3B — HT of what non-EU suppliers invoiced without TVA, on the month it is filed. */
+    /** Case B4 — HT of what non-EU suppliers invoiced without TVA, on the month it is filed. */
     public function nonEuHtCents(string $month): int
     {
         return $this->htOf($month, ExpenseVatTreatment::ReverseChargeNonEu);
