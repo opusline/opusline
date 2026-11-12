@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\OpenApi;
 
 use Dedoc\Scramble\Support\Generator\Parameter;
+use Dedoc\Scramble\Support\Generator\Schema;
 use Dedoc\Scramble\Support\Generator\TypeTransformer;
 use Dedoc\Scramble\Support\OperationExtensions\ParameterExtractor\ParameterExtractor;
 use Dedoc\Scramble\Support\OperationExtensions\RequestBodyExtension;
@@ -99,8 +100,8 @@ class SpatieDataParametersExtractor implements ParameterExtractor
                     continue;
                 }
 
-                if (($kind->isDataObject() || $kind->isDataCollectable()) && $property->type->isNullable) {
-                    $parameter->schema?->type->nullable(true);
+                if (($kind->isDataObject() || $kind->isDataCollectable()) && $property->type->isNullable && $parameter->schema instanceof Schema) {
+                    $parameter->schema->type->nullable(true);
                 }
 
                 // Nullable is not the same as optional: `present` demands the
