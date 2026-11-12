@@ -15,9 +15,9 @@ class Ca3BoxesData extends Data
     public function __construct(
         /** A1 — sales and services, HT. */
         public MoneyData $salesHt,
-        /** 2A — intra-community purchases of services (EU reverse charge). */
+        /** A3 — intra-community purchases of services (EU reverse charge). */
         public MoneyData $intraCommunityPurchasesHt,
-        /** 3B — purchases from a supplier not established in France (non-EU reverse charge). */
+        /** B4 — purchases from a supplier not established in France (non-EU reverse charge). */
         public MoneyData $nonEuPurchasesHt,
         /** 08, base column — sales plus the two self-assessed purchase lines. */
         public MoneyData $taxableBase,
