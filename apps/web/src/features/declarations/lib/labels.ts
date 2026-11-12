@@ -12,6 +12,8 @@ import { monthStart } from "@/lib/months";
 import { periodKind, periodTitle, shiftPeriod } from "@/lib/periods";
 import { m } from "@/paraglide/messages.js";
 
+import { CA3_BOX_CODES } from "./ca3-form";
+
 const URSSAF_BADGE_MESSAGES: Record<UrssafPeriodicity, () => string> = {
   0: m.declarations_urssaf_badge_monthly,
   1: m.declarations_urssaf_badge_quarterly,
@@ -106,7 +108,7 @@ export function ca3Rows(
   const previous = declarationPeriodLabel(locale, shiftPeriod(vat.period, -1));
   const rows: Ca3Row[] = [
     {
-      box: "A1",
+      box: CA3_BOX_CODES.salesHt,
       label: m.ca3_box_a1(),
       valueCents: boxes.salesHt.amount,
       tone: "default",
@@ -116,19 +118,19 @@ export function ca3Rows(
       },
     },
     {
-      box: "2A",
-      label: m.ca3_box_2a(),
+      box: CA3_BOX_CODES.intraCommunityPurchasesHt,
+      label: m.ca3_box_a3(),
       valueCents: boxes.intraCommunityPurchasesHt.amount,
       tone: "default",
     },
     {
-      box: "3B",
-      label: m.ca3_box_3b(),
+      box: CA3_BOX_CODES.nonEuPurchasesHt,
+      label: m.ca3_box_b4(),
       valueCents: boxes.nonEuPurchasesHt.amount,
       tone: "default",
     },
     {
-      box: "08",
+      box: CA3_BOX_CODES.taxableBase,
       label: m.ca3_box_08(),
       valueCents: boxes.taxableBase.amount,
       value2Cents: boxes.collected.amount,
@@ -136,13 +138,13 @@ export function ca3Rows(
       note: rateLineNote(vat.rateBp, locale),
     },
     {
-      box: "19",
+      box: CA3_BOX_CODES.fixedAssets,
       label: m.ca3_box_19(),
       valueCents: boxes.fixedAssets.amount,
       tone: "default",
     },
     {
-      box: "20",
+      box: CA3_BOX_CODES.goodsAndServices,
       label: m.ca3_box_20(),
       valueCents: boxes.goodsAndServices.amount,
       tone: "default",
@@ -159,13 +161,13 @@ export function ca3Rows(
           : undefined,
     },
     {
-      box: "21",
+      box: CA3_BOX_CODES.otherDeductible,
       label: m.ca3_box_21(),
       valueCents: boxes.otherDeductible.amount,
       tone: "default",
     },
     {
-      box: "22",
+      box: CA3_BOX_CODES.creditCarried,
       label: m.ca3_box_22(),
       valueCents: boxes.creditCarried.amount,
       tone: boxes.creditCarried.amount > 0 ? "success" : "quiet",
@@ -178,7 +180,7 @@ export function ca3Rows(
 
   if (boxes.credit.amount > 0) {
     rows.push({
-      box: "25",
+      box: CA3_BOX_CODES.credit,
       label: m.ca3_box_25(),
       valueCents: boxes.credit.amount,
       tone: "success",
@@ -189,7 +191,7 @@ export function ca3Rows(
   }
 
   rows.push({
-    box: "32",
+    box: CA3_BOX_CODES.due,
     label: m.ca3_box_32(),
     valueCents: boxes.due.amount,
     tone: boxes.due.amount > 0 ? "due" : "quiet",
