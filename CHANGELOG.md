@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.35.1](https://github.com/opusline/opusline/compare/v0.35.0...v0.35.1) (2026-11-12)
+
+
+### Bug Fixes
+
+* **web:** use 2026 3310-CA3 box codes ([#708](https://github.com/opusline/opusline/issues/708)) ([480c176](https://github.com/opusline/opusline/commit/480c176b81a45ca7b41d3a553ed6fcc42f5b0336))
+
 ## [0.35.0](https://github.com/opusline/opusline/compare/v0.34.0...v0.35.0) (2026-10-21)
 
 
