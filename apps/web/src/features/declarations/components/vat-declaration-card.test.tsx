@@ -46,8 +46,8 @@ it("lists every box of the form in its order, the sales line as A1", async () =>
 
   expect(boxes).toEqual([
     "case A1",
-    "case 2A",
-    "case 3B",
+    "case A3",
+    "case B4",
     "case 08",
     "case 19",
     "case 20",
@@ -119,8 +119,8 @@ it("copies every box at once, one per line, whole euros", async () => {
   expect(clipboard.writeText).toHaveBeenCalledWith(
     [
       "A1\t10450",
-      "2A\t31",
-      "3B\t68",
+      "A3\t31",
+      "B4\t68",
       "08\t10549",
       "08\t2110",
       "19\t0",
