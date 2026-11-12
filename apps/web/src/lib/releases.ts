@@ -13,6 +13,16 @@ export type Release = {
 export const RELEASES: Release[] = [
   // release-notes:insert
   {
+    version: "0.35.1",
+    date: "2026-11-12",
+    items: [
+      {
+        kind: "fixed",
+        text: "The CA3 VAT declaration now uses the 2026 form box codes: 2A becomes A3 and 3B becomes B4.", // i18n-ignore
+      },
+    ],
+  },
+  {
     version: "0.35.0",
     date: "2026-10-21",
     items: [
