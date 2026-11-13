@@ -14,8 +14,8 @@
   },
   "devDependencies": {
     "@opusline/api-client": "workspace:*",
-    "@playwright/test": "^1.64.0",
-    "@types/node": "^26.6.5",
+    "@playwright/test": "^1.65.0",
+    "@types/node": "^26.6.6",
     "typescript": "^7"
   },
   "license": "AGPL-3.0-only"
