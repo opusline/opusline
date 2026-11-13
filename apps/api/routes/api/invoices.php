@@ -28,8 +28,9 @@ use Illuminate\Support\Facades\Route;
 use Laravel\Sanctum\Http\Middleware\CheckAbilities;
 
 Route::middleware(['auth:sanctum', EnsureSessionIsUnlocked::class])->group(function (): void {
-    // The three reads a personal access token may make — the only routes in the
-    // API that take one. A cookie session passes the ability check as well.
+    // The three invoice reads a personal access token may make (every route open
+    // to a token is listed in RouteAuthenticationTest). A cookie session passes
+    // the ability check as well.
     Route::middleware(CheckAbilities::class.':'.TokenAbility::ReadInvoices->value)->group(function (): void {
         Route::get('/invoices', [InvoiceController::class, 'index'])
             ->name('listInvoices');

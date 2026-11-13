@@ -16,6 +16,7 @@ use Illuminate\Http\JsonResponse;
 
 class TreasuryController extends Controller
 {
+    /** Also open to a personal access token carrying `treasury:read`. */
     public function show(#[CurrentUser] User $user, SummarizeTreasury $summarizeTreasury): JsonResponse
     {
         return response()->json($summarizeTreasury->handle($user));

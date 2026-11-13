@@ -169,14 +169,14 @@ test('another account sees its own treasury, never this one', function (): void 
  * record dialog — on the strength of one of these two fields standing in for
  * the other.
  */
-test('cites a covered-through date exactly when it knows a balance', function (): void {
-    $blank = $this->actingAs(User::factory()->create())->getJson('/api/treasury')->assertOk();
+test('cites a covered-through date exactly when it knows a balance', function (bool $knowsBalance): void {
+    $account = $knowsBalance ? canvasAccount() : User::factory()->create();
 
-    expect($blank->json('balance'))->toBeNull()
-        ->and($blank->json('coveredThrough'))->toBeNull();
+    $response = $this->actingAs($account)->getJson('/api/treasury')->assertOk();
 
-    $known = $this->actingAs(canvasAccount())->getJson('/api/treasury')->assertOk();
-
-    expect($known->json('balance'))->not->toBeNull()
-        ->and($known->json('coveredThrough'))->not->toBeNull();
-});
+    expect($response->json('balance') !== null)->toBe($knowsBalance)
+        ->and($response->json('coveredThrough') !== null)->toBe($knowsBalance);
+})->with([
+    'no balance' => false,
+    'a known balance' => true,
+]);

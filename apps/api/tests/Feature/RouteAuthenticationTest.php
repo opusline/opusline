@@ -100,14 +100,20 @@ test('every authenticated API route but the ways out refuses a locked session', 
     );
 });
 
-/** The reads a personal access token carrying invoices:read may make, and nothing else. */
+/**
+ * The reads a personal access token may make, each with the one ability that
+ * opens it, and nothing else.
+ */
 const TOKEN_API_ROUTES = [
-    'api/invoices',
-    'api/invoices/{invoice}',
-    'api/uninvoiced-periods',
+    'api/invoices' => TokenAbility::ReadInvoices,
+    'api/invoices/{invoice}' => TokenAbility::ReadInvoices,
+    'api/uninvoiced-periods' => TokenAbility::ReadInvoices,
+    'api/missions' => TokenAbility::ReadMissions,
+    'api/treasury' => TokenAbility::ReadTreasury,
+    'api/declarations' => TokenAbility::ReadDeclarations,
 ];
 
-test('every authenticated API route but the invoice reads refuses a personal access token', function (): void {
+test('every authenticated API route but the token reads refuses a personal access token', function (): void {
     $open = collect(Route::getRoutes()->getRoutes())
         ->filter(fn (RoutingRoute $route): bool => str_starts_with($route->uri(), 'api/'))
         ->filter(fn (RoutingRoute $route): bool => in_array(
@@ -127,23 +133,23 @@ test('every authenticated API route but the invoice reads refuses a personal acc
         ->all();
 
     expect($open)->toBe(
-        collect(TOKEN_API_ROUTES)->sort()->values()->all(),
+        collect(TOKEN_API_ROUTES)->keys()->sort()->values()->all(),
         'An authenticated API route takes a personal access token. Open its file\'s '
         .'group with RefuseAccessTokens next to auth:sanctum, or — if a token genuinely '
         .'may call it — put it behind CheckAbilities and add it to TOKEN_API_ROUTES.',
     );
 });
 
-test('the routes open to a token are behind the invoices:read ability', function (): void {
+test('the routes open to a token are behind their own ability', function (): void {
     $unguarded = collect(Route::getRoutes()->getRoutes())
-        ->filter(fn (RoutingRoute $route): bool => in_array($route->uri(), TOKEN_API_ROUTES, true))
+        ->filter(fn (RoutingRoute $route): bool => array_key_exists($route->uri(), TOKEN_API_ROUTES))
         ->reject(fn (RoutingRoute $route): bool => in_array(
             RefuseAccessTokens::class,
             Route::gatherRouteMiddleware($route),
             true,
         ))
         ->reject(fn (RoutingRoute $route): bool => in_array(
-            CheckAbilities::class.':'.TokenAbility::ReadInvoices->value,
+            CheckAbilities::class.':'.TOKEN_API_ROUTES[$route->uri()]->value,
             Route::gatherRouteMiddleware($route),
             true,
         ))
@@ -152,4 +158,20 @@ test('the routes open to a token are behind the invoices:read ability', function
         ->all();
 
     expect($unguarded)->toBe([]);
+});
+
+test('the routes open to a token only read', function (): void {
+    $writes = collect(Route::getRoutes()->getRoutes())
+        ->filter(fn (RoutingRoute $route): bool => array_key_exists($route->uri(), TOKEN_API_ROUTES))
+        ->reject(fn (RoutingRoute $route): bool => in_array(
+            RefuseAccessTokens::class,
+            Route::gatherRouteMiddleware($route),
+            true,
+        ))
+        ->filter(fn (RoutingRoute $route): bool => array_diff($route->methods(), ['GET', 'HEAD']) !== [])
+        ->map(fn (RoutingRoute $route): string => implode('|', $route->methods()).' '.$route->uri())
+        ->values()
+        ->all();
+
+    expect($writes)->toBe([]);
 });
