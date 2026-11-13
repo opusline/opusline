@@ -10,6 +10,8 @@ use App\Domain\Missions\Actions\DeleteMission;
 use App\Domain\Missions\Actions\UpdateMission;
 use App\Domain\Missions\Data\CreateMissionData;
 use App\Domain\Missions\Data\MissionData;
+use App\Domain\Missions\Data\MissionListData;
+use App\Domain\Missions\Data\MissionListItemData;
 use App\Domain\Missions\Data\UpdateMissionData;
 use App\Domain\Missions\Models\Mission;
 use App\Domain\Users\Models\User;
@@ -21,6 +23,22 @@ use Symfony\Component\HttpKernel\Exception\HttpException;
 
 class MissionController extends Controller
 {
+    /** Also open to a personal access token carrying `missions:read`. */
+    public function index(#[CurrentUser] User $user): JsonResponse
+    {
+        $missions = $user
+            ->missions()
+            ->with('client:id,name')
+            ->orderBy(Client::query()->select('name')->whereColumn('clients.id', 'missions.client_id'))
+            ->orderBy('name')
+            ->get()
+            ->all();
+
+        return response()->json(new MissionListData(
+            missions: array_values(array_map(MissionListItemData::fromModel(...), $missions)),
+        ));
+    }
+
     public function show(Client $client, Mission $mission): JsonResponse
     {
         return response()->json(MissionData::from($mission));

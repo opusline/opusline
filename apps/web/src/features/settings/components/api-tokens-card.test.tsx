@@ -29,6 +29,7 @@ it("lists the tokens with what they may do and when they were used", () => {
 
   expect(screen.getByText("Runway")).toBeInTheDocument();
   expect(screen.getAllByText("Lecture des factures")).toHaveLength(2);
+  expect(screen.getByText("Lecture de la trésorerie")).toBeInTheDocument();
   expect(screen.getByText(/dernière utilisation le/i)).toBeInTheDocument();
   expect(screen.getByText(/jamais utilisé/i)).toBeInTheDocument();
 });
@@ -51,7 +52,70 @@ it("asks the name, then creates the token with it", async () => {
   });
   fireEvent.submit(screen.getByRole("button", { name: "Créer" }));
 
-  await waitFor(() => expect(onCreate).toHaveBeenCalledWith("Runway"));
+  await waitFor(() =>
+    expect(onCreate).toHaveBeenCalledWith("Runway", ["invoices:read"]),
+  );
+});
+
+it("offers every ability, with only the invoices ticked", async () => {
+  renderCard();
+
+  fireEvent.click(screen.getByTestId("api-token-create"));
+
+  expect(
+    await screen.findByRole("checkbox", { name: "Lecture des factures" }),
+  ).toBeChecked();
+  for (const name of [
+    "Lecture des missions",
+    "Lecture de la trésorerie",
+    "Lecture des déclarations",
+  ]) {
+    expect(screen.getByRole("checkbox", { name })).not.toBeChecked();
+  }
+});
+
+it("creates the token with the abilities ticked", async () => {
+  const { onCreate } = renderCard();
+
+  fireEvent.click(screen.getByTestId("api-token-create"));
+  fireEvent.change(await screen.findByLabelText("Nom"), {
+    target: { value: "Assistant" },
+  });
+  fireEvent.click(
+    screen.getByRole("checkbox", { name: "Lecture des factures" }),
+  );
+  fireEvent.click(
+    screen.getByRole("checkbox", { name: "Lecture des missions" }),
+  );
+  fireEvent.click(
+    screen.getByRole("checkbox", { name: "Lecture des déclarations" }),
+  );
+  fireEvent.submit(screen.getByRole("button", { name: "Créer" }));
+
+  await waitFor(() =>
+    expect(onCreate).toHaveBeenCalledWith("Assistant", [
+      "missions:read",
+      "declarations:read",
+    ]),
+  );
+});
+
+it("refuses a token that reads nothing", async () => {
+  const { onCreate } = renderCard();
+
+  fireEvent.click(screen.getByTestId("api-token-create"));
+  fireEvent.change(await screen.findByLabelText("Nom"), {
+    target: { value: "Assistant" },
+  });
+  fireEvent.click(
+    screen.getByRole("checkbox", { name: "Lecture des factures" }),
+  );
+  fireEvent.submit(screen.getByRole("button", { name: "Créer" }));
+
+  expect(
+    await screen.findByText("Choisissez-en au moins un."),
+  ).toBeInTheDocument();
+  expect(onCreate).not.toHaveBeenCalled();
 });
 
 it("shows the secret once it is created, until it is dismissed", () => {
