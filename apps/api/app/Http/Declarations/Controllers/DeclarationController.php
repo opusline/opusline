@@ -26,6 +26,7 @@ class DeclarationController extends Controller
 {
     public function __construct(private readonly SummarizeDeclarations $summarizeDeclarations) {}
 
+    /** Also open to a personal access token carrying `declarations:read`. */
     public function show(SummarizeDeclarationsData $data, #[CurrentUser] User $user): JsonResponse
     {
         return response()->json($this->summarizeDeclarations->handle($user, $data));
