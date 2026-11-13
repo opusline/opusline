@@ -1,3 +1,4 @@
+import type { TokenAbility } from "@opusline/api-client";
 import {
   confirmTotpMutation,
   createAccessTokenMutation,
@@ -104,13 +105,16 @@ export function SecuritySettings({ guarded, webAuthn }: SecuritySettingsProps) {
   const refreshAccessTokens = () =>
     queryClient.invalidateQueries({ queryKey: listAccessTokensQueryKey() });
 
-  const createToken = async (name: string): Promise<FormSubmitResult> => {
+  const createToken = async (
+    name: string,
+    abilities: TokenAbility[],
+  ): Promise<FormSubmitResult> => {
     setTokensError(null);
 
     try {
       const outcome = await guarded(() =>
         createAccessToken.mutateAsync({
-          body: { name, abilities: ["invoices:read"] },
+          body: { name, abilities },
         }),
       );
 

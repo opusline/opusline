@@ -33,6 +33,19 @@ test('creates a token and shows its secret this once', function (): void {
     );
 });
 
+test('creates a token holding every read ability', function (): void {
+    Notification::fake();
+    $user = User::factory()->create();
+    $everyAbility = ['invoices:read', 'missions:read', 'treasury:read', 'declarations:read'];
+
+    withConfirmedPassword($user)
+        ->postJson('/api/user/tokens', ['name' => 'Assistant', 'abilities' => $everyAbility])
+        ->assertCreated()
+        ->assertJsonPath('token.abilities', $everyAbility);
+
+    expect($user->tokens()->sole()->abilities)->toBe($everyAbility);
+});
+
 test('refuses to create a token until the password is confirmed', function (): void {
     $user = User::factory()->create();
 

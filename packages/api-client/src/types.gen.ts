@@ -2148,6 +2148,21 @@ export type MissionData = {
 };
 
 /**
+ * MissionListData
+ */
+export type MissionListData = {
+    missions: Array<MissionListItemData>;
+};
+
+/**
+ * MissionListItemData
+ */
+export type MissionListItemData = {
+    mission: MissionData;
+    clientName: string;
+};
+
+/**
  * MissionRevenueData
  */
 export type MissionRevenueData = {
@@ -3302,7 +3317,7 @@ export type TimerStateData = {
  * What a personal access token may do. Sanctum stores the values on the token and its abilities middleware compares them by name, so the backing value is the ability itself rather than an integer.
  *
  */
-export type TokenAbility = 'invoices:read';
+export type TokenAbility = 'invoices:read' | 'missions:read' | 'treasury:read' | 'declarations:read';
 
 /**
  * TotpSetupData
@@ -9270,6 +9285,33 @@ export type UpdateInvoicingSettingsResponses = {
 };
 
 export type UpdateInvoicingSettingsResponse = UpdateInvoicingSettingsResponses[keyof UpdateInvoicingSettingsResponses];
+
+export type ListMissionsData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/missions';
+};
+
+export type ListMissionsErrors = {
+    /**
+     * Unauthenticated
+     */
+    401: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+};
+
+export type ListMissionsError = ListMissionsErrors[keyof ListMissionsErrors];
+
+export type ListMissionsResponses = {
+    200: MissionListData;
+};
+
+export type ListMissionsResponse = ListMissionsResponses[keyof ListMissionsResponses];
 
 export type DeleteMissionData = {
     body?: never;
