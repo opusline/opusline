@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\OpenApi;
 
+use App\Domain\AccessTokens\Enums\TokenAbility;
 use Dedoc\Scramble\Configuration\OperationTransformers;
 use Dedoc\Scramble\Configuration\SecurityDocumentationContext;
 use Dedoc\Scramble\Contracts\SecurityDocumentationStrategy;
@@ -20,7 +21,7 @@ use Laravel\Sanctum\Http\Middleware\CheckAbilities;
 /**
  * Two ways in, documented as such. Every authenticated operation takes the
  * SPA's session cookie; the ones behind Sanctum's abilities middleware — the
- * invoice reads — also take a personal access token as a bearer, and list it.
+ * reads a TokenAbility names — also take a personal access token as a bearer, and list it.
  */
 class SessionOrTokenSecurity implements SecurityDocumentationStrategy
 {
@@ -35,7 +36,7 @@ class SessionOrTokenSecurity implements SecurityDocumentationStrategy
             ->setDescription('The session cookie POST /api/login sets. Every operation takes it.');
         $bearer = new HttpSecurityScheme('bearer')
             ->as(self::BEARER)
-            ->setDescription('A personal access token, created in Settings › Security and sent as `Authorization: Bearer <token>`. Only the operations that list this scheme take one, within the abilities the token carries (`invoices:read`).');
+            ->setDescription('A personal access token, created in Settings › Security and sent as `Authorization: Bearer <token>`. Only the operations that list this scheme take one, within the abilities the token carries ('.$this->abilityList().').');
 
         return $context->config
             ->withDocumentTransformers(function (OpenApi $openApi) use ($session, $bearer): void {
@@ -61,6 +62,14 @@ class SessionOrTokenSecurity implements SecurityDocumentationStrategy
                     }
                 });
             });
+    }
+
+    private function abilityList(): string
+    {
+        return implode(', ', array_map(
+            fn (TokenAbility $ability): string => '`'.$ability->value.'`',
+            TokenAbility::cases(),
+        ));
     }
 
     /** @param list<string> $middleware */

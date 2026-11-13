@@ -1,5 +1,8 @@
+import type { TokenAbility } from "@opusline/api-client";
+import { zTokenAbility } from "@opusline/api-client/zod";
 import { Alert, AlertDescription } from "@opusline/ui/components/alert";
 import { Button } from "@opusline/ui/components/button";
+import { Checkbox } from "@opusline/ui/components/checkbox";
 import { CopyButton } from "@opusline/ui/components/copy-button";
 import {
   Dialog,
@@ -12,7 +15,10 @@ import {
   Field,
   FieldDescription,
   FieldError,
+  FieldGroup,
   FieldLabel,
+  FieldLegend,
+  FieldSet,
 } from "@opusline/ui/components/field";
 import { Input } from "@opusline/ui/components/input";
 import { useForm } from "@tanstack/react-form";
@@ -21,15 +27,25 @@ import * as z from "zod/mini";
 
 import type { FormSubmitResult } from "@/lib/form";
 import { m } from "@/paraglide/messages.js";
+import { TOKEN_ABILITIES, tokenAbilityLabel } from "../lib/token-abilities";
 
 const TOKEN_NAME_MAX = 100;
 
-const tokenNameSchema = z.object({
+// invoices:read was the only ability tokens once had: it stays ticked, so a
+// token made without looking at the list grants what it always did.
+const DEFAULT_ABILITIES: TokenAbility[] = ["invoices:read"];
+
+const tokenSchema = z.object({
   name: z
     .string()
     .check(
       z.minLength(1, { error: () => m.zod_field_required() }),
       z.maxLength(TOKEN_NAME_MAX),
+    ),
+  abilities: z
+    .array(zTokenAbility)
+    .check(
+      z.minLength(1, { error: () => m.security_token_abilities_required() }),
     ),
 });
 
@@ -38,11 +54,14 @@ type ApiTokenDialogProps = {
   /** The secret of the token just created, which turns the dialog into its one-time reveal. */
   createdToken: string | null;
   isPending: boolean;
-  onSubmit: (name: string) => Promise<FormSubmitResult>;
+  onSubmit: (
+    name: string,
+    abilities: TokenAbility[],
+  ) => Promise<FormSubmitResult>;
   onClose: () => void;
 };
 
-/** Names a token, then shows the secret the API answered with — this once. */
+/** Names a token and picks what it reads, then shows the secret the API answered with — this once. */
 export function ApiTokenDialog({
   open,
   createdToken,
@@ -61,7 +80,7 @@ export function ApiTokenDialog({
     >
       <DialogContent size="lg">
         {!open ? null : createdToken === null ? (
-          <TokenNameForm isPending={isPending} onSubmit={onSubmit} />
+          <TokenForm isPending={isPending} onSubmit={onSubmit} />
         ) : (
           <TokenReveal onClose={onClose} token={createdToken} />
         )}
@@ -70,16 +89,16 @@ export function ApiTokenDialog({
   );
 }
 
-function TokenNameForm({
+function TokenForm({
   isPending,
   onSubmit,
 }: Pick<ApiTokenDialogProps, "isPending" | "onSubmit">) {
   const form = useForm({
-    defaultValues: { name: "" },
+    defaultValues: { name: "", abilities: DEFAULT_ABILITIES },
     validators: {
-      onSubmit: tokenNameSchema,
+      onSubmit: tokenSchema,
       onSubmitAsync: async ({ value }) => {
-        const result = await onSubmit(value.name.trim());
+        const result = await onSubmit(value.name.trim(), value.abilities);
 
         return result.status === "invalid"
           ? { fields: result.fieldErrors }
@@ -124,6 +143,49 @@ function TokenNameForm({
                 <FieldError errors={field.state.meta.errors} />
               ) : null}
             </Field>
+          );
+        }}
+      </form.Field>
+      <form.Field name="abilities">
+        {(field) => {
+          const isInvalid = !field.state.meta.isValid;
+          const toggle = (ability: TokenAbility, isGranted: boolean) =>
+            field.handleChange(
+              TOKEN_ABILITIES.filter((candidate) =>
+                candidate === ability
+                  ? isGranted
+                  : field.state.value.includes(candidate),
+              ),
+            );
+          return (
+            <FieldSet data-invalid={isInvalid}>
+              <FieldLegend variant="label">
+                {m.security_token_abilities_label()}
+              </FieldLegend>
+              <FieldGroup data-slot="checkbox-group">
+                {TOKEN_ABILITIES.map((ability) => {
+                  const id = `${field.name}-${ability}`;
+                  return (
+                    <Field key={ability} orientation="horizontal">
+                      <Checkbox
+                        aria-invalid={isInvalid}
+                        checked={field.state.value.includes(ability)}
+                        data-ability={ability}
+                        data-testid="api-token-ability"
+                        id={id}
+                        onCheckedChange={(checked) => toggle(ability, checked)}
+                      />
+                      <FieldLabel htmlFor={id}>
+                        {tokenAbilityLabel(ability)}
+                      </FieldLabel>
+                    </Field>
+                  );
+                })}
+              </FieldGroup>
+              {isInvalid ? (
+                <FieldError errors={field.state.meta.errors} />
+              ) : null}
+            </FieldSet>
           );
         }}
       </form.Field>

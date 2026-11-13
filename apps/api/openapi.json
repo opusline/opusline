@@ -3174,6 +3174,7 @@
         "/declarations": {
             "get": {
                 "operationId": "showDeclarations",
+                "summary": "Also open to a personal access token carrying `declarations:read`",
                 "tags": [
                     "Declaration"
                 ],
@@ -3207,7 +3208,15 @@
                     "422": {
                         "$ref": "#/components/responses/ValidationException"
                     }
-                }
+                },
+                "security": [
+                    {
+                        "session": []
+                    },
+                    {
+                        "bearer": []
+                    }
+                ]
             }
         },
         "/declarations/completions": {
@@ -5938,6 +5947,38 @@
                         "$ref": "#/components/responses/AuthenticationException"
                     }
                 }
+            }
+        },
+        "/missions": {
+            "get": {
+                "operationId": "listMissions",
+                "summary": "Also open to a personal access token carrying `missions:read`",
+                "tags": [
+                    "Mission"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/MissionListData"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    }
+                },
+                "security": [
+                    {
+                        "session": []
+                    },
+                    {
+                        "bearer": []
+                    }
+                ]
             }
         },
         "/clients/{client}/missions/{mission}": {
@@ -9293,6 +9334,7 @@
         "/treasury": {
             "get": {
                 "operationId": "showTreasury",
+                "summary": "Also open to a personal access token carrying `treasury:read`",
                 "tags": [
                     "Treasury"
                 ],
@@ -9310,7 +9352,15 @@
                     "401": {
                         "$ref": "#/components/responses/AuthenticationException"
                     }
-                }
+                },
+                "security": [
+                    {
+                        "session": []
+                    },
+                    {
+                        "bearer": []
+                    }
+                ]
             }
         },
         "/treasury/transfers": {
@@ -9816,7 +9866,7 @@
             },
             "bearer": {
                 "type": "http",
-                "description": "A personal access token, created in Settings › Security and sent as `Authorization: Bearer <token>`. Only the operations that list this scheme take one, within the abilities the token carries (`invoices:read`).",
+                "description": "A personal access token, created in Settings › Security and sent as `Authorization: Bearer <token>`. Only the operations that list this scheme take one, within the abilities the token carries (`invoices:read`, `missions:read`, `treasury:read`, `declarations:read`).",
                 "scheme": "bearer"
             }
         },
@@ -16430,6 +16480,37 @@
                 ],
                 "title": "MissionData"
             },
+            "MissionListData": {
+                "type": "object",
+                "properties": {
+                    "missions": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/MissionListItemData"
+                        }
+                    }
+                },
+                "required": [
+                    "missions"
+                ],
+                "title": "MissionListData"
+            },
+            "MissionListItemData": {
+                "type": "object",
+                "properties": {
+                    "mission": {
+                        "$ref": "#/components/schemas/MissionData"
+                    },
+                    "clientName": {
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "mission",
+                    "clientName"
+                ],
+                "title": "MissionListItemData"
+            },
             "MissionRevenueData": {
                 "type": "object",
                 "properties": {
@@ -19961,10 +20042,16 @@
                 "type": "string",
                 "description": "What a personal access token may do. Sanctum stores the values on the token and its abilities middleware compares them by name, so the backing value is the ability itself rather than an integer.\n",
                 "enum": [
-                    "invoices:read"
+                    "invoices:read",
+                    "missions:read",
+                    "treasury:read",
+                    "declarations:read"
                 ],
                 "x-enum-varnames": [
-                    "ReadInvoices"
+                    "ReadInvoices",
+                    "ReadMissions",
+                    "ReadTreasury",
+                    "ReadDeclarations"
                 ],
                 "title": "TokenAbility"
             },

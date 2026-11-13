@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use App\Domain\AccessTokens\Enums\TokenAbility;
 use App\Http\Invoices\Controllers\ClientRevenueController;
 use App\Http\Missions\Controllers\MissionController;
 use App\Http\Missions\Controllers\MissionDocumentController;
@@ -9,6 +10,16 @@ use App\Http\Missions\Controllers\MissionTimeEntryController;
 use App\Http\Users\Support\EnsureSessionIsUnlocked;
 use App\Http\Users\Support\RefuseAccessTokens;
 use Illuminate\Support\Facades\Route;
+use Laravel\Sanctum\Http\Middleware\CheckAbilities;
+
+Route::middleware(['auth:sanctum', EnsureSessionIsUnlocked::class])->group(function (): void {
+    // The one cross-client mission read, and the only route here a personal
+    // access token may take: it answers missions with their client's name, so
+    // missions:read never opens /clients and the client's billing identity.
+    Route::get('/missions', [MissionController::class, 'index'])
+        ->middleware(CheckAbilities::class.':'.TokenAbility::ReadMissions->value)
+        ->name('listMissions');
+});
 
 Route::middleware(['auth:sanctum', EnsureSessionIsUnlocked::class, RefuseAccessTokens::class])->scopeBindings()->group(function (): void {
     Route::get('/clients/{client}/missions/{mission}', [MissionController::class, 'show'])
