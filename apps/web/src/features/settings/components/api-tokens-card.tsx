@@ -37,12 +37,9 @@ import { useState } from "react";
 import { fullDateLabel } from "@/lib/dates";
 import type { FormSubmitResult } from "@/lib/form";
 import { m } from "@/paraglide/messages.js";
+import { tokenAbilityLabel } from "../lib/token-abilities";
 import { ApiTokenDialog } from "./api-token-dialog";
 import { SettingsSection } from "./settings-section";
-
-const ABILITY_LABELS: Record<TokenAbility, () => string> = {
-  "invoices:read": () => m.security_token_ability_invoices_read(),
-};
 
 type ApiTokensCardProps = {
   tokens: AccessTokenData[];
@@ -51,7 +48,10 @@ type ApiTokensCardProps = {
   error: string | null;
   /** The secret of the token just created; the card shows it once, until dismissed. */
   createdToken: string | null;
-  onCreate: (name: string) => Promise<FormSubmitResult>;
+  onCreate: (
+    name: string,
+    abilities: TokenAbility[],
+  ) => Promise<FormSubmitResult>;
   onDismissCreated: () => void;
   onRevoke: (id: number) => void;
 };
@@ -126,7 +126,7 @@ export function ApiTokensCard({
                     {token.name}
                     {token.abilities.map((ability) => (
                       <Badge key={ability} variant="neutral">
-                        {ABILITY_LABELS[ability]()}
+                        {tokenAbilityLabel(ability)}
                       </Badge>
                     ))}
                   </StatusRowTitle>
