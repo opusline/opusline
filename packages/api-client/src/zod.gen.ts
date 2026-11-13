@@ -1814,6 +1814,21 @@ export const zCraDetailData = z.object({
 });
 
 /**
+ * MissionListItemData
+ */
+export const zMissionListItemData = z.object({
+    mission: zMissionData,
+    clientName: z.string()
+});
+
+/**
+ * MissionListData
+ */
+export const zMissionListData = z.object({
+    missions: z.array(zMissionListItemData)
+});
+
+/**
  * MonthWorkloadData
  */
 export const zMonthWorkloadData = z.object({
@@ -3343,7 +3358,12 @@ export const zTimerStateData = z.object({
  * What a personal access token may do. Sanctum stores the values on the token and its abilities middleware compares them by name, so the backing value is the ability itself rather than an integer.
  *
  */
-export const zTokenAbility = z.enum(['invoices:read']);
+export const zTokenAbility = z.enum([
+    'invoices:read',
+    'missions:read',
+    'treasury:read',
+    'declarations:read'
+]);
 
 /**
  * AccessTokenData
@@ -4917,6 +4937,8 @@ export const zShowInvoicingSettingsResponse = zInvoicingSettingsData;
 export const zUpdateInvoicingSettingsBody = zUpdateInvoicingSettingsData;
 
 export const zUpdateInvoicingSettingsResponse = zInvoicingSettingsData;
+
+export const zListMissionsResponse = zMissionListData;
 
 export const zDeleteMissionPath = z.object({
     client: z.string(),

@@ -12,4 +12,7 @@ namespace App\Domain\AccessTokens\Enums;
 enum TokenAbility: string
 {
     case ReadInvoices = 'invoices:read';
+    case ReadMissions = 'missions:read';
+    case ReadTreasury = 'treasury:read';
+    case ReadDeclarations = 'declarations:read';
 }
