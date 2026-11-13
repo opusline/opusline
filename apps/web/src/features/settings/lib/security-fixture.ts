@@ -86,7 +86,7 @@ export const accessTokensFixture: AccessTokenData[] = [
   {
     id: 1,
     name: "Runway",
-    abilities: ["invoices:read"],
+    abilities: ["invoices:read", "missions:read", "treasury:read"],
     lastUsedAt: "2026-10-17T06:02:00+00:00",
     createdAt: "2026-09-30T09:12:00+00:00",
   },

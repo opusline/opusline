@@ -1,0 +1,4 @@
+{
+  "kind": "new",
+  "text": "API tokens can now also read your missions, your treasury and your declarations, each ticked separately when you create the token."
+}
