@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.36.0](https://github.com/opusline/opusline/compare/v0.35.1...v0.36.0) (2026-11-13)
+
+
+### Features
+
+* **api:** add read-only token abilities ([#712](https://github.com/opusline/opusline/issues/712)) ([240ff70](https://github.com/opusline/opusline/commit/240ff704bf6242cf5ea40e83485e01ccd1c94a48))
+
 ## [0.35.1](https://github.com/opusline/opusline/compare/v0.35.0...v0.35.1) (2026-11-12)
 
 
