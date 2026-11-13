@@ -75,7 +75,7 @@ test('refuses an answer that is not a json object', function (): void {
 });
 
 test('reports an unreachable enable banking as unavailable', function (): void {
-    Http::fake(fn () => throw new ConnectionException('Connection timed out'));
+    Http::fake(fn (): never => throw new ConnectionException('Connection timed out'));
 
     expectUnavailable(fetchTransactions(...));
 });

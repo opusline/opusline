@@ -72,7 +72,7 @@ class ListSubscriptions
         $categories = $this->categories($active, $today);
         $stripStart = $today->subMonths(self::STRIP_MONTHS - 1)->startOfMonth();
         $occurrences = $this->occurrences($user, $subscriptions, $stripStart, $today);
-        $missingReceipts = collect($occurrences)->flatten(1)
+        $missingReceipts = collect(array_merge(...$occurrences))
             ->filter(static fn (SubscriptionOccurrenceData $occurrence): bool => $occurrence->state === SubscriptionOccurrenceState::Missing)
             ->count();
 

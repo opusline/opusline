@@ -111,6 +111,13 @@
     "allow-plugins": {
       "pestphp/pest-plugin": true,
       "php-http/discovery": true
+    },
+    "policy": {
+      "abandoned": {
+        "ignore": {
+          "symplify/rule-doc-generator-contracts": "Pulled in by driftingly/rector-laravel, a dev-only Rector rule set; nothing replaces it upstream yet."
+        }
+      }
     }
   },
   "minimum-stability": "stable",
