@@ -13,6 +13,16 @@ export type Release = {
 export const RELEASES: Release[] = [
   // release-notes:insert
   {
+    version: "0.36.0",
+    date: "2026-11-13",
+    items: [
+      {
+        kind: "new",
+        text: "API tokens can now also read your missions, your treasury and your declarations, each ticked separately when you create the token.", // i18n-ignore
+      },
+    ],
+  },
+  {
     version: "0.35.1",
     date: "2026-11-12",
     items: [
